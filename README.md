@@ -23,7 +23,7 @@ This project collects and organizes music sampling and audio processing skills f
 | Skill | Tool | Role |
 |-------|------|------|
 || `batch-processor` | SoX + FFmpeg scripts | Apply pipeline to directories |
-|| `metadata-manager` | BWF MetaEdit | BWF/iXML/ID3 tagging |
+|| [`metadata-manager`](skills/metadata-manager/SKILL.md) | BWF MetaEdit | ✅ Implemented | BWF/iXML/ID3 tagging |
 | `ardour-automator` | Ardour (Lua) | Headless session render |
 | `reaper-agent` | REAPER + Wine | Batch render automation |
 | `carla-rack` | Carla | Plugin chain testbench |
