@@ -19,7 +19,7 @@ from typing import Dict, Any, Optional
 ARDour_AVAILABLE = False
 ARDour_CLI = None
 
-for candidate in ["ardour6-lua", "luasession", "ardour"]:
+for candidate in ["ardour8-lua", "ardour6-lua", "luasession", "ardour"]:
     path = shutil.which(candidate)
     if path is not None:
         ARDour_AVAILABLE = True
@@ -59,6 +59,7 @@ def run_script(
     script_path: str,
     session_path: Optional[str] = None,
     dry_run: bool = False,
+    cleanup: bool = False,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -69,19 +70,19 @@ def run_script(
     script_path : str
         Path to the .lua automation script.
     session_path : str, optional
-        Path to .ardour session directory. If provided, passed to script via
-        environment variable or argument.
+        Path to an Ardour session directory.
     dry_run : bool
         If True, build command and return without executing.
+    cleanup : bool
+        If True, delete the script file after successful execution.
     **kwargs
-        Additional options (e.g., {arg=value} passed as --key value).
+        Additional options passed as CLI flags.
 
     Returns
     -------
     dict
-        {success, command, output?, error?}
+        {success, command, output?, error?, _script_path?}
     """
-    # When actually executing, Ardour must be installed
     if not dry_run:
         _check_ardour()
 
@@ -89,30 +90,30 @@ def run_script(
     if not script.exists():
         return {"success": False, "error": f"Script not found: {script_path}"}
 
-    # Determine which CLI binary to use. For dry runs, allow a placeholder
-    # when Ardour is not installed so command construction still works.
     cli = ARDour_CLI if ARDour_AVAILABLE else "ardour6-lua"
 
     # Build command
     cmd = [cli]
 
     # Ardour specifics:
-    # - ardour6-lua: just run with script as arg, session via env/arg
-    # - luasession: may need --session flag
-    # - ardour --script: use --script flag
-    if cli == "ardour6-lua":
+    # - ardour*-lua: script as positional arg, session via --session
+    # - luasession: uses --script flag
+    # - plain 'ardour': some versions may support --script (legacy)
+    if cli.endswith("-lua"):
         cmd.append(str(script))
         if session_path:
-            # Lua scripts can access ARDOUR_SESSION env var or arg
             cmd.extend(["--session", str(session_path)])
     elif cli == "luasession":
         cmd.extend(["--script", str(script)])
         if session_path:
             cmd.extend(["--session", str(session_path)])
-    else:  # generic ardour
+    else:  # generic ardour or other
         cmd.extend(["--script", str(script)])
         if session_path:
             cmd.extend(["--session", str(session_path)])
+
+    # Extract timeout from kwargs before converting remaining kwargs to CLI flags
+    timeout = kwargs.pop("timeout", 300)
 
     # Merge any extra CLI args from kwargs
     for key, val in kwargs.items():
@@ -130,11 +131,11 @@ def run_script(
             cmd,
             capture_output=True,
             text=True,
-            timeout=kwargs.get("timeout", 300),
+            timeout=timeout,
             cwd=session_path if session_path else script.parent
         )
         success = result.returncode == 0
-        return {
+        result_data = {
             "success": success,
             "command": " ".join(cmd),
             "stdout": result.stdout,
@@ -142,6 +143,15 @@ def run_script(
             "returncode": result.returncode,
             "error": None if success else result.stderr.strip() or result.stdout.strip(),
         }
+
+        # Cleanup temporary script if requested and execution succeeded
+        if cleanup and success and script.exists() and str(script).startswith("/tmp"):
+            try:
+                script.unlink(missing_ok=True)
+            except Exception:
+                pass  # deletion is best-effort
+
+        return result_data
     except subprocess.TimeoutExpired:
         return {"success": False, "error": "Ardour script execution timed out"}
     except Exception as e:
@@ -253,6 +263,9 @@ def export(
         # In real implementation, would write a temp Lua script
         cmd = [ARDour_CLI, "--export", str(output), str(session)]
 
+    # Extract timeout from kwargs before converting remaining kwargs to CLI flags
+    timeout = kwargs.pop("timeout", 600)
+
     # Merge extra options
     for key, val in kwargs.items():
         flag = f"--{key}"
@@ -269,7 +282,7 @@ def export(
             cmd,
             capture_output=True,
             text=True,
-            timeout=kwargs.get("timeout", 600),
+            timeout=timeout,
             cwd=session
         )
         success = result.returncode == 0 and output.exists()

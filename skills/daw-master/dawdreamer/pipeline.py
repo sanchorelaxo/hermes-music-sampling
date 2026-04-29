@@ -4,10 +4,17 @@ Pipeline engine — orchestrates DawDreamer to execute transformation pipelines.
 
 import json
 import os
+import re
+import shutil
+import tarfile
 import tempfile
+import urllib.parse
+import urllib.request
 import warnings
+import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional, Union
+
 import numpy as np
 
 # Check DawDreamer availability at import time
@@ -622,3 +629,137 @@ def analyze(filepath: str) -> Dict:
 def build_pipeline(*steps) -> List[Dict]:
     """Build pipeline list from step dicts."""
     return list(steps)
+
+# ============================
+# VST Plugin Management Utilities
+# ============================
+
+def discover_vst_directories() -> Dict:
+    """Discover common VST plugin directories on Linux and count plugins.
+
+    Returns:
+        dict: {'linux': {'paths': [{'path': str, 'count': int}, ...]}}
+    """
+    home = Path.home()
+    candidates = [
+        home / '.vst',
+        home / '.vst3',
+        Path('/usr/lib/vst'),
+        Path('/usr/lib/vst3'),
+        Path('/usr/local/lib/vst'),
+        Path('/usr/local/lib/vst3'),
+    ]
+    existing = []
+    for cand in candidates:
+        if cand.exists() and cand.is_dir():
+            count = len(list(cand.rglob('*.so')))
+            existing.append({'path': str(cand), 'count': count})
+    return {'linux': {'paths': existing}}
+
+
+def select_best_vst_dir() -> Optional[str]:
+    """Select the VST directory with the most plugins, or None if none found."""
+    dirs = discover_vst_directories().get('linux', {}).get('paths', [])
+    if not dirs:
+        return None
+    best = max(dirs, key=lambda x: x['count'])
+    return best['path'] if best['count'] > 0 else None
+
+
+def list_vst_plugins(vst_dir: Union[str, Path]) -> List[Path]:
+    """List all VST plugin files in the given directory."""
+    p = Path(vst_dir)
+    plugins = []
+    for ext in ['*.so', '*.dll', '*.vst']:
+        plugins.extend(p.rglob(ext))
+    return plugins
+
+
+def scrape_top_plugins(count: int = 12) -> List[Dict[str, str]]:
+    """Fetch top free Linux VST plugins from AudioPluginsForFree via WP REST API."""
+    url = "https://www.audiopluginsforfree.com/wp-json/wp/v2/posts"
+    params = f"?categories=24&per_page={count}&_embed=true"
+    try:
+        with urllib.request.urlopen(url + params, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
+    except Exception as e:
+        raise RuntimeError(f"Failed to fetch plugin list: {e}")
+    plugins = []
+    for post in data:
+        name = post.get('title', {}).get('rendered', '')
+        link = post.get('link', '')
+        if name and link:
+            plugins.append({'name': name, 'url': link})
+    return plugins
+
+
+def _find_download_url(page_url: str) -> Optional[str]:
+    """Fetch plugin page and find the first direct archive download link."""
+    try:
+        with urllib.request.urlopen(page_url, timeout=15) as resp:
+            html = resp.read().decode('utf-8', errors='ignore')
+    except Exception:
+        return None
+    # Pattern: href ending with .zip, .tar.gz, .tar.xz, .tar.bz2, .deb
+    m = re.search(r"href=['\"]([^'\"]+\.(?:zip|tar\.gz|tar\.xz|tar\.bz2|deb))['\"]", html, re.IGNORECASE)
+    if m:
+        return urllib.parse.urljoin(page_url, m.group(1))
+    return None
+
+
+def download_and_install_vst(url: str, target_dir: Union[str, Path]) -> Dict:
+    """Download a plugin archive from a page URL, extract .so/.vst files to target_dir."""
+    target = Path(target_dir)
+    target.mkdir(parents=True, exist_ok=True)
+    # Find actual download link if URL points to a page
+    download_url = _find_download_url(url)
+    if not download_url:
+        # Assume URL is direct
+        download_url = url
+    # Download to temp file
+    try:
+        with urllib.request.urlopen(download_url, timeout=30) as resp:
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=Path(download_url).suffix or '.download')
+            shutil.copyfileobj(resp, tmp)
+            tmp_path = tmp.name
+            tmp.close()
+    except Exception as e:
+        return {'success': False, 'error': str(e), 'installed': 0}
+    # Extract
+    installed = 0
+    try:
+        if tarfile.is_tarfile(tmp_path):
+            with tarfile.open(tmp_path) as tar:
+                for member in tar:
+                    if member.isfile() and member.name.endswith(('.so', '.dll', '.vst')):
+                        tar.extract(member, target)
+                        installed += 1
+        elif zipfile.is_zipfile(tmp_path):
+            with zipfile.ZipFile(tmp_path, 'r') as zf:
+                for info in zf.infolist():
+                    if info.filename.endswith(('.so', '.dll', '.vst')):
+                        zf.extract(info, target)
+                        installed += 1
+        else:
+            # Not an archive; treat as raw file maybe
+            dest = target / Path(download_url).name
+            shutil.copy2(tmp_path, dest)
+            installed = 1
+    finally:
+        os.unlink(tmp_path)
+    return {'success': True, 'installed': installed}
+
+
+def install_top_plugins(target_dir: Union[str, Path], count: int = 12) -> Dict:
+    """Scrape top plugins and install them into target_dir."""
+    target = Path(target_dir)
+    plugins = scrape_top_plugins(count)
+    total_installed = 0
+    errors = []
+    for plug in plugins[:count]:
+        result = download_and_install_vst(plug['url'], target)
+        if result.get('success'):
+            total_installed += result.get('installed', 0)
+        else:
+            errors.append(f"{plug['name']}: {result.get('error','unknown')}")
+    return {'installed': total_installed, 'errors': errors, 'total': len(plugins[:count])}

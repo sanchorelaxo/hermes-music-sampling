@@ -18,7 +18,7 @@ This project collects and organizes music sampling and audio processing skills f
 || [`audio-analyzer`](skills/daw-master/audio-analyzer/SKILL.md) | librosa + Vamp | ✅ Implemented | BPM, key, MFCC, loudness, spectral features |
 || [`batch-processor`](skills/daw-master/batch-processor/SKILL.md) | SoX + FFmpeg scripts | ✅ Implemented | Apply daw-master pipelines to directories of files |
 || [`metadata-manager`](skills/daw-master/metadata-manager/SKILL.md) | BWFMetaEdit + mutagen | ✅ Implemented | BWF/RIFF metadata embedding (BEXT, iXML, ID3) |
-|| [`ardour-automator`](skills/daw-master/ardour-automator/SKILL.md) | Ardour (Lua) | ✅ Implemented | Headless session automation & export |
+||| [`ardour-automator`](skills/daw-master/ardour-automator/SKILL.md) | Ardour (Lua) | ✅ Implemented | Headless session automation, export + arpeggiator subskill (simple/barlow/raptor) |
 || [`carla-rack`](skills/daw-master/carla-rack/SKILL.md) | Carla (LV2/VST) | ✅ Implemented | Plugin rack — single-pass multi-effect chains |
 || [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
 
