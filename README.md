@@ -219,7 +219,7 @@ skills/daw-master/
 ├── dawdreamer/                 # ⚙️ Scaffolded — full DAW VST hosting
 ├── batch-processor/            # Reserved — orchestrate pipelines on dirs
 ├── metadata-manager/           # ✅ Implemented — BWF/iXML/ID3 tagging
-├── ardour-automator/           # Reserved — Ardour headless
+├── ardour-automator/           # ✅ Implemented — Ardour headless automation
 ├── reaper-agent/               # Reserved — REAPER automation
 └── carla-rack/                 # Reserved — Carla plugin chain
 ```
