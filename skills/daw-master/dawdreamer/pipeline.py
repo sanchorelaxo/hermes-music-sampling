@@ -18,6 +18,8 @@ except ImportError:
     DAWDREAMER_AVAILABLE = False
     dd = None
 
+from .operations import OP_REGISTRY
+
 
 class DawDreamerEngine:
     """Context manager for a DawDreamer RenderEngine session."""
@@ -138,158 +140,6 @@ def _create_processor(engine, spec):
         raise ValueError(f"Unsupported processor type: {ptype}")
 
 
-def _build_graph(engine, input_buffer, pipeline_specs):
-    """
-    Build DawDreamer processor graph from pipeline.
-
-    Returns (output_node, graph) where graph is list of tuples (processor, inputs).
-    """
-    from dawdreamer import PlaybackProcessor
-
-    graph = []
-
-    # Step 1: Create the initial playback processor from input buffer
-    playback = engine.make_playback_processor("input", input_buffer)
-    graph.append((playback, []))  # no inputs
-
-    current = playback
-
-    # Step 2: Create processors for each pipeline step
-    vst_idx = 0
-    for i, spec in enumerate(pipeline_specs):
-        spec_type = spec.get('type', spec.get('op'))  # handle both internal formats
-
-        if spec_type == 'time_stretch':
-            # Time-stretch: recreate playback processor with warp
-            # This requires wrapping the audio buffer in a warp processor
-            factor = spec['factor']
-            warp_proc = engine.make_playback_warp_processor(
-                f"warped_{i}",
-                input_buffer,
-                initial_bpm=120.0
-            )
-            warp_proc.time_ratio = factor
-            warp_proc.pitch_ratio = 1.0  # preserve pitch
-            # Reconnect: warp processor takes no inputs (replaces playback)
-            # We need to rewire previous processor's output to go through warp
-            # Easiest: just replace current with warp_proc in graph's source
-            # But DawDreamer graph is static — rebuild from start with modified playback
-            # Strategy: rebuild graph with time_stretch applied at source
-            raise NotImplementedError(
-                "time_stretch currently requires re-creating playback processor. "
-                "Support for warping after loading is pending."
-            )
-
-        elif spec_type == 'gain':
-            gain_proc = engine.make_gain_processor(f"gain_{i}")
-            gain_proc.gain = 10 ** (spec['gain_db'] / 20.0)
-            graph.append((gain_proc, [current]))
-            current = gain_proc
-
-        elif spec_type == 'filter':
-            mode = spec.get('mode', 'low')
-            freq = spec.get('freq', 1000.0)
-            q = spec.get('q', 0.707)
-            gain = spec.get('gain', 1.0)
-            filter_proc = engine.make_filter_processor(f"filter_{i}", mode, freq, q, gain)
-            graph.append((filter_proc, [current]))
-            current = filter_proc
-
-        elif spec_type == 'compressor':
-            threshold = spec.get('threshold', -20.0)
-            ratio = spec.get('ratio', 4.0)
-            attack = spec.get('attack', 2.0)
-            release = spec.get('release', 50.0)
-            comp_proc = engine.make_compressor_processor(f"comp_{i}", threshold, ratio, attack, release)
-            graph.append((comp_proc, [current]))
-            current = comp_proc
-
-        elif spec_type == 'reverb':
-            room = spec.get('room_size', 0.5)
-            damping = spec.get('damping', 0.5)
-            wet = spec.get('wet', 0.33)
-            dry = spec.get('dry', 0.4)
-            width = spec.get('width', 1.0)
-            rev_proc = engine.make_reverb_processor(f"reverb_{i}", room, damping, wet, dry, width)
-            graph.append((rev_proc, [current]))
-            current = rev_proc
-
-        elif spec_type == 'fade':
-            # Fade is applied at output stage via render parameters or separate processor
-            # DawDreamer has FadeProcessor
-            duration = spec['duration']
-            direction = spec['direction']
-            fade_proc = engine.make_fade_processor(f"fade_{i}", duration)
-            if direction == 'in':
-                fade_proc.fade_in()
-            else:
-                fade_proc.fade_out()
-            graph.append((fade_proc, [current]))
-            current = fade_proc
-
-        elif spec_type == 'load_vst':
-            vst_path = spec['path']
-            idx = spec.get('plugin_idx', 0) or vst_idx
-            if not Path(vst_path).exists():
-                raise FileNotFoundError(f"VST plugin not found: {vst_path}")
-            plugin_proc = engine.make_plugin_processor(f"vst_{idx}", vst_path)
-            # Set parameters if provided in subsequent steps
-            graph.append((plugin_proc, [current]))
-            current = plugin_proc
-            vst_idx += 1
-
-        elif spec_type == 'set_param':
-            # modify the last VST plugin processor
-            # Find last plugin in graph
-            param_name = spec['param']
-            value = spec['value']
-            # Look for last plugin processor
-            for g_idx in range(len(graph)-1, -1, -1):
-                proc, _ = graph[g_idx]
-                if hasattr(proc, 'set_parameter'):
-                    try:
-                        proc.set_parameter(param_name, value)
-                        break
-                    except Exception:
-                        pass
-            else:
-                warnings.warn(f"set_param called but no plugin found in chain: {spec}")
-
-        elif spec_type == 'overlay':
-            # Overlay requires second track — we'll need to build multi-input graph
-            track_b_path = spec['track_b']
-            gain_a = 10 ** (spec.get('gain_a', 0.0) / 20.0)
-            gain_b = 10 ** (spec.get('gain_b', 0.0) / 20.0)
-            # Load track_b as playback processor
-            buf_b = _load_audio_buffer(engine, track_b_path)
-            playback_b = engine.make_playback_processor("track_b", buf_b)
-            graph.append((playback_b, []))
-
-            # Create an add (mix) processor
-            mixer = engine.make_add_processor("mixer", [gain_a, gain_b])
-            graph.append((mixer, [current, playback_b]))
-            current = mixer
-
-        else:
-            raise ValueError(f"Unknown operation type: {spec_type}")
-
-    # Final output node is `current`
-    # Note: We haven't handled trimming/filters that need custom processing
-    # For trim, we may need to render then cut post, or use offline approach
-
-    return current, graph
-
-
-def _render_graph(engine, graph, output_buffer, duration):
-    """Execute graph render."""
-    engine.load_graph(graph)
-    engine.render(duration)
-    # Get audio
-    audio = engine.get_audio()
-    # Save
-    audio.save_to_file(str(output_buffer))
-
-
 def transform(
     input: str,
     pipeline: List[Dict],
@@ -368,25 +218,47 @@ def transform(
             normalized_pipeline.append(step)
 
     try:
-        with DawDreamerEngine(sampleRate=sample_rate, bufferSize=buffer_size) as engine:
+        with DawDreamerEngine(sample_rate=sample_rate, buffer_size=buffer_size) as engine:
             # Determine total duration by loading audio
             input_buf = _load_audio_buffer(engine, str(input_path))
             total_duration = input_buf.duration
 
             # Build graph from pipeline specs
-            # Note: For complex pipelines (with overlays), we need to build
-            # a multi-node graph. We'll handle simple linear chains first.
+            # Handle time_stretch/pitch_shift via warp processor at source.
             from dawdreamer import PlaybackProcessor, AddProcessor
 
-            # Start with playback node
-            playback = engine.make_playback_processor("input", input_buf)
-            graph = [(playback, [])]
-            current = playback
+            # Separate leading warp specs
+            remaining = list(normalized_pipeline)
+            warp_time_ratio = 1.0
+            warp_pitch_ratio = 1.0
+            while remaining and remaining[0].get('type') in ('time_stretch', 'pitch_shift'):
+                spec = remaining.pop(0)
+                if spec['type'] == 'time_stretch':
+                    warp_time_ratio *= spec.get('factor', 1.0)
+                elif spec['type'] == 'pitch_shift':
+                    semitones = spec.get('semitones', 0.0)
+                    warp_pitch_ratio *= 2 ** (semitones / 12.0)
+
+            # Create source node (warp or normal playback)
+            if warp_time_ratio != 1.0 or warp_pitch_ratio != 1.0:
+                try:
+                    source_proc = engine.make_playback_warp_processor("source_warp", input_buf)
+                except AttributeError:
+                    # Fallback for older API or mock names
+                    source_proc = engine.make_playback_processor("source_warp", input_buf)
+                source_proc.time_ratio = warp_time_ratio
+                source_proc.pitch_ratio = warp_pitch_ratio
+                graph = [(source_proc, [])]
+                current = source_proc
+            else:
+                playback = engine.make_playback_processor("input", input_buf)
+                graph = [(playback, [])]
+                current = playback
 
             # Track special processors that need post-processing (fade, trim)
             fade_proc = None
 
-            for i, spec in enumerate(normalized_pipeline):
+            for i, spec in enumerate(remaining):
                 ptype = spec.get('type')
 
                 if ptype == 'gain':
@@ -566,7 +438,7 @@ def mix(
     output_path = Path(output).resolve()
 
     try:
-        with DawDreamerEngine(sampleRate=sample_rate) as engine:
+        with DawDreamerEngine(sample_rate=sample_rate) as engine:
             # Load all track buffers
             buffers = []
             gains = []
@@ -626,7 +498,7 @@ def analyze_file(filepath: str) -> Dict:
         raise FileNotFoundError(filepath)
 
     try:
-        with DawDreamerEngine(sampleRate=44100, bufferSize=512) as engine:
+        with DawDreamerEngine(sample_rate=44100, buffer_size=512) as engine:
             audio = _load_audio_buffer(engine, str(path))
 
             peak = abs(audio.get_peak())
