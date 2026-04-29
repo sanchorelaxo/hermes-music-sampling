@@ -139,7 +139,8 @@ ffmpeg.transform("timed.wav",
 from daw_master.audio_analyzer import analyze
 features = analyze("sample.wav")
 pipeline = []
-if features["loudness_lufs"] > -10:
+# audio-analyzer returns 'loudness' (RMS dB), not 'loudness_lufs'
+if features["loudness"] > -10:
     pipeline.append({"op": "gain", "amount_db": -3})   # bring down hot audio
 if features["tempo"] < 80:
     pipeline.append({"op": "time_stretch", "factor": 1.15})  # speed up slow track

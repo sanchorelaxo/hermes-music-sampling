@@ -2,7 +2,7 @@
 FFmpeg Audio Engine — FFmpeg filtergraph wrapper.
 
 Example:
-    from daw_master.ffmpeg_audio import transform, mix, analyze
+    from daw_master.ffmpeg_audio import transform, mix, analyze, ebu_r128_analysis
 
     transform("input.wav", [
         {"op": "volume", "gain": "-3dB"},
@@ -11,6 +11,6 @@ Example:
     ], "output.m4a", codec="aac")
 """
 
-from .pipeline import transform, mix, analyze, probe
+from .pipeline import transform, mix, analyze, probe, ebu_r128_analysis
 
-__all__ = ['transform', 'mix', 'analyze', 'probe']
+__all__ = ['transform', 'mix', 'analyze', 'probe', 'ebu_r128_analysis']

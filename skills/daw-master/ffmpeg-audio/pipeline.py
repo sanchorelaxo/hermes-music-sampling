@@ -9,6 +9,7 @@ import subprocess
 import json
 import shlex
 import tempfile
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -48,6 +49,21 @@ def _format_value(key: str, value):
     elif isinstance(value, (int, float)):
         return str(value)
     elif isinstance(value, str):
+        # Detect time unit suffixes (e.g., "200ms", "1.5s", "100us", "2min", "0.5h")
+        import re
+        m = re.match(r'^([\d.]+)(ms|s|us|ns|min|h)$', value.strip())
+        if m:
+            num = float(m.group(1))
+            unit = m.group(2)
+            multipliers = {
+                'ms': 0.001,
+                's': 1.0,
+                'us': 1e-6,
+                'ns': 1e-9,
+                'min': 60.0,
+                'h': 3600.0,
+            }
+            return str(num * multipliers[unit])
         # Already in key=value form? e.g., "0.5|0.5"
         if '=' in value and not any(c in value for c in [':', '|']):
             # This looks like "key=value", pass as-is (for raw strings)
@@ -469,6 +485,110 @@ def analyze(filepath: str) -> Dict:
 def probe(filepath: str) -> Dict:
     """Alias for analyze."""
     return analyze(filepath)
+
+
+def ebu_r128_analysis(
+    filepath: str,
+    target: float = -23.0,
+    extra_global_args: Optional[List[str]] = None,
+    timeout: int = 300,
+) -> Dict:
+    """
+    Measure loudness according to EBU R128 standard using FFmpeg's ebur128 filter.
+
+    This function performs pure analysis — no output audio is produced. It returns
+    loudness metrics including integrated loudness (I), loudness range (LRA),
+    momentary (M) and short-term (S) values, and thresholds.
+
+    Parameters
+    ----------
+    filepath : str
+        Path to input audio file.
+    target : float, optional
+        Target loudness in LUFS (default -23.0, per EBU R128). Affects the logged
+        target line only; integrated loudness is derived from the audio.
+
+
+    extra_global_args : list[str], optional
+        Extra global FFmpeg flags (e.g., ['-y']).
+    timeout : int, optional
+        Maximum seconds to wait for FFmpeg (default 300).
+
+    Returns
+    -------
+    dict
+        On success:
+          {
+            'success': True,
+            'file': str,
+            'target': float (LUFS),
+            'integrated_loudness': float | None (LUFS),
+            'lra': float | None (LU),
+            'lra_low': float | None (LUFS),
+            'lra_high': float | None (LUFS),
+            'threshold': float | None (LUFS),
+            'stderr': str (last 2000 chars of raw ffmpeg output)
+          }
+        On failure:
+          {'success': False, 'error': str, 'file': str}
+    """
+    _check_ffmpeg()
+
+    path = Path(filepath).resolve()
+    if not path.exists():
+        return {"success": False, "error": f"Audio file not found: {filepath}", "file": str(path)}
+
+    # Build ffmpeg command with ebur128 filter; discard audio output
+    cmd = ['ffmpeg']
+    if extra_global_args:
+        cmd.extend(extra_global_args)
+    cmd.extend(['-i', str(path)])
+    cmd.extend(['-af', f'ebur128=target={target}'])
+    cmd.extend(['-f', 'null', '-'])
+
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+
+        # Parse ebur128 summary from stderr by locating the final Summary section
+        integrated = lra = lra_low = lra_high = threshold = None
+
+        stderr_text = proc.stderr
+        # Parse key values using findall across full stderr.
+        # I: integrated loudness values appear per-frame; take the last (summary).
+        I_matches = re.findall(r'I:\s*([-+]?\d+\.?\d*)\s*LUFS', stderr_text, re.IGNORECASE)
+        if I_matches:
+            integrated = float(I_matches[-1])
+        # Threshold appears twice (integrated + LRA). Take the first occurrence (integrated).
+        T_matches = re.findall(r'Threshold:\s*([-+]?\d+\.?\d*)\s*LUFS', stderr_text, re.IGNORECASE)
+        if T_matches:
+            threshold = float(T_matches[0])
+        # LRA appears many times; take last.
+        LRA_matches = re.findall(r'LRA:\s*([-+]?\d+\.?\d*)\s*LU(?!FS)', stderr_text, re.IGNORECASE)
+        if LRA_matches:
+            lra = float(LRA_matches[-1])
+        # LRA low/high appear only once; take first.
+        low_matches = re.findall(r'LRA low:\s*([-+]?\d+\.?\d*)\s*LUFS', stderr_text, re.IGNORECASE)
+        if low_matches:
+            lra_low = float(low_matches[0])
+        high_matches = re.findall(r'LRA high:\s*([-+]?\d+\.?\d*)\s*LUFS', stderr_text, re.IGNORECASE)
+        if high_matches:
+            lra_high = float(high_matches[0])
+        return {
+            "success": proc.returncode == 0,
+            "file": str(path),
+            "target": target,
+            "integrated_loudness": integrated,
+            "lra": lra,
+            "lra_low": lra_low,
+            "lra_high": lra_high,
+            "threshold": threshold,
+            "stderr": proc.stderr[:2000] if proc.returncode != 0 else None,
+            "error": None if proc.returncode == 0 else (proc.stderr.strip() or proc.stdout.strip()),
+        }
+    except subprocess.TimeoutExpired:
+        return {"success": False, "error": f"FFmpeg timed out after {timeout}s", "file": str(path)}
+    except Exception as exc:
+        return {"success": False, "error": str(exc), "file": str(path)}
 
 
 # ======================

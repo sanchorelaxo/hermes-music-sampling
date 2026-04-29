@@ -56,7 +56,7 @@ ffprobe -version | head -1
 ## Core API
 
 ```python
-from daw_master.ffmpeg_audio import transform, mix, analyze, probe
+from daw_master.ffmpeg_audio import transform, mix, analyze, probe, ebu_r128_analysis
 
 # Transform with filter chain
 transform(
@@ -410,6 +410,25 @@ info = analyze("sample.mp3")
 #   'codec': 'mp3', 'tags': {'title': '...', 'artist': '...'}
 # }
 ```
+
+### Example 6 — EBU R128 Loudness Analysis
+```python
+loudness = ebu_r128_analysis("track.wav", target=-23.0)
+# {
+#   'success': True,
+#   'file': '/abs/path/track.wav',
+#   'target': -23.0,
+#   'integrated_loudness': -18.7,   # LUFS
+#   'lra': 8.2,                      # Loudness Range in LU
+#   'lra_low': -24.5,               # LUFS lower bound
+#   'lra_high': -12.3,              # LUFS upper bound
+#   'threshold': -41.2,             # LUFS integrated threshold
+#   'stderr': None                  # only on error
+# }
+```
+Measures loudness per EBU R128 standard using FFmpeg's `ebur128` filter.
+Complements the `loudnorm` transform (which normalizes) by providing analysis.
+
 
 ---
 
