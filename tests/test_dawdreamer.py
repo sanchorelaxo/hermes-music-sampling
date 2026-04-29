@@ -334,8 +334,11 @@ def test_transform_with_filter(sample_wav, temp_dir, dd):
 
 
 def test_transform_with_overlay(sample_wav, temp_dir, dd):
+    # Use a valid audio file for overlay track
     track_b = temp_dir / "other.wav"
-    track_b.write_bytes(b"dummyaudio")
+    import shutil
+    shutil.copy(sample_wav, track_b)  # use real audio, not dummy bytes
+
     output = temp_dir / "mix.wav"
     result = dd.transform(
         input=str(sample_wav),
