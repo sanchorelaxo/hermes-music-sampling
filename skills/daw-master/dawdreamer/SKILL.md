@@ -32,6 +32,8 @@ sudo apt install build-essential cmake libasound2-dev libjack-jackd2-dev libcurl
 pip install dawdreamer
 ```
 
+**Platform note:** Pre-built wheels are only available for x86_64. On ARM (e.g., Raspberry Pi), you must build from source (`pip install --no-binary :all: dawdreamer`), which requires significant RAM and may fail on constrained devices. Consider cross-compiling on a more capable ARM machine or using an x86_64 host.
+
 ## Overview
 
 DawDreamer provides:
