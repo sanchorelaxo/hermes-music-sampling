@@ -34,7 +34,7 @@ def test_transform_with_fade_in(sample_wav, temp_dir):
     assert output.exists()
 
 def test_transform_with_fade_out(sample_wav, temp_dir):
-    """Fade out should use SoX 'out' type, not 'q'."""
+    """Fade out should use valid SoX syntax: fade <shape> 0 <length>."""
     output = temp_dir / "fade_out.wav"
     # Use dry_run to capture command without executing (faster)
     result = sox.transform(
@@ -44,15 +44,17 @@ def test_transform_with_fade_out(sample_wav, temp_dir):
         dry_run=True,
     )
     cmd = result["command"]
-    # The command should contain 'fade out' not 'fade q'
-    assert "fade out" in cmd, f"Expected 'fade out' in command, got: {cmd}"
-    # Also ensure no stray 'q' as type
-    # SoX command: sox input fade out length...
-    # We'll split to check words
+    # SoX fade-out syntax: fade <shape> 0 <length>
+    # Default shape is 'q' (quadratic). Verify we get "fade q 0 1.5"
+    assert "fade q 0 1.5" in cmd, f"Expected 'fade q 0 1.5' in command, got: {cmd}"
+    # Verify structure: after 'fade' comes shape, then 0, then length
     parts = cmd.split()
     if 'fade' in parts:
         idx = parts.index('fade')
-        assert idx + 1 < len(parts) and parts[idx+1] == 'out', f"fade type should be 'out', got {parts[idx+1] if idx+1 < len(parts) else 'nothing'}"
+        assert idx + 3 < len(parts), "fade command should have 3 args after 'fade'"
+        assert parts[idx+1] == 'q', f"shape should be 'q', got {parts[idx+1]}"
+        assert parts[idx+2] == '0', f"fade-in should be 0 for fade-out, got {parts[idx+2]}"
+        assert parts[idx+3] == '1.5', f"fade-out length should be 1.5, got {parts[idx+3]}"
 
 def test_transform_with_trim(sample_wav, temp_dir):
     """Trim operation should work."""
