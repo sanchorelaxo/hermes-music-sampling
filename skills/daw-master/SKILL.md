@@ -48,6 +48,7 @@ Sub-skills under `daw-master`:
 || `batch-processor` | SoX/FFmpeg scripts | Apply same pipeline to many files |
 || `metadata-manager` | BWFMetaEdit + mutagen | BWF/RIFF metadata embedding |
 || `ardour-automator` | Ardour (Lua) | Headless session automation & export |
+|| `carla-rack` | Carla (LV2/VST) | Plugin rack — single-pass multi-effect chains |
 
 ## Common Patterns
 
