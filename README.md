@@ -119,6 +119,14 @@ Each skill covers its strengths; chain them for complex workflows.
 
 ## Chaining Skills
 
+Our skills chain in one of two modes:
+
+- **Sequential processing** — each skill consumes an input file and produces an output, the next skill reads that output (e.g. `sox → ffmpeg → rubber-band`). Each step sees the fully-realized audio file.
+
+- **Rack (plugin graph) processing** — a set of plugins is configured as a graph; the DAW loads the input once, routes audio through all plugin instances in the configured order, then renders a single output. `carla-rack` and `dawdreamer`'s VST chain mode work this way.
+
+Both patterns are valid. Use sequential when you want clear, modular steps you can inspect individually. Use rack mode when you want a single consistent plugin state throughout a track, avoiding repeated disk I/O and ensuring latency compensation is handled by the host.
+
 ```python
 # Example 1: Trim and normalize quickly with SoX (simple 2-step)
 sox.transform("raw.wav",
@@ -202,6 +210,17 @@ extract_batch(
     output_format="csv",
     output_file="sample_features.csv"
 )
+
+# Example 9: Build a Carla rack and render once (plugin-graph mode)
+from daw_master.carla_rack import CarlaRack
+
+rack = CarlaRack()
+# Parallel signal chain — all plugins together on one pass
+rack.add_plugin("/usr/lib/lv2/calf-compressor.lv2", {"threshold": -24, "ratio": 2})
+rack.add_plugin("/usr/lib/lv2/calf-reverb.lv2",     {"room_size": 0.4, "wet": 0.25})
+rack.add_plugin("/usr/lib/lv2/calf-limiter.lv2",    {"threshold": -0.5})
+# Single render — one disk I/O, all plugins applied together
+rack.render_once("dry.wav", "wet.wav")
 ```
 
 ---
