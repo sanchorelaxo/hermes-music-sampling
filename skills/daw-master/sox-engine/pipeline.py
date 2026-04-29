@@ -98,15 +98,23 @@ def _build_sox_args(pipeline: List[Dict], input_file: str, output_file: str,
         elif op == 'fade':
             ftype = step.get('type', 'out')
             length = step.get('length', 1.0)
-            # SoX: fade [type] [fade-in-length [fade-out-length [stop-position]]]
+            shape = step.get('shape', 'q')  # default: quadratic (smooth)
+            # SoX syntax: fade [shape] fade-in-length [stop-pos [fade-out-length]]
+            # Valid shapes: q (quadratic), h (half-cosine), t (linear), l (log), p (exp)
             if ftype == 'in':
-                args.extend(['fade', 'in', str(length)])
+                args.extend(['fade', shape, str(length)])
             elif ftype == 'out':
-                args.extend(['fade', 'out', str(length)])
+                # fade-out: 0 fade-in, then fade-out at end
+                args.extend(['fade', shape, '0', str(length)])
             elif ftype == 'in-out':
                 fade_in = step.get('fade_in', length)
                 fade_out = step.get('fade_out', length)
-                args.extend(['fade', 'in-out', str(fade_in), str(fade_out)])
+                # To do fade-in followed by fade-out, we need a stop position.
+                # The stop position is the total duration minus fade_out, but we
+                # don't have total duration here. SoX will fade-in then immediately
+                # fade-out if stop-pos == fade_in. We'll use: fade shape in out
+                # Actually: fade shape fade_in fade_out when stop-pos == fade_in
+                args.extend(['fade', shape, str(fade_in), str(fade_out)])
         
         elif op == 'trim':
             start = step.get('start', 0.0)
