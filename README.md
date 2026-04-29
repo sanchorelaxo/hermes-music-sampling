@@ -14,20 +14,17 @@ This project collects and organizes music sampling and audio processing skills f
 |-------|------|--------|--------------|
 || [`sox-engine`](skills/daw-master/sox-engine/SKILL.md) | SoX CLI | ✅ Implemented | 12+ effects: normalize, fade, trim, compand, EQ, mix |
 || [`ffmpeg-audio`](skills/daw-master/ffmpeg-audio/SKILL.md) | FFmpeg filters | ✅ Implemented | Codecs, loudnorm, filtergraphs, multi-track mix |
-|| [`rubber-band-engine`](skills/daw-master/rubber-band-engine/SKILL.md) | Rubber Band | ✅ Implemented | Professional time-stretch & pitch-shift |
+|| [`rubber-band-engine`](skills/daw-master/rubber-band-engine/SKILL.md) | Rubber Band CLI | ✅ Implemented | Professional time-stretch & pitch-shift |
 || [`audio-analyzer`](skills/daw-master/audio-analyzer/SKILL.md) | librosa + Vamp | ✅ Implemented | BPM, key, MFCC, loudness, spectral features |
+|| [`batch-processor`](skills/daw-master/batch-processor/SKILL.md) | SoX + FFmpeg scripts | ✅ Implemented | Apply daw-master pipelines to directories of files |
+|| [`metadata-manager`](skills/daw-master/metadata-manager/SKILL.md) | BWFMetaEdit + mutagen | ✅ Implemented | BWF/RIFF metadata embedding (BEXT, iXML, ID3) |
+|| [`ardour-automator`](skills/daw-master/ardour-automator/SKILL.md) | Ardour (Lua) | ✅ Implemented | Headless session automation & export |
+|| [`carla-rack`](skills/daw-master/carla-rack/SKILL.md) | Carla (LV2/VST) | ✅ Implemented | Plugin rack — single-pass multi-effect chains |
 || [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
 
 ## Planned Skills
 
-| Skill | Tool | Role |
-|-------|------|------|
-|| `batch-processor` | SoX + FFmpeg scripts | Apply pipeline to directories |
-|| [`metadata-manager`](skills/metadata-manager/SKILL.md) | BWF MetaEdit | ✅ Implemented | BWF/iXML/ID3 tagging |
-| `ardour-automator` | Ardour (Lua) | Headless session render |
-| `carla-rack` | Carla | Plugin rack — single-pass multi-effect chains |
-
-See [RESEARCH.md](RESEARCH.md) for full tool comparison.
+All core skills have been implemented. See [RESEARCH.md](RESEARCH.md) for future extension ideas.
 
 ---
 
