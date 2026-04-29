@@ -218,7 +218,7 @@ skills/daw-master/
 ├── audio-analyzer/             # ✅ librosa — feature extraction, Vamp support
 ├── dawdreamer/                 # ⚙️ Scaffolded — full DAW VST hosting
 ├── batch-processor/            # Reserved — orchestrate pipelines on dirs
-├── metadata-manager/           # Reserved — BWF/iXML/ID3 tagging
+├── metadata-manager/           # ✅ Implemented — BWF/iXML/ID3 tagging
 ├── ardour-automator/           # Reserved — Ardour headless
 ├── reaper-agent/               # Reserved — REAPER automation
 └── carla-rack/                 # Reserved — Carla plugin chain
