@@ -13,6 +13,8 @@ ardour = import_skill_module("ardour-automator", "pipeline")
 
 def test_run_script_requires_ardour_binary():
     """When Ardour CLI is missing, run_script should raise a clear error."""
+    if ardour.ARDour_AVAILABLE:
+        pytest.skip("Ardour is installed — test only applies when Ardour CLI missing")
     with pytest.raises(RuntimeError, match="Ardour CLI tool not found"):
         ardour.run_script("/nonexistent/script.lua", dry_run=False)
 
@@ -70,3 +72,26 @@ def test_run_script_with_session_path(sample_wav, tmp_path):
     cmd = result["command"]
     # Script path should be in command; session may be via env var or arg
     assert str(script) in cmd
+
+
+def test_run_script_actually_executes_lua(sample_wav, tmp_path):
+    """When Ardour is available, run_script with dry_run=False should actually execute the Lua interpreter."""
+    if not ardour.ARDour_AVAILABLE:
+        pytest.skip("Ardour CLI not installed")
+
+    # Create a simple Lua script that prints a known marker
+    script = tmp_path / "test.lua"
+    script.write_text('print("HERMES_TEST_OUTPUT")')
+
+    # Execute with dry_run=False, no session (session loading can segfault in some Ardour builds)
+    result = ardour.run_script(
+        script_path=str(script),
+        dry_run=False,
+        timeout=10
+    )
+
+    # Should succeed (returncode 0)
+    assert result["success"], f"Ardour execution failed: returncode={result.get('returncode')} stderr={result.get('stderr')} error={result.get('error')}"
+    # The command that was executed should be recorded
+    assert "command" in result
+    assert any(tool in result["command"] for tool in ["ardour6-lua", "luasession", "ardour", "ardour8-lua"])

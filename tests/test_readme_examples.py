@@ -341,6 +341,14 @@ def test_example_10_carla_rack(sample_wav, temp_dir):
     """README Example 10: Carla rack plugin chain — single-pass multi-effect render."""
     if not carla_available():
         pytest.skip("carla not installed")
+    # Check for required calf LV2 plugins
+    calf_plugins = [
+        "/usr/lib/lv2/calf-compressor.lv2",
+        "/usr/lib/lv2/calf-reverb.lv2",
+        "/usr/lib/lv2/calf-limiter.lv2",
+    ]
+    if not all(Path(p).exists() for p in calf_plugins):
+        pytest.skip("calf LV2 plugins not installed")
     carla_mod = import_skill_module('carla-rack', 'pipeline')
 
     output = temp_dir / "wet.wav"

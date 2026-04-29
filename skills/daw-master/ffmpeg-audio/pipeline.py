@@ -97,18 +97,26 @@ def _build_filter_string(pipeline: List[Dict]) -> str:
         if not filter_name:
             raise ValueError(f"Unknown FFmpeg operation: {op}. Known: {', '.join(sorted(OP_REGISTRY.keys()))}")
 
-        # Build param string: key1=val1:key2=val2:...
+        # Build param string: For most filters, format as key=value pairs.
+        # Some ops have special handling:
+        # - volume/gain: 'gain' is a positional argument (no key)
+        # - highpass: 'cutoff' maps to 'f'
+        # - highshelve/lowshelve: 'frequency' maps to 'f', 'gain' maps to 'g'
         param_pairs = []
         for k, v in step.items():
             if k == 'op':
                 continue
-            # Resolve aliases: for volume/gain ops, 'gain' should map to 'volume' parameter
-            param_name = k
+            # Volume: gain is the sole positional parameter
             if op in ('volume', 'gain') and k == 'gain':
-                param_name = 'volume'
-            elif op == 'highpass' and k == 'cutoff':
+                param_pairs.append(_format_value(k, v))
+                continue
+            param_name = k
+            if op == 'highpass' and k == 'cutoff':
                 param_name = 'f'
-
+            elif op in ('highshelve', 'lowshelve') and k == 'frequency':
+                param_name = 'f'
+            elif op in ('highshelve', 'lowshelve') and k == 'gain':
+                param_name = 'g'
             param_pairs.append(f"{param_name}={_format_value(param_name, v)}")
 
         if param_pairs:
@@ -615,8 +623,8 @@ OP_REGISTRY = {
     'bandpass': 'bandpass',
     'bass': 'bass',           # shelf
     'treble': 'treble',
-    'lowshelve': 'lowshelve',
-    'highshelve': 'highshelve',
+    'lowshelve': 'lowshelf',
+    'highshelve': 'highshelf',
 
     # Editing
     'atrim': 'atrim',
