@@ -6,32 +6,40 @@ https://github.com/sanchorelaxo/hermes-music-sampling
 
 ---
 
-## Directory Structure
+## Directory Structure (as of commit 845d352)
 
 ```
 hermes-music-sampling/
-├── README.md              # Project overview
-├── RESEARCH.md            # Linux DAW/audio tools research
-├── LICENSE                # MIT License
-├── .gitignore             # Build artifacts, audio files
+├── README.md               # Project overview
+├── RESEARCH.md             # Linux DAW/audio tools research
+├── LICENSE                 # MIT License
+├── MANIFEST.md             # This file — architecture + roadmap
+├── .gitignore              # Build artifacts, audio files
 └── skills/
-    ├── daw-master/        # ← Meta-skill (namespace)
-    │   ├── SKILL.md       #    DawMaster interface spec
-    │   └── dawdreamer/    #    ↓ First concrete implementation
-    │       ├── SKILL.md   #       DawDreamer wrapper docs
+    ├── daw-master/         # ← Meta-skill (namespace, interface spec)
+    │   ├── SKILL.md
+    │   ├── dawdreamer/     # ← Skill #1: DawDreamer framework wrapper
+    │   │   ├── SKILL.md
+    │   │   ├── __init__.py
+    │   │   ├── pipeline.py
+    │   │   ├── operations.py
+    │   │   └── examples/
+    │   │       ├── 01_time_stretch_fade.py
+    │   │       ├── 02_mix_stems.py
+    │   │       └── 03_vst_chain.py
+    │   └── sox-engine/      # ← Skill #2: SoX CLI wrapper
+    │       ├── SKILL.md
     │       ├── __init__.py
-    │       ├── pipeline.py      # transform() / mix() / analyze()
-    │       ├── operations.py    # Operation builders
-    │       ├── examples/
-    │       │   ├── 01_time_stretch_fade.py
-    │       │   ├── 02_mix_stems.py
-    │       │   └── 03_vst_chain.py
-    │       └── templates/
-    ├── analysis/          # Reserved for audio-analyzer skill
-    ├── conversion/        # Reserved for sox-engine, ffmpeg-audio
-    ├── daw-integration/   # Reserved for ardour-automator, carla-rack
-    ├── editing/           # Reserved for batch-processor
-    └── metadata/          # Reserved for bwf-metadata, tagger
+    │       ├── pipeline.py
+    │       └── examples/
+    │           ├── 01_normalize_compress_fade.py
+    │           ├── 02_mix_stems.py
+    │           └── 03_trim_downsample.py
+    ├── analysis/            # Reserved for audio-analyzer skill (librosa)
+    ├── conversion/          # Reserved for ffmpeg-audio skill
+    ├── daw-integration/     # Reserved for ardour-automator, reaper-agent, carla-rack
+    ├── editing/             # Reserved for batch-processor skill
+    └── metadata/            # Reserved for bwf-metadata skill
 ```
 
 ---
@@ -40,148 +48,173 @@ hermes-music-sampling/
 
 ### Meta-Skill: `daw-master`
 
-Defines the unified interface and philosophy for all audio skills:
+Defines the unified interface for all audio skills under this namespace:
 
 - **Pipeline pattern**: `transform(input, pipeline=[...], output)`
-- **Composable**: Output of one skill feeds into another
-- **File-based**: Arguments are file paths; results are files
-- **Stateless**: No hidden session state between calls
+- **Composable**: Output of one skill → input of another
+- **File-based**: Inputs/outputs are file paths; no in-memory coupling
+- **Stateless**: No hidden session state
+- **Chaining**: Operations within a skill are applied in order
 
-See `skills/daw-master/SKILL.md` for full spec.
+See `skills/daw-master/SKILL.md` for full specification.
 
 ---
 
-### Concrete Skill #1: `dawdreamer`
+### Implemented Skills
 
-Wraps the DawDreamer Python framework (JUCE-based) for DAW operations:
+#### 1. `dawdreamer` (skills/daw-master/dawdreamer/)
 
-**Core functions:**
-- `transform(input, pipeline, output)` → apply effect chain
-- `mix(tracks, output)` → multi-track mixing
-- `analyze(filepath)` → feature extraction (duration, peak, RMS, etc.)
+**Tool**: DawDreamer (Python, JUCE-based DAW framework)
 
-**Supported pipeline operations:**
+**Status**: ✅ Scaffolded — pipeline logic in place, operation builders defined
+
+**Core API**:
+- `transform(input, pipeline, output)` — effect chain
+- `mix(tracks, output)` — multi-track mixdown
+- `analyze(file)` — basic stats (duration, peak, RMS)
+
+**Pipeline operations**:
 `gain`, `filter` (low/high/etc), `compressor`, `reverb`, `fade_in/out`,
-`overlay` (mix two files), `load_vst`, `set_param`
+`overlay` (two-file mix), `load_vst`, `set_param`
 
-**Implementation:**
-- `operations.py`: Each op returns a processor spec dict
-- `pipeline.py`: Builds DawDreamer graph, renders, saves
-- `examples/`: Three runnable demos
+**Notes**: Full DAW in Python. VST hosting, time-stretch, pitch-shift planned.
+Not yet tested (requires `pip install dawdreamer` and system JUCE deps).
 
 ---
 
-## Research Summary (from RESEARCH.md)
+#### 2. `sox-engine` (skills/daw-master/sox-engine/)
 
-**Category A: Python-native frameworks**
-- DawDreamer — full DAW capabilities ✅ (wrapped)
-- librosa — audio analysis (feature extraction) ⏳
-- PyDub — simple edits ⏳
+**Tool**: SoX (Sound eXchange) — CLI audio Swiss Army knife
 
-**Category B: CLI tools (shell-friendly)**
-- SoX — Swiss Army knife ⏳
-- FFmpeg — universal converter ⏳
-- Rubber Band CLI — time-stretch/pitch-shift ⏳
-- Sonic Annotator — batch feature extraction ⏳
-- BWF MetaEdit — broadcast metadata ⏳
+**Status**: ✅ Implemented — `transform()`, `mix()`, `analyze()` fully functional
 
-**Category C: Full DAWs**
-- Ardour (Lua/headless) — full session automation ⏳
-- REAPER (Wine + ReaScript) — proven batch renderer ⏳
-- Carla — plugin host, OSC/MIDI control ⏳
+**Core API**:
+- `transform(input, pipeline, output)` — build one-shot sox command
+- `mix(tracks, output)` — multi-track mix via `sox -m`
+- `analyze(file)` — duration, sample_rate, channels, peak, RMS
+
+**Pipeline operations**:
+`gain`, `normalize`, `fade` (in/out/in-out), `trim`, `pad`, `reverse`,
+`channels`, `rate` (resample), `compand`, `equalizer`, `bass`, `treble`,
+`echo`, `reverb`, `raw_effect` (pass-through)
+
+**Examples**:
+```bash
+# Normalize + compress + fade out
+sox in.wav norm compand 0.01:0.1 -20:-10 fade q 1.5 out.wav
+
+# Mix two tracks at different gains
+sox -m -v 1.0 vocals.wav -v 0.7 instrumental.wav mix.wav
+
+# Trim, mono, downsample
+sox long.wav trim 12.5 30 channels 1 rate 22050 fade in 0.2 out.wav
+```
+
+**Advantages**: Available everywhere, no Python dependency, fast, battle-tested.
 
 ---
 
-## Implementation Roadmap (Suggested Order)
+## Planned Skills (Roadmap)
 
-### Tier 1 — Foundational CLI Wrappers (No dupes, complementary)
-1. **`sox-engine`** — Core CLI toolkit (trim, normalize, concat, effects)
-2. **`ffmpeg-audio`** — Codec work, filters, probe
-3. **`rubber-band-engine`** — High-quality time/pitch
-4. **`audio-analyzer`** — librosa + sonic-annotator for features
+### Tier 1 — CLI Foundations
+3. **`ffmpeg-audio`** — FFmpeg filters (volume, normalize, amix, channelsplit, etc.)
+4. **`rubber-band-engine`** — Dedicated high-quality time-stretch/pitch-shift
+5. **`audio-analyzer`** — librosa + sonic-annotator for BPM, key, MFCC, loudness
 
-### Tier 2 — Advanced Integration
-5. **`batch-processor`** — Directory-wide pipelines (combines above)
-6. **`metadata-manager`** — BWF/iXML tagging
+### Tier 2 — Batch & Metadata
+6. **`batch-processor`** — Apply same pipeline to directories (parallelizable)
+7. **`metadata-manager`** — BWF/iXML/ID3 tag reading/writing
 
 ### Tier 3 — Full DAW Automation
-7. **`ardour-automator`** — Lua script runner for Ardour
-8. **`reaper-agent`** — Wine + ReaScript integration
-9. **`carla-rack`** — Plugin chain sandbox
+8. **`ardour-automator`** — Lua script runner for headless Ardour rendering
+9. **`reaper-agent`** — Wine + ReaScript (Python) batch render automation
+10. **`carla-rack`** — Plugin chain testbench with Carla headless/OSC
 
 ---
 
 ## Design Principles
 
-1. **No duplicate functionality** — each tool covers its strengths:
-   - `sox-engine`: ad-hoc edits, effects, quick conversions
-   - `ffmpeg-audio`: complex filtering, codec gymnastics
-   - `dawdreamer`: programmable signal graphs, VST hosting
-   - `ardour`: existing .ardour project rendering
-   - `reaper`: Windows plugin compatibility under Wine
+1. **No duplicate functionality** — Each tool covers its forte:
+   - `sox-engine`: Quick edits, format conversion, simple effects
+   - `ffmpeg-audio`: Complex filtergraphs, codec gymnastics, stream ops
+   - `dawdreamer`: Programmable DSP graphs, VST hosting, multi-track composition
+   - `rubber-band-engine`: Best-in-class time/pitch (algorithm different from SoX)
+   - `ffmpeg-audio`: Handles formats SoX might not (AAC, AC3, etc.)
 
-2. **Chainable** — `dawdreamer.transform(...)` produces a file
-   that becomes input to `batch-processor` etc.
-
-3. **Expose all core parameters** — but not every obscure knob.
-   Each skill doc lists the knobs that matter for sampling workflows.
-
-4. **Headless-first** — no GUI dependencies. All tools must run
-   in a terminal or script environment.
-
-5. **Progressive disclosure** — Basic use is simple:
+2. **Pipeline-first** — Skills are designed for composition:
    ```python
-   dawdreamer.transform("in.wav", [{"op": "normalize"}], "out.wav")
+   input_audio -> sox-engine (trim/normalize) -> dawdreamer (FX chain) -> final
    ```
-   Advanced: pass `vst_search_paths`, `sample_rate`, `buffer_size`,
-   `dry_run=True`, etc.
+
+3. **Explicit parameters** — Only the meaningful knobs are exposed. Hide
+   defaults that 95% of users won't touch.
+
+4. **Stateless file I/O** — No session files, no temp state lives beyond the call
+   (except transient intermediates for multi-step pipelines).
+
+5. **Progressive disclosure** — Simple call signature for 80% cases; `extra_args`
+   or `dry_run` escapes for power users.
 
 ---
 
-## Getting Started (Dev)
+## Integration Pattern
+
+Every concrete skill:
+- Namespaced under `daw-master` → called as `daw-master:<skill>`
+- Exposes: `transform()`, `mix()`, `analyze()` (maybe more)
+- Returns dict: `{success: bool, output: str, error?: str, ...}`
+- Accepts `dry_run=True` to preview without executing
+- Logs exact CLI/API call for reproducibility
+
+Each skill directory:
+```
+<skill>/
+├── SKILL.md         ← full reference + examples + installation
+├── __init__.py      ← public exports
+├── pipeline.py      ← implementation (transform/mix/analyze)
+├── operations.py    ← operation builders (if applicable)
+├── examples/        ← 2-3 runnable demo scripts
+└── templates/       ← optional project templates
+```
+
+---
+
+## Getting Started
 
 ```bash
 # Clone
 git clone https://github.com/sanchorelaxo/hermes-music-sampling.git
 cd hermes-music-sampling
 
-# (Optional) Install DawDreamer for testing dawdreamer skill
+# Install SoX (sox-engine)
+sudo apt install sox           # Debian/Ubuntu
+# brew install sox             # macOS
+
+# Test sox-engine (requires a WAV file named input.wav in cwd)
+python skills/daw-master/sox-engine/examples/01_normalize_compress_fade.py
+
+# Install DawDreamer (dawdreamer skill — optional)
 sudo apt install build-essential cmake libasound2-dev libjack-jackd2-dev
 pip install dawdreamer
-
-# Try examples
-python skills/daw-master/dawdreamer/examples/01_time_stretch_fade.py
-
-# Install other tools
-sudo apt install sox ffmpeg rubberband-cli bwfmetaedit
-pip install librosa pydub
 ```
 
 ---
 
-## Notes for Next Skills
+## Quick Reference: Operation Matrix
 
-When implementing `sox-engine`, `ffmpeg-audio`, etc.:
-
-1. Follow `dawdreamer`'s pattern:
-   - `SKILL.md` with operation reference
-   - `pipeline.py` or `engine.py` with main api
-   - `operations.py` or `effects/` for individual ops
-   - `examples/` with demos
-
-2. Keep the `daw-master` namespace: skill name = `daw-master:sox-engine`
-
-3. Write operations so they return spec dicts (or call helpers) —
-   this enables eventual cross-tool optimization (e.g., detect if
-   `ffmpeg` can do whole chain more efficiently than `sox`).
-
-4. Add error handling that returns `{success: False, error: str}` dicts
-   — consistent with `dawdreamer.transform` return format.
-
-5. Document all operation parameters in SKILL.md — what the op does,
-   parameter types, default values, typical ranges.
-
-6. Add unit tests in a `tests/` subdir when feasible.
+| Operation | sox-engine | dawdreamer | ffmpeg-audio (planned) |
+|-----------|-----------|------------|------------------------|
+| normalize | ✅ `norm` | ✅ peak scaling | ✅ `loudnorm` filter |
+| gain      | ✅ `gain` | ✅ gain processor | ✅ `volume` filter |
+| trim      | ✅ `trim` | ✅ trim op | ✅ `trim` filter |
+| fade      | ✅ `fade` | ✅ fade processor | ❌ manual envelope |
+| filter    | ✅ EQ/filter | ✅ FilterProcessor | ✅ `equalizer`, `highpass`, etc |
+| compress  | ✅ `compand` | ✅ CompressorProcessor | ✅ `acompress` |
+| reverb    | ✅ simple reverb | ✅ ReverbProcessor | ❌ (needs convolver) |
+| overlay   | ❌ (use `mix`) | ✅ overlay op | ✅ `amix` filter |
+| time-stretch | ⚠️ via `rubber-band` separate | ✅ PlaybackWarp | ❌ (atempo only, limited) |
+| pitch-shift | ⚠️ via `rubber-band` | ✅ warping | ❌ |
+| VST       | ❌ | ✅ plugin host | ❌ |
 
 ---
 
@@ -189,7 +222,27 @@ When implementing `sox-engine`, `ffmpeg-audio`, etc.:
 
 | Date | Commit | Notes |
 |------|--------|-------|
-| 2026-04-28 | `2847efe` | Added daw-master meta-skill + dawdreamer implementation |
-| 2026-04-28 | `3073a03` | Added skill category READMEs |
-| 2026-04-28 | `54b8708` | Added RESEARCH.md |
+| 2026-04-28 | `845d352` | Added sox-engine (transform/mix/analyze with 12+ effects) |
+| 2026-04-28 | `2847efe` | Added daw-master meta-skill and dawdreamer scaffold |
+| 2026-04-28 | `93e6795` | Added MANIFEST.md, pushed LICENSE |
+| 2026-04-28 | `3073a03` | Created skill category READMEs |
+| 2026-04-28 | `54b8708` | Added RESEARCH.md (Linux audio tools survey) |
 | 2026-04-28 | `98b86f5` | Initial README + repo creation |
+
+---
+
+## Notes for Skill Maintainers
+
+- Keep each skill's `pipeline.py` self-contained. Expose a clean `transform()` function
+  that can be called directly by Hermes or by other skills.
+- When implementing the next skill (`ffmpeg-audio`), copy the sox-engine template
+  but translate operations to FFmpeg filtergraphs. Don't duplicate operations —
+  SoX handles effects, FFmpeg handles codecs and complex filters; they complement.
+- **Test locally**: Each examples/ script should run with a dummy WAV file.
+  Add `tests/` directories when the skill matures.
+- **Document**: SKILL.md must list every operation, parameters, types, defaults, ranges.
+- **Error handling**: Always return `{success, error?}` dict; never raise uncaught.
+- **Dry-run**: Implement `dry_run=True` that returns `{success: True, dry_run: True, command: "..."}`
+  without executing. This helps users debug pipelines.
+- **Logging**: On error, include the exact SoX/FFmpeg command and stderr snippet in the
+  result dict's `error` and `stderr` fields.
