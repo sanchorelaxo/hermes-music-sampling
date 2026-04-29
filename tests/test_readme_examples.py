@@ -319,3 +319,34 @@ def test_example_9_batch_csv(temp_dir):
     assert len(rows) >= 2, f"Expected >=2 rows, got {len(rows)}"
     expected_cols = {'file', 'duration', 'sample_rate'}
     assert expected_cols.issubset(set(rows[0].keys()))
+
+
+# ---------------------------------------------------------------------------
+# Helper: Carla availability
+# ---------------------------------------------------------------------------
+def carla_available():
+    try:
+        r = subprocess.run(['carla', '--version'], capture_output=True, timeout=5)
+        return r.returncode == 0
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        try:
+            r2 = subprocess.run(['carla2', '--version'], capture_output=True, timeout=5)
+            return r2.returncode == 0
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return False
+
+
+# Example 10: Build a Carla rack and render once (plugin-graph mode)
+def test_example_10_carla_rack(sample_wav, temp_dir):
+    """README Example 10: Carla rack plugin chain — single-pass multi-effect render."""
+    if not carla_available():
+        pytest.skip("carla not installed")
+    carla_mod = import_skill_module('carla-rack', 'pipeline')
+
+    output = temp_dir / "wet.wav"
+    rack = carla_mod.CarlaRack()
+    rack.add_plugin("/usr/lib/lv2/calf-compressor.lv2", {"threshold": -24, "ratio": 2})
+    rack.add_plugin("/usr/lib/lv2/calf-reverb.lv2", {"room_size": 0.4, "wet": 0.25})
+    rack.add_plugin("/usr/lib/lv2/calf-limiter.lv2", {"threshold": -0.5})
+    result = rack.render_once(str(sample_wav), str(output))
+    assert output.exists(), f"Carla render failed: output not created: {result}"
