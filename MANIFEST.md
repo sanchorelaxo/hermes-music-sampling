@@ -34,16 +34,22 @@ hermes-music-sampling/
     │   │   ├── __init__.py
     │   │   ├── pipeline.py
     │   │   └── examples/
-    │   └── rubber-band-engine/  # ✅ Implemented — time-stretch/pitch-shift
+    │   ├── rubber-band-engine/  # ✅ Implemented — time-stretch/pitch-shift
+    │   │   ├── SKILL.md
+    │   │   ├── __init__.py
+    │   │   ├── pipeline.py
+    │   │   └── examples/
+    │   ├── audio-analyzer/  # ✅ Implemented — librosa feature extraction & Vamp
+    │   │   ├── SKILL.md
+    │   │   ├── __init__.py
+    │   │   ├── pipeline.py
+    │   │   └── examples/
+    │   └── dawdreamer/      # ⚙️ Scaffolded — full DAW VST hosting
     │       ├── SKILL.md
     │       ├── __init__.py
     │       ├── pipeline.py
+    │       ├── operations.py
     │       └── examples/
-    ├── analysis/            # Reserved for audio-analyzer (librosa)
-    ├── conversion/          # Reserved
-    ├── daw-integration/     # Reserved (Ardour/REAPER/Carla)
-    ├── editing/             # Reserved for batch-processor
-    └── metadata/            # Reserved for BWF tagger
 ```
 
 ---
