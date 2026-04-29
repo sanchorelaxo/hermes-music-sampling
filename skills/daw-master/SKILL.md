@@ -38,14 +38,16 @@ This meta-skill defines standards and base capabilities for audio processing ski
 
 Sub-skills under `daw-master`:
 
-| Skill | Tool | Purpose |
+|| Skill | Tool | Purpose |
 |-------|------|---------|
-| `dawdreamer` | DawDreamer (Python) | Full-featured DAW operations: effects, mixing, time/pitch, VST |
-| `sox-engine` | SoX | Simple edits, effects, conversions |
-| `ffmpeg-audio` | FFmpeg | Codec work, filtering, stream ops |
-| `rubber-band` | Rubber Band CLI | High-quality time-stretch/pitch-shift |
-| `batch-processor` | SoX/FFmpeg scripts | Apply same pipeline to many files |
-| `audio-analyzer` | librosa + sonic-annotator | Extract BPM, key, MFCC, loudness |
+|| `dawdreamer` | DawDreamer (Python) | Full-featured DAW: effects, mixing, time/pitch, VST |
+|| `sox-engine` | SoX | Simple edits, effects, conversions |
+|| `ffmpeg-audio` | FFmpeg | Codec work, filtering, stream ops |
+|| `rubber-band-engine` | Rubber Band CLI | High-quality time-stretch/pitch-shift |
+|| `audio-analyzer` | librosa + sonic-annotator | Extract BPM, key, MFCC, loudness |
+|| `batch-processor` | SoX/FFmpeg scripts | Apply same pipeline to many files |
+|| `metadata-manager` | BWFMetaEdit + mutagen | BWF/RIFF metadata embedding |
+|| `ardour-automator` | Ardour (Lua) | Headless session automation & export |
 
 ## Common Patterns
 

@@ -217,11 +217,11 @@ skills/daw-master/
 ├── rubber-band-engine/         # ✅ Rubber Band — time/pitch
 ├── audio-analyzer/             # ✅ librosa — feature extraction, Vamp support
 ├── dawdreamer/                 # ⚙️ Scaffolded — full DAW VST hosting
-├── batch-processor/            # Reserved — orchestrate pipelines on dirs
+├── batch-processor/            # ✅ Implemented — SoX/FFmpeg batch pipelines
 ├── metadata-manager/           # ✅ Implemented — BWF/iXML/ID3 tagging
-├── ardour-automator/           # ✅ Implemented — Ardour headless automation
-├── reaper-agent/               # Reserved — REAPER automation
-└── carla-rack/                 # Reserved — Carla plugin chain
+├── ardour-automator/           # ✅ Implemented — Ardour headless automation & export
+├── carla-rack/                 # Reserved — Carla plugin chain
+└── reaper-agent/               # Reserved — REAPER automation
 ```
 
 ---
