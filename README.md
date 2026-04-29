@@ -211,7 +211,7 @@ extract_batch(
     output_file="sample_features.csv"
 )
 
-# Example 9: Build a Carla rack and render once (plugin-graph mode)
+# Example 10: Build a Carla rack and render once (plugin-graph mode)
 from daw_master.carla_rack import CarlaRack
 
 rack = CarlaRack()
