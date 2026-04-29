@@ -36,12 +36,12 @@ def import_skill_module(skill_name, module_name):
 
 # Platform guard: skip if ARM (dawdreamer not available) or dawdreamer not installed
 if _is_arm_architecture():
-    print("Skipping test_cond.py: ARM architecture detected (dawdreamer unavailable)")
+    print("Skipping conditional_demo.py: ARM architecture detected (dawdreamer unavailable)")
     sys.exit(0)
 try:
     import dawdreamer  # noqa: F401
 except ImportError:
-    print("Skipping test_cond.py: dawdreamer not installed")
+    print("Skipping conditional_demo.py: dawdreamer not installed")
     sys.exit(0)
 
 audio_analyzer = import_skill_module("audio-analyzer", "pipeline")
