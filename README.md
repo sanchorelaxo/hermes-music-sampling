@@ -12,18 +12,18 @@ This project collects and organizes music sampling and audio processing skills f
 
 | Skill | Tool | Status | What It Does |
 |-------|------|--------|--------------|
-| [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
-| [`sox-engine`](skills/daw-master/sox-engine/SKILL.md) | SoX CLI | ✅ Implemented | 12+ effects: normalize, fade, trim, compand, EQ, mix |
-| [`ffmpeg-audio`](skills/daw-master/ffmpeg-audio/SKILL.md) | FFmpeg filters | ✅ Implemented | Codecs, loudnorm, filtergraphs, multi-track mix |
-| [`rubber-band-engine`](skills/daw-master/rubber-band-engine/SKILL.md) | Rubber Band | ✅ Implemented | Professional time-stretch & pitch-shift |
+|| [`sox-engine`](skills/daw-master/sox-engine/SKILL.md) | SoX CLI | ✅ Implemented | 12+ effects: normalize, fade, trim, compand, EQ, mix |
+|| [`ffmpeg-audio`](skills/daw-master/ffmpeg-audio/SKILL.md) | FFmpeg filters | ✅ Implemented | Codecs, loudnorm, filtergraphs, multi-track mix |
+|| [`rubber-band-engine`](skills/daw-master/rubber-band-engine/SKILL.md) | Rubber Band | ✅ Implemented | Professional time-stretch & pitch-shift |
+|| [`audio-analyzer`](skills/daw-master/audio-analyzer/SKILL.md) | librosa + Vamp | ✅ Implemented | BPM, key, MFCC, loudness, spectral features |
+|| [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
 
 ## Planned Skills
 
 | Skill | Tool | Role |
 |-------|------|------|
-| `audio-analyzer` | librosa + sonic-annotator | Extract BPM, key, MFCC, loudness |
-| `batch-processor` | SoX + FFmpeg scripts | Apply pipeline to directories |
-| `metadata-manager` | BWF MetaEdit | BWF/iXML/ID3 tagging |
+|| `batch-processor` | SoX + FFmpeg scripts | Apply pipeline to directories |
+|| `metadata-manager` | BWF MetaEdit | BWF/iXML/ID3 tagging |
 | `ardour-automator` | Ardour (Lua) | Headless session render |
 | `reaper-agent` | REAPER + Wine | Batch render automation |
 | `carla-rack` | Carla | Plugin chain testbench |
@@ -141,11 +141,13 @@ skills/daw-master/
 ├── sox-engine/                 # ✅ SoX — effects, edits, mix
 ├── ffmpeg-audio/               # ✅ FFmpeg — filters, codecs, loudnorm
 ├── rubber-band-engine/         # ✅ Rubber Band — time/pitch
-├── analysis/                   # Reserved for audio-analyzer (librosa)
-├── conversion/                 # Reserved for batch tools
-├── daw-integration/            # Reserved for Ardour/REAPER/Carla
-├── editing/                    # Reserved for batch-processor
-└── metadata/                   # Reserved for BWF tagger
+├── audio-analyzer/             # ✅ librosa — feature extraction, Vamp support
+├── dawdreamer/                 # ⚙️ Scaffolded — full DAW VST hosting
+├── batch-processor/            # Reserved — orchestrate pipelines on dirs
+├── metadata-manager/           # Reserved — BWF/iXML/ID3 tagging
+├── ardour-automator/           # Reserved — Ardour headless
+├── reaper-agent/               # Reserved — REAPER automation
+└── carla-rack/                 # Reserved — Carla plugin chain
 ```
 
 ---
