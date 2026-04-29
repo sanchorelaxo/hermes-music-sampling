@@ -38,18 +38,20 @@ def _run_sox(args: List[str], input_file: Optional[str] = None,
              output_file: Optional[str] = None, timeout: int = 300) -> subprocess.CompletedProcess:
     """Execute sox command with proper error handling.
 
-    Correct SOX CLI syntax: sox [global-opts] <input> [effect ...] <output>
-    Effects must appear between input and output filenames.
+    Correct SOX CLI syntax (confirmed on SoX 14.4.2):
+        sox [global-opts] input_file output_file [effect [effopt]]...
+
+    Effects must appear AFTER the output filename.
     """
     _check_sox()
-    # Build command: sox <input> <effects...> <output>
+    # Build command: sox <input> <output> [effects...]
     cmd = ['sox']
     if input_file:
         cmd.append(str(input_file))
-    if args:
-        cmd.extend(args)
     if output_file:
         cmd.append(str(output_file))
+    if args:
+        cmd.extend(args)
 
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     return result
@@ -59,9 +61,10 @@ def _build_sox_args(pipeline: List[Dict], input_file: str, output_file: str,
                      extra_global: Optional[List[str]] = None) -> List[str]:
     """
     Translate pipeline operations into SoX effect arguments.
-    
-    SoX CLI layout:
-      sox [global-opts] input.wav [effect1 [effect-args]] [effect2 ...] output.wav
+
+    SoX CLI layout (confirmed):
+      sox [global-opts] input_file output_file [effect [effopt]]...
+    Effects are placed AFTER the output filename.
     """
     args = []
     
@@ -251,11 +254,12 @@ def transform(
         shutil.copy2(out_path, backup)
 
     try:
-        # Build SoX argument list
+        # Build SoX command: sox input output [effects...]
+        # Note: SoX places effects AFTER the output file
         sox_args = _build_sox_args(pipeline, str(in_path), str(out_path), extra_sox_args)
 
-        # Full command for logging
-        cmd = ['sox', str(in_path)] + sox_args + [str(out_path)]
+        # Full command for logging: sox input output [effects]
+        cmd = ['sox', str(in_path), str(out_path)] + sox_args
         cmd_str = ' '.join(shlex.quote(arg) for arg in cmd)
 
         if dry_run:
