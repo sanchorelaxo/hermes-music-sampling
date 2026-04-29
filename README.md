@@ -120,14 +120,87 @@ Each skill covers its strengths; chain them for complex workflows.
 ## Chaining Skills
 
 ```python
-# 1. Trim and normalize quickly with SoX
-sox.transform("raw.wav", [{"op": "trim", "start": 0, "length": 30}, {"op": "normalize"}], "trimmed.wav")
+# Example 1: Trim and normalize quickly with SoX (simple 2-step)
+sox.transform("raw.wav",
+    [{"op": "trim", "start": 0, "length": 30}, {"op": "normalize"}],
+    "trimmed.wav")
 
-# 2. Apply professional tempo warp with Rubber Band
-rubber.transform("trimmed.wav", [{"op": "time_stretch", "factor": 0.98, "formant": True}], "timed.wav")
+# Example 2: Apply professional tempo warp with Rubber Band (preserve formants)
+rubber.transform("trimmed.wav",
+    [{"op": "time_stretch", "factor": 0.98, "formant": True}],
+    "timed.wav")
 
-# 3. Final loudness + encode to AAC with FFmpeg
-ffmpeg.transform("timed.wav", [{"op": "loudnorm", "i": -14}], "final.m4a", codec="aac")
+# Example 3: Final loudness + encode to AAC with FFmpeg (codec delivery)
+ffmpeg.transform("timed.wav",
+    [{"op": "loudnorm", "i": -14}],
+    "final.m4a", codec="aac")
+
+# Example 4: Analyze first, then conditionally process based on features (discover → act)
+from daw_master.audio_analyzer import analyze
+features = analyze("sample.wav")
+pipeline = []
+if features["loudness_lufs"] > -10:
+    pipeline.append({"op": "gain", "amount_db": -3})   # bring down hot audio
+if features["tempo"] < 80:
+    pipeline.append({"op": "time_stretch", "factor": 1.15})  # speed up slow track
+if pipeline:
+    dawdreamer.transform("sample.wav", pipeline=pipeline, output="processed.wav")
+
+# Example 5: Build a full mix from three stems with per-track processing (multi-track)
+from daw_master.dawdreamer import mix
+result = mix(
+    tracks=[
+        {"path": "vocals.wav",   "gain_db": 0,  "pan": 0.0,  "effects": [
+            {"op": "compressor", "threshold": -20, "ratio": 3},
+            {"op": "reverb",     "room_size": 0.3, "wet": 0.2}
+        ]},
+        {"path": "guitar.wav",   "gain_db": -3, "pan": 0.3,  "effects": [
+            {"op": "eq", "low_gain": 4}
+        ]},
+        {"path": "drums.wav",    "gain_db": -6, "pan": -0.2, "effects": [
+            {"op": "compress", "threshold": -18, "ratio": 4}
+        ]},
+    ],
+    output="full_mix.wav",
+    normalize_final=True,
+    master_bus_chain=[
+        {"op": "limiter", "threshold": -0.5},
+        {"op": "normalize", "target_level": -1.0}
+    ]
+)
+
+# Example 6: VST plugin chain applied to a vocal stem (VST-heavy production)
+vst_chain = [
+    {"op": "load_vst", "path": "/usr/local/vst/ValhallaRoom.vst3"},
+    {"op": "set_param", "plugin_idx": 0, "param": "RoomSize", "value": 0.75},
+    {"op": "set_param", "plugin_idx": 0, "param": "Wet",       "value": 0.4},
+    {"op": "load_vst", "path": "/usr/local/vst/SoftubeTubeSaturator.vst3"},
+    {"op": "set_param", "plugin_idx": 1, "param": "Drive",     "value": 0.25},
+]
+dawdreamer.transform("vocals_dry.wav", pipeline=vst_chain, output="vocals_spacy.wav")
+
+# Example 7: Smart loudness normalization with FFmpeg EBU R128 (broadcast-safe)
+ffmpeg.transform("raw.wav",
+    [{"op": "highpass", "cutoff": 80},
+     {"op": "loudnorm", "i": -16, "lra": 11, "tp": -1.5},
+     {"op": "acompressor", "threshold": "-20dB", "ratio": 2, "attack": "200ms"}],
+    "broadcast_ready.wav")
+
+# Example 8: Fade-out → time-stretch → pitch-shift chain (creative effect)
+dawdreamer.transform("pad.wav",
+    [{"op": "fade_out",  "duration": 4.0, "curve": "exp"},
+     {"op": "time_stretch", "factor": 1.12, "preserve_formants": False},
+     {"op": "pitch_shift", "semitones": 5}],
+    "ethereal_pad.wav")
+
+# Example 9: Analyze-batch → export CSV report (batch discovery)
+from daw_master.audio_analyzer import extract_batch
+extract_batch(
+    directory="./samples",
+    pattern="**/*.wav",
+    output_format="csv",
+    output_file="sample_features.csv"
+)
 ```
 
 ---
