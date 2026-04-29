@@ -436,6 +436,13 @@ def transform(
             # Get rendered audio as numpy array (channels, samples)
             raw_audio = engine.get_audio()
 
+            # Unwrap AudioBuffer-like objects to raw numpy array (channels x samples)
+            if not isinstance(raw_audio, np.ndarray):
+                if hasattr(raw_audio, "get_channels"):
+                    raw_audio = raw_audio.get_channels()
+                elif hasattr(raw_audio, "data"):
+                    raw_audio = raw_audio.data
+
             # Post-process: trim if specified
             if trim_spec is not None:
                 start, end, dur = trim_spec
