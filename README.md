@@ -25,8 +25,7 @@ This project collects and organizes music sampling and audio processing skills f
 || `batch-processor` | SoX + FFmpeg scripts | Apply pipeline to directories |
 || [`metadata-manager`](skills/metadata-manager/SKILL.md) | BWF MetaEdit | ✅ Implemented | BWF/iXML/ID3 tagging |
 | `ardour-automator` | Ardour (Lua) | Headless session render |
-| `reaper-agent` | REAPER + Wine | Batch render automation |
-| `carla-rack` | Carla | Plugin chain testbench |
+| `carla-rack` | Carla | Plugin rack — single-pass multi-effect chains |
 
 See [RESEARCH.md](RESEARCH.md) for full tool comparison.
 
@@ -239,8 +238,7 @@ skills/daw-master/
 ├── batch-processor/            # ✅ Implemented — SoX/FFmpeg batch pipelines
 ├── metadata-manager/           # ✅ Implemented — BWF/iXML/ID3 tagging
 ├── ardour-automator/           # ✅ Implemented — Ardour headless automation & export
-├── carla-rack/                 # Reserved — Carla plugin chain
-└── reaper-agent/               # Reserved — REAPER automation
+├── carla-rack/                 # Implemented — Carla plugin chain rack
 ```
 
 ---
@@ -250,7 +248,7 @@ skills/daw-master/
 See [RESEARCH.md](RESEARCH.md) for complete Linux audio tool survey covering:
 - Python frameworks (DawDreamer, librosa, PyDub)
 - CLI utilities (SoX, FFmpeg, Rubber Band, Sonic Annotator, Ecasound, BWF MetaEdit)
-- Full DAWs (Ardour, REAPER, Carla)
+- Full DAWs (Ardour, Carla)
 
 ---
 

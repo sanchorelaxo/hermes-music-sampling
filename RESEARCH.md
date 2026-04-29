@@ -174,22 +174,9 @@ This document catalogs Linux-based audio production tools that meet the followin
 - **File Formats**: WAV, MP3, FLAC, AIFF, OGG, BWF, and many via libsndfile
 - **Notes**: The most capable open-source DAW for automation. Can write Lua scripts to create sessions, import tracks, apply plugins, and render — fully unattended.
 
-### 11. REAPER (via Wine)
-- **URL**: https://www.reaper.fm/
-- **Python Native**: No native, but has ReaScript (Python/EEL/Lua)
-- **CLI/Headless**: Yes (via Wine on Linux)
-  - `reaper.exe -batchprojectRender project.RPP`
-  - command-line project loading and rendering
-- **Analysis Features**: Built-in spectrum analysis, loudness metering (ReaPlugs)
-- **Editing/Remixing**:
-  - Full DAW (non-destructive)
-  - Multi-track, MIDI, automation
-  - VST2/VST3 support (native Windows, runs via Wine)
-  - JSFX (native effects)
-- **File Formats**: Virtually all audio formats via project media items
-- **Notes**: Extremely scriptable and lightweight. Runs well under Wine. Commercial license but very affordable. Proven for batch rendering and automated workflows.
 
-### 12. Carla
+
+### 11. Carla
 - **URL**: https://carla.readthedocs.io/
 - **Python Native**: No
 - **CLI/Headless**: Yes — `carla` with `--nogui`, `--jack`, etc.
@@ -220,7 +207,6 @@ This document catalogs Linux-based audio production tools that meet the followin
 | Rubber Band       | No     | Yes         | No            | Time/pitch   | Broad      | Mature   |
 | BWF MetaEdit      | No     | Yes         | No            | Metadata     | WAV/BWF    | Mature   |
 | Ardour            | Lua    | Yes         | Basic         | Full DAW     | Broad      | Mature   |
-| REAPER (Wine)     | ReaScript | Yes     | Plugin-based  | Full DAW     | Universal  | Mature   |
 | Carla             | No     | Yes         | Via plugins   | Host         | Plugin I/O | Mature   |
 
 ---
@@ -244,7 +230,6 @@ For more sophisticated analysis and editing:
 ### Tier 3: Full DAW Automation (Advanced Skills)
 For complex project-based workflows:
 - **Ardour** — Lua scripting (or Python via luainterpreter); can run fully headless; render entire sessions
-- **REAPER + Wine** — ReaScript (Python); excellent command-line batch render; proven in production
 
 ---
 
@@ -253,7 +238,7 @@ For complex project-based workflows:
 1. **Sample Analysis Pipeline** — librosa + Sonic Annotator → extract BPM, key, spectral features, save to JSON for a sample library
 2. **Batch Remix** — PyDub/DawDreamer → time-align multiple stems, apply effects chain, render mashup
 3. **Format Migration** — FFmpeg + SoX — convert legacy sample libraries to modern codecs, normalize, tag with BWF
-4. **DAW Rendering** — Ardour/REAPER CLI — render stems/mixes from template projects headlessly on a server
+4. **DAW Rendering** — Ardour CLI — render stems/mixes from template projects headlessly on a server
 5. **DSP Experimentation** — DawDreamer + Python — test effect chains, generate training data for ML models
 
 ---
@@ -290,6 +275,6 @@ sudo apt install carla
 1. **Create wrapper skills** for SoX, FFmpeg, Sonic Annotator that provide Hermes-friendly interfaces
 2. **Build a `sample_analyzer` skill** that orchestrates librosa + SoX to extract comprehensive metadata from audio files
 3. **Build a `batch_processor` skill** that applies effects/normalization/conversion to directories of samples
-4. **Build a `daw_renderer` skill** that drives Ardour or REAPER headlessly to render projects
+4. **Build a `daw_renderer` skill** that drives Ardour headlessly to render projects
 5. **Create a `vst_testbench` skill** using Carla to test plugin chains on sample material
 6. **Create a `sample_library` skill** that organizes, tags, and catalogs sample collections
