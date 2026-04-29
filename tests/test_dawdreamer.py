@@ -9,6 +9,7 @@ from pathlib import Path
 import sys
 import types
 import warnings
+import platform
 
 from conftest import import_skill_module
 
@@ -144,9 +145,25 @@ def _install_fake_dawdreamer(monkeypatch):
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+def _is_arm_architecture():
+    """Return True if running on ARM architecture (Raspberry Pi, etc.)."""
+    machine = platform.machine().lower()
+    return machine in ('arm64', 'aarch64', 'armv7l', 'armv8l', 'arm')
+
 @pytest.fixture(autouse=True)
 def mock_dawdreamer(monkeypatch):
     """Automatically mock DawDreamer for all tests in this file."""
+    if not _is_arm_architecture():
+        try:
+            import dawdreamer
+            # Real DawDreamer available on x86_64, skip mocking
+            yield
+            return
+        except ImportError:
+            # dawdreamer not installed, fall through to mock
+            pass
+    
+    # On ARM or when dawdreamer unavailable, install the mock
     _install_fake_dawdreamer(monkeypatch)
     yield
 
