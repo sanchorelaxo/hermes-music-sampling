@@ -34,19 +34,23 @@ def _check_sox():
         )
 
 
-def _run_sox(args: List[str], input_file: Optional[str] = None, 
+def _run_sox(args: List[str], input_file: Optional[str] = None,
              output_file: Optional[str] = None, timeout: int = 300) -> subprocess.CompletedProcess:
-    """Execute sox command with proper error handling."""
+    """Execute sox command with proper error handling.
+
+    Correct SOX CLI syntax: sox [global-opts] <input> [effect ...] <output>
+    Effects must appear between input and output filenames.
+    """
     _check_sox()
-    cmd = ['sox'] + args
+    # Build command: sox <input> <effects...> <output>
+    cmd = ['sox']
     if input_file:
-        # Input comes first
-        cmd.insert(1, str(input_file))
+        cmd.append(str(input_file))
+    if args:
+        cmd.extend(args)
     if output_file:
-        # Output comes at the end
         cmd.append(str(output_file))
 
-    # Run and capture
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     return result
 
@@ -95,7 +99,7 @@ def _build_sox_args(pipeline: List[Dict], input_file: str, output_file: str,
             if ftype == 'in':
                 args.extend(['fade', 'in', str(length)])
             elif ftype == 'out':
-                args.extend(['fade', 'q', str(length)])  # 'q' for quick fade at end
+                args.extend(['fade', 'out', str(length)])
             elif ftype == 'in-out':
                 fade_in = step.get('fade_in', length)
                 fade_out = step.get('fade_out', length)
@@ -442,10 +446,13 @@ def analyze(filepath: str) -> Dict:
             capture_output=True, text=True, timeout=30
         )
         stat_out = stat_proc.stderr + stat_proc.stdout
-        # Parse lines like: "RMS amplitude     : 0.351562"
+        # Parse RMS and peak amplitude
         import re
-        rms_match = re.search(r'RMS amplitude\s+:\s+([\d.]+)', stat_out)
-        peak_match = re.search(r'Peak amplitude\s+:\s+([\d.]+)', stat_out)
+        rms_match = re.search(r'RMS\s+amplitude\s*:\s+([\d.]+)', stat_out)
+        # 'Peak amplitude' appears on older SoX; newer SoX uses 'Maximum amplitude'
+        peak_match = re.search(r'Peak\s+amplitude\s*:\s+([\d.eE+-]+)', stat_out)
+        if not peak_match:
+            peak_match = re.search(r'Maximum\s+amplitude\s*:\s+([\d.eE+-]+)', stat_out)
         if rms_match:
             info['rms'] = float(rms_match.group(1))
         if peak_match:

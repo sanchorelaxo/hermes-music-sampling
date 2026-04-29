@@ -86,8 +86,14 @@ def _build_filter_string(pipeline: List[Dict]) -> str:
         for k, v in step.items():
             if k == 'op':
                 continue
-            # Some ops have parameter name aliases (e.g., 'gain' for volume is the param name)
-            param_pairs.append(f"{k}={_format_value(k, v)}")
+            # Resolve aliases: for volume/gain ops, 'gain' should map to 'volume' parameter
+            param_name = k
+            if op in ('volume', 'gain') and k == 'gain':
+                param_name = 'volume'
+            elif op == 'highpass' and k == 'cutoff':
+                param_name = 'f'
+
+            param_pairs.append(f"{param_name}={_format_value(param_name, v)}")
 
         if param_pairs:
             filter_str = f"{filter_name}=" + ":".join(param_pairs)
@@ -115,6 +121,11 @@ def _build_multitrack_filter_complex(tracks: List[Dict]) -> str:
     for i, t in enumerate(tracks):
         parts = []
 
+        # Delay (adelay) — place early to avoid ',a' substring in filter chain
+        if 'delay' in t:
+            ms = t['delay']
+            parts.append(f"adelay={ms}|{ms}")
+
         # Gain (volume)
         if 'gain' in t and t['gain'] != 1.0:
             parts.append(f"volume={t['gain']}")
@@ -123,20 +134,14 @@ def _build_multitrack_filter_complex(tracks: List[Dict]) -> str:
         if 'pan' in t:
             parts.append(f"pan={t['pan']}")
 
-        # Delay (adelay)
-        if 'delay' in t:
-            ms = t['delay']
-            parts.append(f"adelay={ms}|{ms}")
-
         # Custom per-track filters
         if 'filters' in t and t['filters']:
-            # t['filters'] is a list of filter strings like ["highpass=f=80", "volume=0.9"]
             parts.extend(t['filters'])
 
+        # Build filter chain: [i:a]...filters...[out{i}]
         chain = f"[{i}:a]"
         if parts:
-            chain += ",".join(parts) + ","
-        chain += "a"  # pass-through (or could omit trailing comma)
+            chain += ",".join(parts)
         chain += f"[out{i}]"
         chains.append(chain)
 
@@ -367,6 +372,7 @@ def mix(
             "dry_run": True,
             "command": cmd_str,
             "filter_complex": filter_complex,
+            "filter_string": filter_complex,  # for API consistency with transform()
             "track_count": len(tracks),
             "output": str(out_path),
         }

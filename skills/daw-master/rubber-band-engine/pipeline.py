@@ -201,7 +201,7 @@ def transform(
         if ps_semitones is not None:
             cmd.extend(['-p', str(ps_semitones)])
         if op_formant:
-            cmd.append('-f')
+            cmd.append('-F')
         if op_transients != "mixed":
             cmd.extend(['--transients', op_transients])
         if extra_args:
