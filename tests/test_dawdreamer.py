@@ -307,7 +307,7 @@ def test_transform_with_compressor(sample_wav, temp_dir, dd):
         pipeline=[{"op": "compress", "threshold": -20.0, "ratio": 4.0, "attack": 2.0, "release": 50.0}],
         output=str(output),
     )
-    assert result["success"]
+    assert result["success"], result
     assert output.exists()
 
 
@@ -318,7 +318,7 @@ def test_transform_with_reverb(sample_wav, temp_dir, dd):
         pipeline=[{"op": "reverb", "room_size": 0.5, "wet": 0.3, "dry": 0.7}],
         output=str(output),
     )
-    assert result["success"]
+    assert result["success"], result
     assert output.exists()
 
 
@@ -329,7 +329,7 @@ def test_transform_with_filter(sample_wav, temp_dir, dd):
         pipeline=[{"op": "filter", "mode": "low", "freq": 1000.0, "q": 0.707}],
         output=str(output),
     )
-    assert result["success"]
+    assert result["success"], result
     assert output.exists()
 
 
@@ -344,7 +344,7 @@ def test_transform_with_overlay(sample_wav, temp_dir, dd):
         ],
         output=str(output),
     )
-    assert result["success"]
+    assert result["success"], result
     assert output.exists()
 
 

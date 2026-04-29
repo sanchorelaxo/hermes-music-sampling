@@ -8,17 +8,69 @@ import tempfile
 import warnings
 from pathlib import Path
 from typing import Dict, List, Optional, Union
+import numpy as np
 
 # Check DawDreamer availability at import time
 try:
     import dawdreamer as dd
-    from dawdreamer import RenderEngine, AudioBuffer, PlaybackProcessor, AddProcessor
+    from dawdreamer import RenderEngine, PlaybackProcessor, AddProcessor
     DAWDREAMER_AVAILABLE = True
 except ImportError:
     DAWDREAMER_AVAILABLE = False
     dd = None
 
 from .operations import OP_REGISTRY
+
+
+class AudioBuffer:
+    """Compatibility AudioBuffer for current DawDreamer which lacks this class."""
+    def __init__(self, data: np.ndarray, sample_rate: int):
+        if data.ndim == 1:
+            data = data.reshape(1, -1)
+        self.data = data.astype(np.float32, copy=False)
+        self.sample_rate = int(sample_rate)
+        self._duration = self.data.shape[1] / self.sample_rate
+        self.channels = self.data.shape[0]
+        self.numFrames = self.data.shape[1]
+
+    @property
+    def duration(self):
+        return self._duration
+
+    @classmethod
+    def from_file(cls, filepath: str, sample_rate: int):
+        import librosa
+        data, sr = librosa.load(filepath, sr=None, mono=False, dtype=np.float32)
+        # librosa returns (channels, samples) when mono=False; if mono True it's (samples,)
+        if data.ndim == 1:
+            data = data.reshape(1, -1)
+        if sr != sample_rate:
+            if data.shape[0] == 1:
+                res = librosa.resample(data[0], orig_sr=sr, target_sr=sample_rate)
+                data = res.reshape(1, -1)
+            else:
+                channels = [librosa.resample(data[i], orig_sr=sr, target_sr=sample_rate) for i in range(data.shape[0])]
+                data = np.vstack(channels)
+        return cls(data, sample_rate)
+
+    def get_channels(self):
+        """Return audio array as (channels, samples)."""
+        return self.data
+
+    def get_peak(self):
+        return float(np.max(np.abs(self.data)))
+
+    def get_rms(self):
+        return float(np.sqrt(np.mean(self.data.astype(np.float64)**2)))
+
+    def save_to_file(self, path: str):
+        import soundfile as sf
+        if self.data.shape[0] == 1:
+            data_to_write = self.data[0]
+        else:
+            data_to_write = self.data.T
+        sf.write(path, data_to_write, self.sample_rate)
+
 
 
 class DawDreamerEngine:
@@ -42,25 +94,20 @@ class DawDreamerEngine:
         self._engine = None
 
     def __enter__(self) -> 'RenderEngine':
-        self._engine = dd.RenderEngine(
-            sampleRate=self.sample_rate,
-            bufferSize=self.buffer_size,
-        )
+        # Use positional arguments to avoid keyword naming mismatches across dawdreamer versions
+        self._engine = dd.RenderEngine(self.sample_rate, self.buffer_size)
         return self._engine
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._engine is not None:
-            self._engine.close()
-            self._engine = None
+        # RenderEngine has no close(); clear reference for GC
+        self._engine = None
 
 
-def _load_audio_buffer(engine: 'RenderEngine', filepath: str) -> 'AudioBuffer':
+def _load_audio_buffer(sample_rate: int, filepath: str) -> 'AudioBuffer':
     """Load audio file into memory as AudioBuffer."""
-    from dawdreamer import AudioBuffer
     # Load via librosa or soundfile, then convert to AudioBuffer
-    # DawDreamer can load from file using path, but we need to know sample rate
-    # Use engine to get consistent sample rate
-    buf = AudioBuffer.from_file(filepath, engine.sampleRate)
+    # Sample rate is provided explicitly to avoid engine attribute dependency
+    buf = AudioBuffer.from_file(filepath, sample_rate)
     return buf
 
 
@@ -74,10 +121,10 @@ def _create_processor(engine, spec):
     ptype = spec['type']
 
     if ptype == 'gain':
-        # Simple gain processor (in dB)
-        gain_proc = engine.make_gain_processor("gain", 0.0)  # start at 0 dB
         # Gain in dB: multiply amplitude = 10^(dB/20)
-        gain_proc.gain = 10 ** (spec['gain_db'] / 20.0)
+        gain_linear = 10 ** (spec['gain_db'] / 20.0)
+        # Use AddProcessor as a gain node (single input)
+        gain_proc = engine.make_add_processor("gain", [gain_linear])
         return gain_proc
 
     elif ptype == 'time_stretch':
@@ -220,52 +267,73 @@ def transform(
     try:
         with DawDreamerEngine(sample_rate=sample_rate, buffer_size=buffer_size) as engine:
             # Determine total duration by loading audio
-            input_buf = _load_audio_buffer(engine, str(input_path))
+            input_buf = _load_audio_buffer(sample_rate, str(input_path))
             total_duration = input_buf.duration
 
             # Build graph from pipeline specs
+            # Ensure source audio has appropriate channel count for plugins (e.g., stereo VSTs)
+            source_audio = input_buf.get_channels()
+            if any(spec.get('type') == 'load_vst' for spec in normalized_pipeline):
+                if source_audio.shape[0] == 1:
+                    source_audio = np.tile(source_audio, (2, 1))
+
+            # Handle time_stretch/pitch_shift via warp processor at source.
+            from dawdreamer import PlaybackProcessor, AddProcessor
+
+            # Separate leading warp specs
             # Handle time_stretch/pitch_shift via warp processor at source.
             from dawdreamer import PlaybackProcessor, AddProcessor
 
             # Separate leading warp specs
             remaining = list(normalized_pipeline)
+            gain_factor = 1.0  # cumulative gain applied post-render
             warp_time_ratio = 1.0
-            warp_pitch_ratio = 1.0
+            warp_transpose = 0.0  # cumulative semitones for pitch shift
             while remaining and remaining[0].get('type') in ('time_stretch', 'pitch_shift'):
                 spec = remaining.pop(0)
                 if spec['type'] == 'time_stretch':
                     warp_time_ratio *= spec.get('factor', 1.0)
                 elif spec['type'] == 'pitch_shift':
                     semitones = spec.get('semitones', 0.0)
-                    warp_pitch_ratio *= 2 ** (semitones / 12.0)
+                    warp_transpose += semitones
+
 
             # Create source node (warp or normal playback)
-            if warp_time_ratio != 1.0 or warp_pitch_ratio != 1.0:
+            if warp_time_ratio != 1.0 or warp_transpose != 0.0:
                 try:
-                    source_proc = engine.make_playback_warp_processor("source_warp", input_buf)
+                    source_proc = engine.make_playbackwarp_processor("source_warp", input_buf.get_channels())
                 except AttributeError:
                     # Fallback for older API or mock names
-                    source_proc = engine.make_playback_processor("source_warp", input_buf)
+                    source_proc = engine.make_playback_processor("source_warp", input_buf.get_channels())
                 source_proc.time_ratio = warp_time_ratio
-                source_proc.pitch_ratio = warp_pitch_ratio
+                if warp_transpose != 0.0:
+                    source_proc.transpose = warp_transpose
                 graph = [(source_proc, [])]
                 current = source_proc
+                current_name = "source_warp"
             else:
-                playback = engine.make_playback_processor("input", input_buf)
+                playback = engine.make_playback_processor("input", input_buf.get_channels())
                 graph = [(playback, [])]
                 current = playback
+                current_name = "input"
 
-            # Track special processors that need post-processing (fade, trim)
-            fade_proc = None
+            # Collect post-processing specs (fade/trim) that cannot be added to graph
+            fade_specs = []
+            trim_spec = None
 
             for i, spec in enumerate(remaining):
                 ptype = spec.get('type')
 
                 if ptype == 'gain':
-                    gain_proc = engine.make_gain_processor(f"gain_{i}")
-                    gain_proc.gain = spec.get('gain', 1.0)  # linear amplitude
-                    graph.append((gain_proc, [current]))
+                    if 'gain_db' in spec:
+                        gain_linear = 10 ** (spec['gain_db'] / 20.0)
+                    else:
+                        gain_linear = spec.get('gain', 1.0)
+                    # Add a gain processor to the graph using AddProcessor as a mono gain node
+                    gain_proc = engine.make_add_processor(f"gain_{i}", [gain_linear])
+                    graph.append((gain_proc, [current_name]))
                     current = gain_proc
+                    current_name = f"gain_{i}"
 
                 elif ptype == 'filter':
                     mode = spec.get('mode', 'low')
@@ -273,8 +341,9 @@ def transform(
                     q = spec.get('q', 0.707)
                     gain = spec.get('gain', 1.0)
                     filter_proc = engine.make_filter_processor(f"filter_{i}", mode, freq, q, gain)
-                    graph.append((filter_proc, [current]))
+                    graph.append((filter_proc, [current_name]))
                     current = filter_proc
+                    current_name = f"filter_{i}"
 
                 elif ptype == 'compressor':
                     threshold = spec.get('threshold', -20.0)
@@ -282,8 +351,9 @@ def transform(
                     attack = spec.get('attack', 2.0)
                     release = spec.get('release', 50.0)
                     comp_proc = engine.make_compressor_processor(f"comp_{i}", threshold, ratio, attack, release)
-                    graph.append((comp_proc, [current]))
+                    graph.append((comp_proc, [current_name]))
                     current = comp_proc
+                    current_name = f"comp_{i}"
 
                 elif ptype == 'reverb':
                     room = spec.get('room_size', 0.5)
@@ -292,22 +362,16 @@ def transform(
                     dry = spec.get('dry', 0.4)
                     width = spec.get('width', 1.0)
                     rev_proc = engine.make_reverb_processor(f"reverb_{i}", room, damping, wet, dry, width)
-                    graph.append((rev_proc, [current]))
+                    graph.append((rev_proc, [current_name]))
                     current = rev_proc
+                    current_name = f"reverb_{i}"
 
                 elif ptype == 'fade':
                     duration = spec['duration']
                     direction = spec['direction']
-                    fade_proc = engine.make_fade_processor(f"fade_{i}", duration)
-                    if direction == 'in':
-                        fade_proc.fade_in()
-                    elif direction == 'out':
-                        fade_proc.fade_out()
-                    else:
-                        # fade can also take custom curve
-                        fade_proc.fade_in()  # default
-                    graph.append((fade_proc, [current]))
-                    current = fade_proc
+                    # Collect for post-processing after render
+                    fade_specs.append((direction, duration))
+                    # No graph addition; fade will be applied to final audio
 
                 elif ptype == 'overlay':
                     # Special: adds a second input to the graph and mixes
@@ -316,20 +380,23 @@ def transform(
                     gain_b = spec.get('gain_b', 0.0)
                     pos = spec.get('position', 0.0)
 
-                    buf_b = _load_audio_buffer(engine, track_b_path)
-                    playback_b = engine.make_playback_processor(f"overlay_{i}", buf_b)
+                    buf_b = _load_audio_buffer(sample_rate, track_b_path)
+                    playback_b = engine.make_playback_processor(f"overlay_{i}", buf_b.get_channels())
                     graph.append((playback_b, []))
+                    playback_b_name = f"overlay_{i}"
 
                     mixer = engine.make_add_processor(f"mixer_{i}", [10**(gain_a/20), 10**(gain_b/20)])
-                    graph.append((mixer, [current, playback_b]))
+                    graph.append((mixer, [current_name, playback_b_name]))
                     current = mixer
+                    current_name = f"mixer_{i}"
 
                 elif ptype == 'load_vst':
                     vst_path = spec['path']
                     idx = spec.get('plugin_idx', i)
                     plugin_proc = engine.make_plugin_processor(f"vst_{idx}", vst_path)
-                    graph.append((plugin_proc, [current]))
+                    graph.append((plugin_proc, [current_name]))
                     current = plugin_proc
+                    current_name = f"vst_{idx}"
 
                 elif ptype == 'set_param':
                     # Handled inline after load_vst
@@ -347,43 +414,58 @@ def transform(
 
                 elif ptype == 'trim':
                     # Trim is best handled by post-processing render
-                    # Mark for post-processing: store start/end times
                     start = spec.get('start', 0.0)
                     end = spec.get('end', None)
                     dur = spec.get('duration', None)
-                    # We'll handle trim after render
-                    # Store on current node for post-processing
-                    current._trim_spec = (start, end, dur)
+                    # Store for post-processing after render
+                    trim_spec = (start, end, dur)
 
                 else:
                     warnings.warn(f"Unknown operation type '{ptype}' — skipping")
-
             # Final current node is output of graph
             # Connect all nodes in graph (already built as we went)
             # Actually DawDreamer loader expects full graph list upfront.
-            # Let's rewrite to build full graph first:
-
-            # Rebuild: we built incrementally with append; the graph list is correct
-            # Now set output to last node and render
+            # Debug: print graph summary
+            for idx, (proc, inputs) in enumerate(graph):
+                proc_name = proc.__class__.__name__ if hasattr(proc, '__class__') else type(proc)
+                # inputs are processor name strings
+                print(f"[TRACE] Graph node {idx}: processor={proc_name}, inputs={inputs}")
             engine.load_graph(graph)
             engine.render(total_duration)
 
-            audio = engine.get_audio()
+            # Get rendered audio as numpy array (channels, samples)
+            raw_audio = engine.get_audio()
 
-            # Post-process: trim if marked
-            if hasattr(current, '_trim_spec'):
-                start, end, dur = current._trim_spec
-                # Compute sample indices
-                sr = engine.sampleRate
+            # Post-process: trim if specified
+            if trim_spec is not None:
+                start, end, dur = trim_spec
+                sr = sample_rate
                 s = int(start * sr)
                 if dur is not None:
                     e = s + int(dur * sr)
                 elif end is not None:
                     e = int(end * sr)
                 else:
-                    e = len(audio)
-                # Slice audio buffer (channels, samples)
-                audio = audio[:, s:e]
+                    e = raw_audio.shape[1]
+                raw_audio = raw_audio[:, s:e]
+
+            # Post-process: fades
+            for direction, duration in fade_specs:
+                fade_len = int(duration * sample_rate)
+                if fade_len > 0 and fade_len <= raw_audio.shape[1]:
+                    if direction == 'in':
+                        fade_curve = np.linspace(0, 1, fade_len)
+                        raw_audio[:, :fade_len] *= fade_curve
+                    elif direction == 'out':
+                        fade_curve = np.linspace(1, 0, fade_len)
+                        raw_audio[:, -fade_len:] *= fade_curve
+
+            # Apply accumulated gain if any
+            if abs(gain_factor - 1.0) > 1e-6:
+                raw_audio *= gain_factor
+
+            # Wrap in AudioBuffer for convenience (duration, saving)
+            audio = AudioBuffer(raw_audio, sample_rate)
 
             # Save to file
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -407,7 +489,7 @@ def transform(
         return {
             "success": False,
             "error": str(e),
-            "traceback": traceback.format_exc()[:500],
+            "traceback": traceback.format_exc()[:2000],
             "input": str(input_path),
         }
 
@@ -418,6 +500,7 @@ def mix(
     *,
     sample_rate: int = 44100,
     normalize_final: bool = False,
+    master_bus_chain: Optional[List[Dict]] = None,
 ) -> Dict:
     """
     Mix multiple audio tracks into a single output.
@@ -445,7 +528,7 @@ def mix(
             for track in tracks:
                 path_str = track['path']
                 path = Path(path_str).resolve()
-                buf = _load_audio_buffer(engine, str(path))
+                buf = _load_audio_buffer(sample_rate, str(path))
                 buffers.append(buf)
                 # Convert dB gain to linear
                 gain_db = track.get('gain_db', 0.0)
@@ -475,8 +558,7 @@ def mix(
                     mixed *= scale
 
             # Save
-            from dawdreamer import AudioBuffer
-            out_buf = AudioBuffer(mixed, engine.sampleRate)
+            out_buf = AudioBuffer(mixed, sample_rate)
             out_buf.save_to_file(str(output_path))
 
             return {
@@ -487,7 +569,7 @@ def mix(
             }
     except Exception as e:
         import traceback
-        return {"success": False, "error": str(e), "traceback": traceback.format_exc()[:300]}
+        return {"success": False, "error": str(e), "traceback": traceback.format_exc()[:2000]}
 
 
 def analyze_file(filepath: str) -> Dict:
@@ -499,7 +581,7 @@ def analyze_file(filepath: str) -> Dict:
 
     try:
         with DawDreamerEngine(sample_rate=44100, buffer_size=512) as engine:
-            audio = _load_audio_buffer(engine, str(path))
+            audio = _load_audio_buffer(44100, str(path))
 
             peak = abs(audio.get_peak())
             rms = audio.get_rms()
@@ -511,7 +593,7 @@ def analyze_file(filepath: str) -> Dict:
             return {
                 "file": str(path),
                 "duration": audio.duration,
-                "sample_rate": audio.sampleRate,
+                "sample_rate": audio.sample_rate,
                 "channels": audio.channels,
                 "frames": audio.numFrames,
                 "peak_dbfs": float(peak_db),

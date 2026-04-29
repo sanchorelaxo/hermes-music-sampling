@@ -19,7 +19,9 @@ def sample_wav(tmp_path_factory):
     wav_path = tmp_dir / "test.wav"
     result = subprocess.run(
         ["ffmpeg", "-y", "-f", "lavfi", "-i", "sine=frequency=440:duration=0.5",
-         "-t", "0.5", str(wav_path)],
+         "-af",
+            "volume=12dB",
+            "-t", "0.5", str(wav_path)],
         capture_output=True, text=True, timeout=30
     )
     if result.returncode != 0:
