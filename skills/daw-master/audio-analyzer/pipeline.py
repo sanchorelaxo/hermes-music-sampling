@@ -126,6 +126,7 @@ def probe(file_path: str) -> Dict[str, Any]:
                 info["format"] = f.format
                 info["subtype"] = f.subtype
                 info["frames"] = len(f)
+            info["success"] = True
             return info
         except Exception as e:
             pass
@@ -142,6 +143,7 @@ def probe(file_path: str) -> Dict[str, Any]:
             info["sample_rate"] = sr
             info["channels"] = channels
             info["format"] = "unknown (librosa fallback)"
+            info["success"] = True
             return info
         except Exception as e:
             pass
@@ -161,6 +163,7 @@ def probe(file_path: str) -> Dict[str, Any]:
                 info["sample_rate"] = int(lines[1]) if lines[1] else None
                 info["channels"] = int(lines[2]) if lines[2] else None
                 info["format"] = "ffprobe"
+                info["success"] = True
                 return info
     except Exception:
         pass
@@ -226,7 +229,8 @@ def analyze(file_path: str,
     if "tempo" in compute_features:
         onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length)
         tempo, beats = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
-        result["tempo"] = float(tempo)
+        # tempo may be a numpy array; convert to Python float
+        result["tempo"] = float(tempo.item()) if hasattr(tempo, 'item') else float(tempo)
         result["tempo_confidence"] = float(np.mean(onset_env[beats]) if len(beats) > 0 else 0.0)
         result["beat_count"] = int(len(beats))
 
@@ -401,14 +405,14 @@ def extract_batch(
     if output_file is None:
         from datetime import datetime
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = f"{root.name}_analysis_{ts}.{output_format}"
+        output_file = str(root / f"{root.name}_analysis_{ts}.{output_format}")
 
     out_path = Path(output_file)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     if output_format == "csv":
         # Flatten nested dicts (mfcc, vamp_plugins) as JSON strings
-        fieldnames = set()
+        fieldnames = {'file'}
         flattened = []
         for rec in records:
             flat = {"file": rec["file"]}
