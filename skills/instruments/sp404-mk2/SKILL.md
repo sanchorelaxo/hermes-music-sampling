@@ -1,6 +1,6 @@
 ---
-name: sp404-mk2
-description: Roland SP-404 MK2 — 16-pad sampler/sequencer with 4 bus effects, 29 MFX, 14 INPUT FX, DJ mode, TR-REC, BPM SYNC, resampling, skip-back sampling, and SD card storage. Source: ROLAND_SP-404_MK2.pdf reference manual.
+name: "sp404-mk2"
+description: "Roland SP-404 MK2 — 16-pad sampler/sequencer with 4 bus effects, 29 MFX, 14 INPUT FX, DJ mode, TR-REC, BPM SYNC, resampling, skip-back sampling, and SD card storage. Source: ROLAND_SP-404_MK2.pdf reference manual."
 category: instruments
 ---
 
@@ -9,7 +9,7 @@ category: instruments
 ## Hardware
 
 | Spec | Value |
-|------|-------|
+||~~~~~~||~~~~~~-|
 | Pads | 16 velocity-sensitive pads + 1 SUB PAD |
 | Pads velocity levels | 3 levels per pad (A/B/C) |
 | Banks | 10 banks (A–J), 16 pads each = 160 samples per project |
@@ -27,12 +27,12 @@ category: instruments
 
 **⚠️ Never plug 3.5mm mic/line into a device with phantom power — this destroys the ports.**
 
----
+***
 
 ## Modes
 
 | Mode | Entry | Description |
-|------|-------|-------------|
+||~~~~~~||~~~~~~-||~~~~~~~~~~~~-|
 | **SAMPLE** | Default | Play/trigger samples from pads |
 | **PATTERN** | PATTERN SELECT | 16-step sequencer (TR-REC or realtime) |
 | **DJ** | D + E/J banks held | 2-channel DJ mixer with crossfader, BPM sync, roll, reverse |
@@ -41,14 +41,14 @@ category: instruments
 ### Live Mode
 **SHIFT + BANK (hold 3s)** disables edit/sampling buttons for live performance — only playback controls remain active.
 
----
+***
 
 ## Sample Mode
 
 ### Playing Back Samples
 
 | Action | Control |
-|--------|---------|
+||~~~~~~--||~~~~~~~~~|
 | Trigger pad | Press pad (velocity-sensitive: A/B/C levels) |
 | Stop playback | STOP button |
 | Pause | SHIFT + PAUSE (latches until pressed again) |
@@ -65,7 +65,7 @@ Each pad stores 3 velocity layers (A = loud, B = medium, C = soft). Velocity aut
 ### Pitch/Speed Controls
 **PITCH/SPEED button** enters pitch screen:
 | Parameter | Control |
-|-----------|---------|
+||~~~~~~~~~--||~~~~~~~~~|
 | PITCH | CTRL 1 knob (±50 semitones) |
 | SPEED | CTRL 2 knob (50–200%) |
 | VOLUME | CTRL 3 knob |
@@ -92,14 +92,14 @@ Each pad stores 3 velocity layers (A = loud, B = medium, C = soft). Velocity aut
 3. On event (clap, beat), press **SAMPLING**
 4. Captures the 4 seconds **before** the trigger
 
----
+***
 
 ## Sampling
 
 ### Recording a Sample
 
 | Step | Action |
-|------|--------|
+||~~~~~~||~~~~~~--|
 | 1 | Press **SAMPLING** |
 | 2 | Configure input: SOURCE, LEVEL, MONO/STEREO |
 | 3 | Arm count-in if needed (SHIFT + Pad 9 = count-in on/off) |
@@ -109,7 +109,7 @@ Each pad stores 3 velocity layers (A = loud, B = medium, C = soft). Velocity aut
 
 ### Input Settings (SHIFT + INPUT SETTING)
 | Parameter | Control |
-|-----------|---------|
+||~~~~~~~~~--||~~~~~~~~~|
 | SOURCE | LINE / MIC / USB |
 | GAIN | Input sensitivity |
 | MONO/STEREO | SHIFT + GAIN knob |
@@ -123,14 +123,14 @@ Automatically sets end point at zero-crossing (eliminates clicks). Enabled: **SH
 2. Press **SHIFT + MARK** (3s+) → **CHOP**
 3. Sample splits at all markers, resulting pieces auto-assigned to consecutive pads
 
----
+***
 
 ## Effects System
 
 ### Bus Architecture
 
 | Bus | Type | Purpose |
-|-----|------|---------|
+||~~~--||~~~~~~||~~~~~~~~~|
 | **BUS 1** | Main FX bus | Apply to individual samples (per-pad BUS 1/2 assignment) |
 | **BUS 2** | Alt FX bus | Alternative effect chain for samples |
 | **BUS 3** | Master bus | Applied to overall output mix |
@@ -145,7 +145,7 @@ You can assign any effect to the top-panel effect buttons (FILTER+DRIVE through 
 ### 6 Hardware Effect Buttons (BUS 1/2 routing)
 
 | Button | Effect Type |
-|--------|-------------|
+||~~~~~~--||~~~~~~~~~~~~-|
 | **FILTER+DRIVE** | HPF/LPF + overdrive |
 | **EQ** | 3-band + isolator |
 | **ISOLATOR** | 3-band Kill (LOW/MID/HIGH cut) |
@@ -153,7 +153,7 @@ You can assign any effect to the top-panel effect buttons (FILTER+DRIVE through 
 | **DJFX LOOPER** | Turntable-style loop slicer |
 | **MFX** | Multi-effect (any of 29 MFX selectable) |
 
----
+***
 
 ## MFX List (29 Multi-Effects)
 
@@ -162,7 +162,7 @@ Selected via **MFX button** (hold + turn VALUE or CTRL 3 knob). Use **SHIFT + DJ
 ### Filter/Distortion
 
 | # | Name | Type | Parameters |
-|---|------|------|------------|
+||~~~||~~~~~~||~~~~~~||~~~~~~~~~~~~|
 | 1 | **Filter+Drive** | HPF/LPF + overdrive | CUTOFF (20–16000Hz), RESONANCE (0–100), DRIVE (0–100), FLT TYPE (HPF/LPF), LOW FREQ, LOW GAIN |
 | 2 | **Resonator** | Karplus-Strong physical model | ROOT (C1–G9), BRIGHT (0–100), FEEDBACK (0–99%), CHORD (Root/Oct/UpDn/P5/m3/m5/m7/m7oct/m0/M3/M5/M7/M7oct/M9/M11), PANNING, ENV MOD |
 | 3 | **Sync Delay** | Tempo-synced echo | TIME (1/32–1/1 bars + dotted/triplet), FEEDBACK (0–99%), LEVEL, L DAMP F (FLAT/80–10000Hz), H DAMP F (630–12500Hz/FLAT) |
@@ -184,7 +184,7 @@ Selected via **MFX button** (hold + turn VALUE or CTRL 3 knob). Use **SHIFT + DJ
 ### Vinyl/Cassette/Lo-fi
 
 | # | Name | Parameters |
-|---|------|------------|
+||~~~||~~~~~~||~~~~~~~~~~~~|
 | 18 | **303 VinylSim** | COMP, NOISE, WOW FLUT, LEVEL |
 | 19 | **404 VinylSim** | FREQUENCY, NOISE, WOW FLUT |
 | 20 | **Cassette Sim** | TONE, HISS, AGE (0–60 years), DRIVE, WOW FLUT, CATCH |
@@ -193,7 +193,7 @@ Selected via **MFX button** (hold + turn VALUE or CTRL 3 knob). Use **SHIFT + DJ
 ### Reverb/Chorus/Flanger/Phaser
 
 | # | Name | Parameters |
-|---|------|------------|
+||~~~||~~~~~~||~~~~~~~~~~~~|
 | 22 | **Reverb** | TYPE (AMBI/ROOM/HALL1/HALL2), TIME, LEVEL, LOW CUT, HIGH CUT, PRE DELAY |
 | 23 | **Chorus** | DEPTH, RATE (0.33–2.30s), BALANCE, EQ LOW (±15dB), EQ HIGH (±15dB), LEVEL |
 | 24 | **JUNO Chorus** | MODE (JUNO 1/2/12/JX-1 1/2), NOISE, BALANCE |
@@ -204,7 +204,7 @@ Selected via **MFX button** (hold + turn VALUE or CTRL 3 knob). Use **SHIFT + DJ
 ### Modulation/Pitch
 
 | # | Name | Parameters |
-|---|------|------------|
+||~~~||~~~~~~||~~~~~~~~~~~~|
 | 28 | **Slicer** | PATTERN (1–32), SPEED, DEPTH, SHUFFLE, MODE (LEGATO/SLASH), SYNC |
 | 29 | **Tremolo/Pan** | DEPTH, RATE, TYPE (TRE/PAN/TRI/SQR/SIN/SAW1/SAW2/TRP), WAVE, SYNC |
 | 30 | **Chromatic PS** | PITCH1/2 (±24 semi), BALANCE, PAN1/PAN2 (L50–R50) |
@@ -220,14 +220,14 @@ Selected via **MFX button** (hold + turn VALUE or CTRL 3 knob). Use **SHIFT + DJ
 | 40 | **Cloud Delay** | TIME, FEEDBACK, TONE, BALANCE (cloud/scatter algorithm) |
 | 41 | **Back Spin** | Auto back-spin on cue |
 
----
+***
 
 ## INPUT FX (14 Input Effects)
 
 Applied to audio coming into the INPUT jack. Access: **INPUT FX button** (in UTILITY → INPUT FX screen).
 
 | Index | Effect | Parameters |
-|-------|--------|------------|
+||~~~~~~-||~~~~~~--||~~~~~~~~~~~~|
 | 0 | **Bypass** | — |
 | 1 | **Auto Pitch** | For vocals |
 | 2 | **Vocoder** | For synthesizer voice |
@@ -247,14 +247,14 @@ Applied to audio coming into the INPUT jack. Access: **INPUT FX button** (in UTI
 | 16 | **Equalizer** | LOW/MID/HIGH GAIN, FREQ |
 | 17 | **Compressor** | SUSTAIN, ATTACK, RATIO, LEVEL |
 
----
+***
 
 ## Pattern Sequencer
 
 ### Creating a Pattern (TR-REC — Step Recording)
 
 | Step | Action |
-|------|--------|
+||~~~~~~||~~~~~~--|
 | 1 | Select bank (A–J) |
 | 2 | Press **PATTERN SELECT** → choose pattern number (1–20) with pads 1–16 |
 | 3 | Press **PATTERN EDIT** → enters step recording |
@@ -279,7 +279,7 @@ Press **PATTERN SELECT** then **SHIFT + pad** to chain patterns into a continuou
 ### Converting Pattern → Sample (Bounce)
 **SHIFT + BOUNCE** converts the entire pattern to a single sample on the current pad (freezes pattern into one audio file).
 
----
+***
 
 ## DJ Mode
 
@@ -287,7 +287,7 @@ Entry: Press **D bank + E/J bank** simultaneously.
 
 ### Channel Controls
 | Control | Function |
-|---------|----------|
+||~~~~~~~~~||~~~~~~~~~-|
 | CTRL 1 | CH1 LEVEL |
 | CTRL 2 | CH2 LEVEL |
 | CTRL 3 | CUE MIX (headphone monitoring) or X-FADE |
@@ -295,7 +295,7 @@ Entry: Press **D bank + E/J bank** simultaneously.
 
 ### Pad Functions (DJ Mode)
 | Pad | CH1 | CH2 |
-|-----|-----|-----|
+||~~~--||~~~--||~~~--|
 | 1, 2 | Play / Pause | — |
 | 3, 4 | — | Play / Pause |
 | 5, 6 | Reverse on/off | — |
@@ -314,13 +314,13 @@ Pad 10: CH1 follows CH2 tempo. Pad 12: CH2 follows CH1 tempo. **SHIFT + REVERSE 
 ### Volume Curve Selection
 **SHIFT + RESAMPLE + VALUE**: cycles through FAST CUT → LINEAR → SQUARE → CUBIC → FAST CUT.
 
----
+***
 
 ## Utility Settings (SHIFT + UTILITY)
 
 ### System Parameters
 | Parameter | Values | Description |
-|-----------|--------|-------------|
+||~~~~~~~~~--||~~~~~~--||~~~~~~~~~~~~-|
 | SWING | 50–80% | Timing swing |
 | SYSTEM RESO | ON/OFF | Unknown/reserved |
 | REVERSE TYPE | 303/404 | Which vinyl sim model for reverse |
@@ -333,7 +333,7 @@ Pad 10: CH1 follows CH2 tempo. Pad 12: CH2 follows CH1 tempo. **SHIFT + REVERSE 
 
 ### Pad Settings (PAD SET)
 | Parameter | Values | Description |
-|-----------|--------|-------------|
+||~~~~~~~~~--||~~~~~~--||~~~~~~~~~~~~-|
 | PAD VELOCITY | 3-VEL/16-VEL/FIXED | Velocity sensitivity mode |
 | PAD COLOR | — | Assign color to pad |
 | PAD LINK | ON/OFF | Per-pad link setting |
@@ -342,12 +342,12 @@ Pad 10: CH1 follows CH2 tempo. Pad 12: CH2 follows CH1 tempo. **SHIFT + REVERSE 
 ### EFX SET
 Assign effects to BUS 3 and BUS 4 (master buses). Up to 4 effects in series per bus.
 
----
+***
 
 ## Key Shortcuts
 
 | Shortcut | Action |
-|----------|--------|
+||~~~~~~~~~-||~~~~~~--|
 | SHIFT + PAD 1 | FIXED VELOCITY |
 | SHIFT + PAD 2 | 16 VELOCITY |
 | SHIFT + PAD 3 | CUE (headphone monitoring) |
@@ -378,12 +378,12 @@ Assign effects to BUS 3 and BUS 4 (master buses). Up to 4 effects in series per 
 | VALUE + PATTERN SELECT (lit) | Select pattern (no playback) |
 | SUB PAD (blink) | Tap tempo active |
 
----
+***
 
 ## SD Card Operations
 
 | Operation | Menu |
-|-----------|------|
+||~~~~~~~~~--||~~~~~~|
 | Import WAV | IMPORT SAMPLE (UTILITY → IMPORT/EXPORT) |
 | Export WAV | EXPORT SAMPLE |
 | Import project | IMPORT PROJECT (.zip) |
@@ -393,7 +393,7 @@ Assign effects to BUS 3 and BUS 4 (master buses). Up to 4 effects in series per 
 | Format SD | FORMAT (UTILITY) |
 | Factory reset | FACTORY RESET |
 
----
+***
 
 ## Linux Integration
 
