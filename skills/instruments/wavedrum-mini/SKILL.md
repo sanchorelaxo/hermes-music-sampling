@@ -1,6 +1,6 @@
 ---
-name: wavedrum-mini
-description: Korg WAVEDRUM Mini — dynamic percussion synthesizer with onboard sounds, effects, rhythm patterns, and looper
+name: "wavedrum-mini"
+description: "Korg WAVEDRUM Mini — dynamic percussion synthesizer with onboard sounds, effects, rhythm patterns, and looper"
 category: instruments
 ---
 
@@ -11,7 +11,7 @@ Korg WAVEDRUM Mini is a dynamic percussion synthesizer with a clip-triggered pic
 ## Device Overview
 
 | Spec | Detail |
-|------|--------|
+||~~~~~~||~~~~~~--|
 | Trigger | Built-in contact microphone (clip sensor) |
 | Sounds | 100+ built-in sounds (acoustic/electronic drums, percussion) |
 | Effects | 25 effect types (reverb, delay, chorus, flanger, etc.) |
@@ -23,7 +23,7 @@ Korg WAVEDRUM Mini is a dynamic percussion synthesizer with a clip-triggered pic
 ## Sound Categories
 
 | Category | Description |
-|----------|-------------|
+||~~~~~~~~~-||~~~~~~~~~~~~-|
 | **Acoustic** | Realistic acoustic drum/percussion sounds |
 | **Electronic** | Synthesized drum sounds |
 | **Percussion** | World percussion, shakers, etc. |
@@ -34,7 +34,7 @@ Korg WAVEDRUM Mini is a dynamic percussion synthesizer with a clip-triggered pic
 Hold `EFX` to enter effect select. Use data dial to choose.
 
 | Effect | Description |
-|--------|-------------|
+||~~~~~~--||~~~~~~~~~~~~-|
 | REVERB | Hall, room, plate reverb |
 | DELAY | Tape, ping-pong delay |
 | CHORUS | Stereo chorus |
@@ -61,7 +61,7 @@ Hold `EFX` to enter effect select. Use data dial to choose.
 ## Quick Reference
 
 | Action | Control |
-|--------|---------|
+||~~~~~~--||~~~~~~~~~|
 | Select sound | DATA DIAL (while playing or stopped) |
 | Effect on/off | EFX button |
 | Select effect | Hold EFX + DATA DIAL |
