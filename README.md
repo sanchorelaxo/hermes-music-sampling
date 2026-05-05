@@ -6,25 +6,56 @@ Aggregated music sampling skills for Hermes Agent — enabling audio production,
 
 This project collects and organizes music sampling and audio processing skills for use with Hermes Agent. It provides tools for discovering, analyzing, editing, and remixing audio files from the command line.
 
-**Architecture**: All skills live under the `daw-master` meta-skill namespace, which defines a unified interface: `transform(input, pipeline, output)`, `mix(tracks, output)`, and `analyze(file)`.
+**Architecture**: Skills live under three namespaces:
+- `daw-master` — unified interface: `transform(input, pipeline, output)`, `mix(tracks, output)`, `analyze(file)`
+- `instruments` — hardware instrument reference skills (audio/MIDI specs, routing, workflows)
+- `quneo` — QuNeo 3D multi-touch MIDI controller skills (SysEx presets, LED mapping, OSC)
 
-## Implemented Skills
+## Audio Processing Skills (daw-master)
 
 | Skill | Tool | Status | What It Does |
 |-------|------|--------|--------------|
-|| [`sox-engine`](skills/daw-master/sox-engine/SKILL.md) | SoX CLI | ✅ Implemented | 12+ effects: normalize, fade, trim, compand, EQ, mix |
-|| [`ffmpeg-audio`](skills/daw-master/ffmpeg-audio/SKILL.md) | FFmpeg filters | ✅ Implemented | Codecs, loudnorm, filtergraphs, multi-track mix |
-|| [`rubber-band-engine`](skills/daw-master/rubber-band-engine/SKILL.md) | Rubber Band CLI | ✅ Implemented | Professional time-stretch & pitch-shift |
-|| [`audio-analyzer`](skills/daw-master/audio-analyzer/SKILL.md) | librosa + Vamp | ✅ Implemented | BPM, key, MFCC, loudness, spectral features |
-|| [`batch-processor`](skills/daw-master/batch-processor/SKILL.md) | SoX + FFmpeg scripts | ✅ Implemented | Apply daw-master pipelines to directories of files |
-|| [`metadata-manager`](skills/daw-master/metadata-manager/SKILL.md) | BWFMetaEdit + mutagen | ✅ Implemented | BWF/RIFF metadata embedding (BEXT, iXML, ID3) |
-||| [`ardour-automator`](skills/daw-master/ardour-automator/SKILL.md) | Ardour (Lua) | ✅ Implemented | Headless session automation, export + arpeggiator subskill (simple/barlow/raptor) |
-|| [`carla-rack`](skills/daw-master/carla-rack/SKILL.md) | Carla (LV2/VST) | ✅ Implemented | Plugin rack — single-pass multi-effect chains |
-|| [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
+| [`sox-engine`](skills/daw-master/sox-engine/SKILL.md) | SoX CLI | ✅ | 12+ effects: normalize, fade, trim, compand, EQ, mix |
+| [`ffmpeg-audio`](skills/daw-master/ffmpeg-audio/SKILL.md) | FFmpeg filters | ✅ | Codecs, loudnorm, filtergraphs, multi-track mix |
+| [`rubber-band-engine`](skills/daw-master/rubber-band-engine/SKILL.md) | Rubber Band CLI | ✅ | Professional time-stretch & pitch-shift |
+| [`audio-analyzer`](skills/daw-master/audio-analyzer/SKILL.md) | librosa + Vamp | ✅ | BPM, key, MFCC, loudness, spectral features |
+| [`batch-processor`](skills/daw-master/batch-processor/SKILL.md) | SoX + FFmpeg scripts | ✅ | Apply daw-master pipelines to directories of files |
+| [`metadata-manager`](skills/daw-master/metadata-manager/SKILL.md) | BWFMetaEdit + mutagen | ✅ | BWF/RIFF metadata embedding (BEXT, iXML, ID3) |
+| [`ardour-automator`](skills/daw-master/ardour-automator/SKILL.md) | Ardour (Lua) | ✅ | Headless session automation, export + arpeggiator subskill |
+| [`carla-rack`](skills/daw-master/carla-rack/SKILL.md) | Carla (LV2/VST) | ✅ | Plugin rack — single-pass multi-effect chains |
+| [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
+| [`mastering-engineer`](skills/daw-master/mastering-engineer/SKILL.md) | SoX + FFmpeg | ✅ | Multi-band compression, limiting, loudness normalization |
+| [`mix-engineer`](skills/daw-master/mix-engineer/SKILL.md) | DawDreamer + Carla | ✅ | Multi-track mixing with per-channel effects |
 
-## Planned Skills
+## Hardware Instrument Skills (instruments)
 
-All core skills have been implemented. See [RESEARCH.md](RESEARCH.md) for future extension ideas.
+| Skill | Device | Key Capabilities |
+|-------|--------|----------------|
+| [sp404-mk2](skills/instruments/sp404-mk2/SKILL.md) | Roland SP-404 MK2 | 16-pad sampler, BPM sync, pattern sequencer, 10 MFX + 26 IFX |
+| [kaossilator-v1](skills/instruments/kaossilator-v1/SKILL.md) | Korg KAOSSILATOR (2007) | X-Y touchpad synth, 100 programs, gate arp G00-G49, phrase loop (8 beats) |
+| [kaossilator-v2](skills/instruments/kaossilator-v2/SKILL.md) | Korg kaossilator 2S (2011) | X-Y touchpad, 100 programs, 50 arp patterns, audio player, microSD, internal speaker |
+| [fx-wizard](skills/instruments/fx-wizard/SKILL.md) | Korg Kastle 2 (FX Wizard) | Patchable stereo multi-FX: 9 modes (Delay/Flanger/Freezer/Crusher/Slicer/Pitcher/Replayer/Shifter/Panner), LFO, envelope follower, pattern gen |
+| [wave-bard](skills/instruments/wave-bard/SKILL.md) | Korg Kastle 2 (Wave Bard) | Patchable 8-sample player, scale quantizer, filter, delay/chorus-flanger, LFO, pattern gen |
+| [wavedrum-mini](skills/instruments/wavedrum-mini/SKILL.md) | Roland WAVEDRUM Mini | Dynamic percussion synth, onboard sounds, effects, rhythm patterns, looper |
+| [minikp-v1](skills/instruments/minikp-v1/SKILL.md) | Korg miniKP (2006) | Portable X-Y touchpad FX, 100 programs, PROGRAM/BPM knob, LINE IN/OUT RCA |
+| [minikp-v2](skills/instruments/minikp-v2/SKILL.md) | Korg mini kaoss pad 2s (2011) | X-Y touchpad FX, fnc button, Direct/Send routing, audio player, auto power-off |
+| [qunexus](skills/instruments/qunexus/SKILL.md) | Keith McMillen QuNexus | 25-key USB MIDI keyboard, pressure, tilt, bend, patchable CV/expression |
+| [kaoss-dj-mixer](skills/instruments/kaoss-dj-mixer/SKILL.md) | Korg KAOSS DJ MIXER | USB DJ controller, X-Y touchpad, Serato DJ Intro, KAOSS effects |
+| [op-1](skills/instruments/op-1/SKILL.md) | Teenage Engineering OP-1 | 13 synth engines, drum sampler, 6 sequencers, 4-track tape, mixer, USB audio/MIDI |
+
+## QuNeo Controller Skills (quneo)
+
+| Skill | Description |
+|-------|-------------|
+| [quneo-controller](skills/quneo/quneo-controller/SKILL.md) | SysEx preset loading, Linux MIDI, reload command, device detection |
+| [quneo-led-mapping](skills/quneo/quneo-led-mapping/SKILL.md) | CC-based vs Note On LED control, preset slot layout |
+| [quneo-osc-integration](skills/quneo/quneo-osc-integration/SKILL.md) | OSC LED control, QuNeOSC Bridge addresses, pyliblo |
+
+## Reference
+
+- Manuals: `~/Downloads/current_music_docs/` (SP-404 MK2, KAOSSILATOR V1/V2, kastle2, WAVEDRUM Mini, miniKP V1/V2, qunexus, KAOSS DJ MIXER)
+- OP-1: `skills/instruments/op-1/SKILL.md` (local) or https://teenage.engineering/guides/op-1/original
+- QuNeo repos: `~/Documents/git/quneo-linux/`, `~/Documents/git/quneo-node/`, `~/Documents/git/queneo-editor/`, `~/Documents/git/node-quneo/`, `~/Documents/git/ofxQuNeo/`
 
 ---
 
