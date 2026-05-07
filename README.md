@@ -32,16 +32,18 @@ This project collects and organizes music sampling and audio processing skills f
 | Skill | Device | Key Capabilities |
 |-------|--------|----------------|
 | [sp404-mk2](skills/instruments/sp404-mk2/SKILL.md) | Roland SP-404 MK2 | 16-pad sampler, BPM sync, pattern sequencer, 10 MFX + 26 IFX |
-| [kaossilator-v1](skills/instruments/kaossilator-v1/SKILL.md) | Korg KAOSSILATOR (2007) | X-Y touchpad synth, 100 programs, gate arp G00-G49, phrase loop (8 beats) |
-| [kaossilator-v2](skills/instruments/kaossilator-v2/SKILL.md) | Korg kaossilator 2S (2011) | X-Y touchpad, 100 programs, 50 arp patterns, audio player, microSD, internal speaker |
+| [kaossilator-v1](skills/instruments/kaossilator-v1/SKILL.md) | Korg KAOSSILATOR (2007) | X-Y touchpad synth, 100 programs with full effect table (LEAD/ACOUSTIC/BASS/CHORD/SE/DRUM/PATTERN), gate arp G00-G49, phrase loop (8 beats) |
+| [kaossilator-v2](skills/instruments/kaossilator-v2/SKILL.md) | Korg kaossilator 2S (2011) | X-Y touchpad, 150 programs with full effect table (LD/AC/BS/CH/SE/DR/PT), 50 arp patterns, audio player, microSD, internal speaker |
 | [fx-wizard](skills/instruments/fx-wizard/SKILL.md) | Korg Kastle 2 (FX Wizard) | Patchable stereo multi-FX: 9 modes (Delay/Flanger/Freezer/Crusher/Slicer/Pitcher/Replayer/Shifter/Panner), LFO, envelope follower, pattern gen |
 | [wave-bard](skills/instruments/wave-bard/SKILL.md) | Korg Kastle 2 (Wave Bard) | Patchable 8-sample player, scale quantizer, filter, delay/chorus-flanger, LFO, pattern gen |
-| [wavedrum-mini](skills/instruments/wavedrum-mini/SKILL.md) | Roland WAVEDRUM Mini | Dynamic percussion synth, onboard sounds, effects, rhythm patterns, looper |
-| [minikp-v1](skills/instruments/minikp-v1/SKILL.md) | Korg miniKP (2006) | Portable X-Y touchpad FX, 100 programs, PROGRAM/BPM knob, LINE IN/OUT RCA |
-| [minikp-v2](skills/instruments/minikp-v2/SKILL.md) | Korg mini kaoss pad 2s (2011) | X-Y touchpad FX, fnc button, Direct/Send routing, audio player, auto power-off |
+| [wavedrum-mini](skills/instruments/wavedrum-mini/SKILL.md) | Roland WAVEDRUM Mini | Dynamic percussion synth, 100 sounds, 10 effect types (0-9) with full parameter tables, rhythm patterns, looper |
+| [minikp-v1](skills/instruments/minikp-v1/SKILL.md) | Korg miniKP (2006) | Portable X-Y touchpad FX, 100 programs (00-99) with full X/Y axis table, PROGRAM/BPM knob, LINE IN/OUT RCA |
+| [minikp-v2](skills/instruments/minikp-v2/SKILL.md) | Korg mini kaoss pad 2s (2011) | X-Y touchpad FX, 100 programs with full effect table (FILTER/MOD/LFO/DELAY/REVERB/LOOPER/VOCODER/SYNTH), fnc button, Direct/Send routing, audio player, auto power-off |
 | [qunexus](skills/instruments/qunexus/SKILL.md) | Keith McMillen QuNexus | 25-key USB MIDI keyboard, pressure, tilt, bend, patchable CV/expression |
-| [kaoss-dj-mixer](skills/instruments/kaoss-dj-mixer/SKILL.md) | Korg KAOSS DJ MIXER | USB DJ controller, X-Y touchpad, Serato DJ Intro, KAOSS effects |
+| [kaoss-dj-mixer](skills/instruments/kaoss-dj-mixer/SKILL.md) | Korg KAOSS DJ MIXER | USB DJ controller, X-Y touchpad, 86 programs with full effect table (FILTER/MOD/LFO/DELAY/REVERB/GRAIN/LOOPER/LEAD/AC/BASS/CHORD/SE), Serato DJ Intro |
 | [op-1](skills/instruments/op-1/SKILL.md) | Teenage Engineering OP-1 | 13 synth engines, drum sampler, 6 sequencers, 4-track tape, mixer, USB audio/MIDI |
+
+> All Korg instruments (kaossilator-v1/v2, minikp-v1/v2, kaoss-dj-mixer) include complete effect program tables sourced from the original manuals.
 
 ## QuNeo Controller Skills (quneo)
 
