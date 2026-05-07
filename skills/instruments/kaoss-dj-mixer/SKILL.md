@@ -11,7 +11,7 @@ Korg KAOSS DJ is a USB DJ controller that integrates with Serato DJ Intro. Featu
 ## Device Overview
 
 | Spec | Detail |
-||~~~~~~||~~~~~~--|
+|------|--------|
 | Touchpad | X-Y pad (KAOSS Effect mode) |
 | Channels | 2-deck control (A/B) |
 | Crossfader | Built-in crossfader curve-adjustable |
@@ -25,7 +25,7 @@ Korg KAOSS DJ is a USB DJ controller that integrates with Serato DJ Intro. Featu
 Press `TOUCHPAD MODE` to cycle between:
 
 | Mode | Function |
-||~~~~~~||~~~~~~~~~-|
+|------|----------|
 | **Controller** | Controls Serato DJ software |
 | **KAOSS Effect** | X-Y touchpad controls KAOSS effect |
 | **Sampler** | Controls Serato DJ sampler |
@@ -38,7 +38,7 @@ Press `TOUCHPAD MODE` to cycle between:
 ## Mixer Controls
 
 | Control | Function |
-||~~~~~~~~~||~~~~~~~~~-|
+|---------|----------|
 | `GAIN` knob | Input gain per channel |
 | `HI/MID/LO` knobs | 3-band EQ per deck |
 | `HEADPHONE` knob | Headphone volume |
@@ -49,7 +49,7 @@ Press `TOUCHPAD MODE` to cycle between:
 ## Effect Control (in KAOSS Effect mode)
 
 | Control | Function |
-||~~~~~~~~~||~~~~~~~~~-|
+|---------|----------|
 | `PROGRAM` knob | Select effect type |
 | `VALUE` knob | Adjust effect parameter |
 | `FX` button | Assign effect to selected deck |
@@ -71,7 +71,7 @@ amidi -l  # KAOSS DJ appears as raw MIDI device
 
 ### Sample MIDI Mapping
 | Control | CC |
-||~~~~~~~~~||~~~-|
+|---------|----|
 | Deck A Gain | CC 14 |
 | Deck A Hi EQ | CC 15 |
 | Deck A Mid EQ | CC 16 |
@@ -93,7 +93,7 @@ On Linux without Serato, use the MIDI data to control any DAW (Ardour, Mixxx, et
 ## Quick Reference
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Switch touchpad mode | `TOUCHPAD MODE` button |
 | Assign effect to deck | `FX` + deck button |
 | Load track to deck | `LOAD` + deck button |

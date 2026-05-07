@@ -9,7 +9,7 @@ category: instruments
 ## Device
 
 | Spec | Detail |
-||~~~~~~||~~~~~~--|
+|------|--------|
 | Mode | Wave Bard (sample player) — separate firmware from FX Wizard |
 | Samples | 8 samples per bank (3–32 adjustable in editor), 6 factory banks |
 | Sample Time | 89s mono / 44s stereo at 44kHz (or combination); more time at lower sample rates |
@@ -29,7 +29,7 @@ category: instruments
 ## Quick Reference
 
 | Control | Function |
-||~~~~~~~~~||~~~~~~~~~|
+|---------|---------|
 | **SHIFT** (short press) | Trigger selected sample (on button release) |
 | **SHIFT + KNOB** | Secondary (silver) function |
 | **BANK** | Next bank |
@@ -45,7 +45,7 @@ category: instruments
 ## Main Controls (Follow the White Woodpeckers)
 
 | Knob | Parameter | Secondary (SHIFT+) |
-||~~~~~~||~~~~~~~~~--||~~~~~~~~~~~~~~~~~~-|
+|------|-----------|-------------------|
 | **PITCH** (top right) | Playback rate ±2 octaves | Output volume |
 | **PITCH MOD** (top left) | Modulation amount of pitch CV input | Input gain |
 | **SAMPLE** (middle right) | Select 1 of 8 samples in bank | Filter (LP/HP) |
@@ -79,7 +79,7 @@ category: instruments
 **BANK + PITCH MOD** → cycles through scales. Default scales available (with ROOT=C):
 
 | Scale | Notes (from C) |
-||~~~~~~-||~~~~~~~~~~~~~~~|
+|-------|---------------|
 | Chromatic | All 12 |
 | Major | C D E F G A B |
 | Minor | C D Eb F G Ab Bb |
@@ -90,7 +90,7 @@ User-defined scales loadable via web app editor.
 
 ### Pitch Controls
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Change octave | **BANK + PITCH** (triggers sample on change) |
 | Fine tune ±2 semitones | **BANK + LFO MOD** (after quantizer) |
 | Set root note | **BANK + SAMPLE MOD** |
@@ -122,7 +122,7 @@ User-defined scales loadable via web app editor.
 Controls CV modulation of sample selection.
 
 | Mode | Setting | Behavior |
-||~~~~~~||~~~~~~~~~||~~~~~~~~~-|
+|------|---------|----------|
 | **PLAY** | Knob left | CV directly triggers samples |
 | **CUE** | Knob right | CV aims at sample, playback waits for TRIG |
 
@@ -136,7 +136,7 @@ Controls CV modulation of sample selection.
 **SHIFT + SAMPLE MOD** knob:
 
 | Position | Effect |
-||~~~~~~~~~-||~~~~~~--|
+|----------|--------|
 | Center | No effect |
 | Left | Stereo delay (tempo-synced to 3/8th note) |
 | Right | Chorus + flanger + soft-clipping distortion (further right = more flanging resonance) |
@@ -145,7 +145,7 @@ Controls CV modulation of sample selection.
 **SHIFT + SAMPLE** knob:
 
 | Position | Type |
-||~~~~~~~~~-||~~~~~~|
+|----------|------|
 | Center | Open (no filter) |
 | Left | Lowpass filter |
 | Right | Highpass filter |
@@ -169,7 +169,7 @@ Tempo source priority: **USB MIDI clock > SYNC IN > Internal clock**
 Enter: **SHIFT + BANK (>2s)**
 
 | LFO Knob Position | Light | Behavior |
-||~~~~~~~~~~~~~~~~~~-||~~~~~~-||~~~~~~~~~-|
+|-------------------|-------|----------|
 | Left (khaki) | Ignore MIDI clock |
 | Center (white) | Normal priority |
 | Right (orange) | Ignore analog SYNC IN |
@@ -202,7 +202,7 @@ Always tempo-synced. Produces two signals:
 
 **Patchbay inputs for Pattern Generator**:
 | Input | Function |
-||~~~~~~-||~~~~~~~~~-|
+|-------|----------|
 | PATTERN G (left pin) | Modifies GATE rhythm (patch + = randomize, patch − = invert steps) |
 | PATTERN C (right pin) | Modifies CV sequence (patch + = randomize level, patch − = invert around 2.5V) |
 | PATTERN R (middle pin) | RESETS both GATE and CV sequences on rising edge |
@@ -226,7 +226,7 @@ Three horizontal points are interconnected. Multiple outputs → single input = 
 
 ### Bi-Directional Ports (TRS at back)
 | Symbol | Description |
-||~~~~~~--||~~~~~~~~~~~~-|
+|--------|-------------|
 | **+** | Logic high output (~5V) |
 | **−** | Logic low output (~0V) |
 | **⏚** | Direct ground reference |
@@ -244,7 +244,7 @@ Patching + and − together → ~2.5V (resistor protected).
 **Input routing** (Advanced Settings → PITCH knob):
 
 | Knob Position | Light | Routing |
-||~~~~~~~~~~~~~~~||~~~~~~-||~~~~~~~~~|
+|---------------|-------|---------|
 | Right | Blue | Mix AUDIO IN with Wave Bard at output |
 | Left | Red | Route AUDIO IN through Wave Bard effects |
 
@@ -268,7 +268,7 @@ Useful for: clock on right channel + audio on left (e.g., TE-PO sync), or mono-o
 Notes 0–48 (lowest 4 octaves): switch and trigger samples in current bank. Note C = first sample in bank. Only first 12 samples can be triggered.
 
 | Octave Range | Pitch Behavior |
-||~~~~~~~~~~~~-||~~~~~~~~~~~~~~~|
+|-------------|---------------|
 | 0–23 | Original pitch |
 | 24–47 | Original pitch |
 | 0–11, 12–23 | Original pitch (same) |
@@ -278,7 +278,7 @@ Notes above 48 = trigger only (no pitch info).
 ### Receiving MIDI CC
 
 | CC | Parameter | Physical Knob |
-||~~~-||~~~~~~~~~--||~~~~~~~~~~~~~~~|
+|----|-----------|---------------|
 | 1 | GATE trigger | TRIG input |
 | 7 | Output Volume | SHIFT + PITCH |
 | 9 | Input Gain | SHIFT + PITCH MOD |
@@ -341,7 +341,7 @@ Access: Chrome/Edge/Firefox desktop (not Safari). PWA-installable.
 **Enter**: **SHIFT + BANK (>2s)**
 
 | Setting | Control | Values |
-||~~~~~~~~~||~~~~~~~~~||~~~~~~--|
+|---------|---------|--------|
 | Audio input behavior | PITCH MOD knob | Left=mono L, Center=stereo, Right=mono R |
 | Input routing | PITCH knob | Left=FX through, Right=mix at output |
 | Clock priority | LFO knob | Khaki=ignore MIDI, White=normal, Orange=ignore SYNC IN |

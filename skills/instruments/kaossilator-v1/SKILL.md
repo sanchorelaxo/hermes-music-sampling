@@ -11,7 +11,7 @@ Korg KAOSSILATOR dynamic phrase synthesizer, first generation (2007).
 ## Hardware
 
 | Spec | Value |
-||~~~~~~||~~~~~~-|
+|------|-------|
 | Year | 2007 |
 | Dimensions | 106 x 129 x 29 mm |
 | Weight | 163 g (without batteries) |
@@ -31,7 +31,7 @@ Korg KAOSSILATOR dynamic phrase synthesizer, first generation (2007).
 ## Controls
 
 | Element | Function |
-||~~~~~~~~~||~~~~~~~~~-|
+|---------|----------|
 | PROGRAM/VALUE knob | Select program / adjust parameters |
 | TAP/BPM button | Set BPM manually or via tap tempo |
 | LOOP REC/PLAY button | Record and loop phrases (hold to rec, release to stop) |

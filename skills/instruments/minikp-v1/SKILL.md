@@ -11,7 +11,7 @@ Korg KAOSS PAD miniKP dynamic effect processor, first generation (2006).
 ## Hardware
 
 | Spec | Value |
-||~~~~~~||~~~~~~-|
+|------|-------|
 | Year | 2006 |
 | Dimensions | Compact (see PDF) |
 | Weight | Compact |
@@ -43,7 +43,7 @@ Korg KAOSS PAD miniKP dynamic effect processor, first generation (2006).
 ## Controls
 
 | Element | Function |
-||~~~~~~~~~||~~~~~~~~~-|
+|---------|----------|
 | PROGRAM/BPM knob | Select program 00-99 / adjust BPM |
 | Effect depth knob | Set effect wet/dry mix |
 | ON/STANDBY switch | Power on/off |

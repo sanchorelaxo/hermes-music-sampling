@@ -11,7 +11,7 @@ Korg mini kaoss pad 2s dynamic effect processor, second generation (2011).
 ## Hardware
 
 | Spec | Value |
-||~~~~~~||~~~~~~-|
+|------|-------|
 | Year | 2011 |
 | Model | mini kaoss pad 2s |
 | Dimensions | Compact, smaller than V1 |
@@ -35,7 +35,7 @@ Korg mini kaoss pad 2s dynamic effect processor, second generation (2011).
 ## Controls
 
 | Element | Function |
-||~~~~~~~~~||~~~~~~~~~-|
+|---------|----------|
 | Touchpad | X-Y effect control |
 | fx button | Access FX PARAMETER screen, FX RELEASE, and layer parameters |
 | fnc (function) button | CONNECTION screen, FX RELEASE, power settings, volume |
