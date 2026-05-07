@@ -9,7 +9,7 @@ category: instruments
 ## Device
 
 | Spec | Detail |
-||~~~~~~||~~~~~~--|
+|------|--------|
 | Mode | FX Wizard (effects processor) — separate firmware from Wave Bard |
 | Audio | Stereo in/out, 44kHz/16-bit |
 | Power | USB-C (5V) or 3× AA batteries (~15–18 hours) |
@@ -31,7 +31,7 @@ category: instruments
 ## Quick Reference
 
 | Control | Function |
-||~~~~~~~~~||~~~~~~~~~|
+|---------|---------|
 | **FX MODE** button | Cycle to next FX mode |
 | **SHIFT + FX MODE** | Previous FX mode |
 | **SHIFT + KNOB** | Secondary (silver) function |
@@ -49,7 +49,7 @@ category: instruments
 All modes share the same 3 main parameter knobs (white rabbits): **TIME**, **FEEDBACK**, **AMOUNT** — plus FILTER and STEREO (secondary functions).
 
 | # | Mode | Color | TIME | FEEDBACK | AMOUNT |
-||~~~||~~~~~~||~~~~~~-||~~~~~~||~~~~~~~~~-||~~~~~~--|
+|---|------|-------|------|----------|--------|
 | 1 | **Delay** | blue | delay time | feedback | mix |
 | 2 | **Flanger** | green | speed | feedback | depth |
 | 3 | **Freezer** | blue | freeze size | feedback | mix |
@@ -63,7 +63,7 @@ All modes share the same 3 main parameter knobs (white rabbits): **TIME**, **FEE
 ### Common Parameters (All Modes)
 
 | Parameter | Control | Description |
-||~~~~~~~~~--||~~~~~~~~~||~~~~~~~~~~~~-|
+|-----------|---------|-------------|
 | **TIME** | White rabbit (top right) | Main time/frequency parameter |
 | **TIME MOD** | Top left knob | Attenuverting modulation of TIME (center=0, right=positive, left=negative) |
 | **FREE TIME MOD** | Patch input | Real-time direct modulation of TIME |
@@ -115,7 +115,7 @@ Tempo source priority: **USB MIDI clock > SYNC IN > Internal clock**
 Enter: **SHIFT + FX MODE (>2s)**
 
 | LFO Knob Position | Light | Behavior |
-||~~~~~~~~~~~~~~~~~~-||~~~~~~-||~~~~~~~~~-|
+|-------------------|-------|----------|
 | Left | Khaki | Ignore MIDI clock |
 | Center | White | Normal priority |
 | Right | Orange | Ignore analog SYNC IN |
@@ -152,7 +152,7 @@ Always tempo-synced. Produces two signals:
 
 **Patchbay inputs for Pattern Generator**:
 | Input | Function |
-||~~~~~~-||~~~~~~~~~-|
+|-------|----------|
 | PATTERN G (left pin) | Modifies GATE rhythm (patch + = randomize, patch − = invert steps) |
 | PATTERN C (right pin) | Modifies CV sequence (patch + = randomize level, patch − = invert around 2.5V) |
 | PATTERN R (middle pin) | RESETS both GATE and CV sequences on rising edge |
@@ -176,7 +176,7 @@ Three horizontal points are interconnected. Multiple outputs → single input = 
 
 ### Bi-Directional Ports (TRS at back)
 | Symbol | Description |
-||~~~~~~--||~~~~~~~~~~~~-|
+|--------|-------------|
 | **+** | Logic high output (~5V) |
 | **−** | Logic low output (~0V) |
 | **⏚** | Direct ground reference |
@@ -198,7 +198,7 @@ Patching + and − together → ~2.5V (resistor protected).
 Notes 0–44 (lowest 4 octaves) switch FX modes. C = mode 1 (Delay).
 
 | Note | Mode |
-||~~~~~~||~~~~~~|
+|------|------|
 | C (0, 12, 24, 36) | Delay |
 | C# (1, 13, 25, 37) | Flanger |
 | D (2, 14, 26, 38) | Freezer |
@@ -214,7 +214,7 @@ Notes above 48 (C2) = trigger only.
 ### Receiving MIDI CC
 
 | CC | Parameter | Physical Knob |
-||~~~-||~~~~~~~~~--||~~~~~~~~~~~~~~~|
+|----|-----------|---------------|
 | 0 | — | — |
 | 1 | FX Mode | mapped from 0–127 to mode values |
 | 7 | Output Volume | SHIFT + top right knob |
@@ -251,7 +251,7 @@ FX Wizard syncs to incoming USB MIDI clock. Clock divider options (via TEMPO kno
 **Enter/Exit**: **SHIFT + FX MODE (>2s)**
 
 | Setting | Control | Values |
-||~~~~~~~~~||~~~~~~~~~||~~~~~~--|
+|---------|---------|--------|
 | Clock priority | LFO knob | Khaki=ignore MIDI, White=normal, Orange=ignore SYNC IN |
 | Memory reset | SHIFT + FX MODE (>15s) | — |
 

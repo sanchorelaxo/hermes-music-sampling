@@ -9,7 +9,7 @@ category: instruments
 ## Hardware
 
 | Spec | Value |
-||~~~~~~||~~~~~~-|
+|------|-------|
 | Keys | 25-key musical keyboard (C1–C3, octave shiftable) |
 | Display | OLED, 64×128 px |
 | Audio | 24-bit, USB audio class compliant |
@@ -32,7 +32,7 @@ category: instruments
 Press one of the four main mode keys (Synth, Drum, Tape, Mixer) to enter that mode. Press **SHIFT + any main mode key** to enter the secondary function of that mode (indicated by the letter below each key).
 
 | Key | Primary Mode | Secondary (SHIFT+) |
-||~~~--||~~~~~~~~~~~~--||~~~~~~~~~~~~~~~~~~-|
+|-----|--------------|-------------------|
 | T1 | Synthesizer | Synth engine selector |
 | T2 | Drum | Drum engine selector |
 | T3 | Tape | Tape transport/settings |
@@ -47,7 +47,7 @@ Press one of the four main mode keys (Synth, Drum, Tape, Mixer) to enter that mo
 Access: **SHIFT + T1** → blue encoder scrolls engines → any key confirms.
 
 | Engine | Type | Key Parameters |
-||~~~~~~--||~~~~~~||~~~~~~~~~~~~~~~|
+|--------|------|---------------|
 | **Cluster** | Multi-layered oscillator cluster | Number of waves (0–6), wave envelope, spread |
 | **Digital** | True digital synthesis, ring mod | Wave shaper, octave, detune, digitalness |
 | **String** | Waveguide string model | Tension, impulse decay, detune, impulse type |
@@ -65,7 +65,7 @@ Access: **SHIFT + T1** → blue encoder scrolls engines → any key confirms.
 ### Synth Controls (per voice)
 
 | Parameter | Control | Secondary (SHIFT+) |
-||~~~~~~~~~--||~~~~~~~~~||~~~~~~~~~~~~~~~~~~-|
+|-----------|---------|-------------------|
 | Envelope | Orange encoder | Attack, decay, sustain, release via envelope screen |
 | Playmode | Green encoder | LFO sync, retrig types |
 | Effect | White encoder | 8 built-in effects (delay, grid, nitro, spring, telematic, punch, power, cwo) |
@@ -85,7 +85,7 @@ Access: **SHIFT + T1** → blue encoder scrolls engines → any key confirms.
 Access: **SHIFT + T2** → blue encoder selects engine.
 
 | Engine | Type |
-||~~~~~~--||~~~~~~|
+|--------|------|
 | **Drum Sampler** | Teenage percussion sample player — per-pad note/pitch, loop off/once/reverse, gain |
 | **D-Box** | Teenage drum synthesizer — pitch, waveform, envelope, filter cutoff freq |
 
@@ -112,7 +112,7 @@ Access: Press **SHIFT + any main mode** to see sequencer options.
 ### 1. Endless Sequencer (128 notes max)
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Store notes | **SHIFT + any musical keyboard key** |
 | Auto-advance | Releases key → automatically moves one step forward |
 | Insert long note | Hold key + press Forward Arrow (`>`) |
@@ -132,7 +132,7 @@ Access: Press **SHIFT + any main mode** to see sequencer options.
 Ideal for drum patterns.
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Insert notes | **SHIFT + any musical keyboard key** |
 | Erase notes | **SHIFT + Blue encoder** |
 | Move cursor | Arrow keys or Blue encoder |
@@ -149,7 +149,7 @@ Ideal for drum patterns.
 Notes **bounce** — harder bounces play louder.
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Drop notes | Play any key on musical keyboard |
 | Adjust bounciness | Orange encoder (affects volume via mass) |
 | Adjust heaviness | Green encoder (sets gravity) |
@@ -164,7 +164,7 @@ Notes **bounce** — harder bounces play louder.
 Each white key represents a pattern. Two gorillas appear in drum mode.
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Insert notes | **SHIFT + any musical keyboard key** |
 | Move cursor + erase | **SHIFT + Blue encoder** |
 | Set sequence length | White encoder |
@@ -177,7 +177,7 @@ Each white key represents a pattern. Two gorillas appear in drum mode.
 ### 5. Sketch Sequencer (Free-form shape drawing)
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Draw shapes | Blue + Green encoders (shape controls pitch) |
 | Move cursor | White + Orange encoders |
 | Move cursor vertically | Musical keyboard |
@@ -188,7 +188,7 @@ Each white key represents a pattern. Two gorillas appear in drum mode.
 ### 6. Arpeggio Sequencer
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Trigger mode | Blue encoder |
 | Trigger pattern | Green encoder |
 | Note length | White encoder |
@@ -205,7 +205,7 @@ OP-1 has a **6-track tape recorder** (4 audio tracks + 2 shared tracks). It reco
 ### Recording
 
 | Action | Control |
-||~~~~~~--||~~~~~~~~~|
+|--------|---------|
 | Arm recording | **SHIFT + T3** → select track with blue encoder |
 | Record | Press **T3** again → play on tape |
 | Overdub | Record over existing audio |
@@ -241,7 +241,7 @@ The mixer is the **final stage** of the OP-1 sound path. Press **T4** repeatedly
 Transforms four tape tracks into one stereo signal.
 
 | Encoder | Parameter | Range |
-||~~~~~~~~~||~~~~~~~~~--||~~~~~~-|
+|---------|-----------|-------|
 | Blue | Track 1 level | 0–99 |
 | Green | Track 2 level | 0–99 |
 | White | Track 3 level | 0–99 |
@@ -252,7 +252,7 @@ Transforms four tape tracks into one stereo signal.
 
 ### T2: EQ (3-Band Equalizer)
 | Encoder | Parameter |
-||~~~~~~~~~||~~~~~~~~~--|
+|---------|-----------|
 | Blue | Low (bass) |
 | Green | Mid |
 | White | High (treble) |
@@ -265,7 +265,7 @@ Same effects as Synth/Drum mode, **modified for stereo**.
 
 ### T4: Master Out
 | Parameter | Control |
-||~~~~~~~~~--||~~~~~~~~~|
+|-----------|---------|
 | Master balance L/R | Blue + Green encoders |
 | Drive | Orange encoder |
 | Release | White encoder (controls how quickly drive narrows the dynamic range; mid-to-long = pumping sound) |
@@ -279,7 +279,7 @@ Same effects as Synth/Drum mode, **modified for stereo**.
 Press **SHIFT + T4** → select tempo view.
 
 | Mode | Description | Green Encoder |
-||~~~~~~||~~~~~~~~~~~~-||~~~~~~~~~~~~~~~|
+|------|-------------|---------------|
 | **Free** | Tempo and tape speed independent; no sync transmitted or received | Counterclockwise |
 | **Beat Match** | OP-1 is master clock; sends MIDI sync over USB; tempo and tape speed linked (green link symbol) | Center-right |
 | **Sync** | OP-1 listens to external MIDI clock over USB (EXT displayed if no external tempo detected); tempo not linked to tape speed (orange link symbol) | Clockwise |
@@ -311,7 +311,7 @@ Press **Shift + T4** on any drum or synth sound → blue encoder selects LFO mod
 ### 8 LFO Modes
 
 | Mode | Source | Key Encoders |
-||~~~~~~||~~~~~~--||~~~~~~~~~~~~--|
+|------|--------|--------------|
 | **Element** | External: g-force sensor, external input (radio/line/mic), synth engine envelope/level | Blue (source), Green (amount), White (destination), Orange (parameter) |
 | **Random** | Random parameter modulation with envelope | Blue (amount), Green (speed), White (destination), Orange (attack/decay) |
 | **Tremolo** | Pitch + volume modulation | Blue (speed), Green (pitch), White (volume), Orange (attack/decay) |
@@ -331,7 +331,7 @@ Sine, Saw, Exp, Square, Blip
 Press **SHIFT + T3** → **T1/T2** to select effect. Available in Synth, Drum, and as Master Effect (stereo versions):
 
 | Effect | Type | Key Parameters |
-||~~~~~~--||~~~~~~||~~~~~~~~~~~~~~~|
+|--------|------|---------------|
 | **Delay** | Solid state delay | Size, speed, feedback, mix |
 | **Grid** | 3D feedback plate | X/Y size, Z feedback, mix |
 | **Nitro** | Dual resonant turbo filter | Frequency, filter frequency follow, resonance, phone, punch |
@@ -399,7 +399,7 @@ OP-1 can send specific key mappings to control Reason's transport and Ableton Li
 For firmware updates and factory reset.
 
 | Function | Access |
-||~~~~~~~~~-||~~~~~~--|
+|----------|--------|
 | Firmware update | Press UPDATE (displayed in TE-Boot) |
 | Factory reset | Press FACTORY RESET |
 | Format internal drive | Press FORMAT |
@@ -410,7 +410,7 @@ For firmware updates and factory reset.
 ## Key Shortcuts
 
 | Shortcut | Action |
-||~~~~~~~~~-||~~~~~~--|
+|----------|--------|
 | **SHIFT + HELP** | Key name and function of any key |
 | **Hold HELP + play keys** | Note information |
 | **SHIFT + HELP** (from any mode) | TOOLS (time/date) |

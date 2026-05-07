@@ -11,7 +11,7 @@ Korg kaossilator 2S dynamic phrase synthesizer, second generation (2011).
 ## Hardware
 
 | Spec | Value |
-||~~~~~~||~~~~~~-|
+|------|-------|
 | Year | 2011 |
 | Model name | kaossilator 2S |
 | Dimensions | 76 x 128 x 25 mm |
@@ -35,7 +35,7 @@ Korg kaossilator 2S dynamic phrase synthesizer, second generation (2011).
 ## Controls
 
 | Element | Function |
-||~~~~~~~~~||~~~~~~~~~-|
+|---------|----------|
 | VALUE slider | Select program / adjust parameters |
 | snd button | Recall Program Select screen |
 | arp button + indicator | Toggle arpeggiator / access arp parameters |

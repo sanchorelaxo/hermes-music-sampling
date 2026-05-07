@@ -11,7 +11,7 @@ Keith McMillen QuNexus is a 25-key ultra-portable USB MIDI keyboard with polypho
 ## Device Overview
 
 | Spec | Detail |
-||~~~~~~||~~~~~~--|
+|------|--------|
 | Keys | 25 keys (one octave each for C–B, across 2 octaves) |
 | Sensors | Pressure (per key), X-tilt, Y-tilt |
 | Bend | Touch-sensitive bend pad (horizontal) |
@@ -57,7 +57,7 @@ amidi -l  # find QuNexus port
 
 ### Typical MIDI Messages
 | Message | Data |
-||~~~~~~~~~||~~~~~~|
+|---------|------|
 | Note On/Off | Standard 0x90/0x80 |
 | Channel Pressure | Per-key pressure (0-127) |
 | Pitchbend | Bend pad (14-bit, ~0-16383) |
@@ -65,7 +65,7 @@ amidi -l  # find QuNexus port
 
 ### Mapping (Factory Defaults)
 | Control | CC |
-||~~~~~~~~~||~~~-|
+|---------|----|
 | X-tilt | 74 (default) |
 | Y-tilt | 1 (modwheel) |
 | Expression 1 | 7 (volume) |
