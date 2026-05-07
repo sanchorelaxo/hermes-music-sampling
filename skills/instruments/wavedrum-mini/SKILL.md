@@ -33,15 +33,20 @@ Korg WAVEDRUM Mini is a dynamic percussion synthesizer with a clip-triggered pic
 
 Hold `EFX` to enter effect select. Use data dial to choose.
 
-| Effect | Description |
-|--------|-------------|
-| REVERB | Hall, room, plate reverb |
-| DELAY | Tape, ping-pong delay |
-| CHORUS | Stereo chorus |
-| FLANGER | Modulated comb filter |
-| PHASER | All-pass modulated filter |
-| DIST | Clip, fuzz, overdrive |
-| FILTER | LPF, HPF, BPF |
+The WAVEDRUM Mini has 10 effect types (0-9). Each effect has a type parameter (for reverb type selection) and three adjustable parameters.
+
+| Type | Name | P1-Name | P1-Range | P2-Name | P2-Range | P3-Name | P3-Range |
+|------|------|---------|----------|---------|----------|---------|----------|
+| 0 | Reverb | Type (0-10): 0=Off, 1=Slap, 2=Spring1, 3=Spring2, 4=Plate, 5=Garage, 6=Chamber, 7=Canyon, 8=Room, 9=Studio, 10=Hall | 0-10 | Mix (Dry/Wet balance) | 0-99 | Depth (Reverb duration) | 0-99 |
+| 1 | Multi Tap Delay | Mode: 0=Conventional echo, 1=ta ta ta (rest), 2=ta (rest) ta ta, 3=ta ta (rest) ta, 4=ta ta ta ta | 0-4 | Time (Delay time) | 0-99 | Feedback (Feedback amount) | 0-99 |
+| 2 | Delay + Reverb | Time (Delay time) | 0-99 | Feedback (Delay feedback) | 0-99 | Mix (Reverb mix amount) | 0-99 |
+| 3 | Reverb + Phaser | Mix (Reverb amount) | 0-99 | Depth (Phaser depth) | 0-99 | Speed (Phaser speed) | 0-99 |
+| 4 | Reverb + Flanger | Mix (Reverb amount) | 0-99 | Depth (Flanger depth) | 0-99 | Speed (Flanger speed) | 0-99 |
+| 5 | Pitch Shifter | Pitch (Semitone steps) | 0-48 | Tracking (Tracking characteristics) | 0-99 | Delay Time | 0-99 |
+| 6 | Random Step Filter | Speed | 0-99 | Depth (Modulation depth) | 0-99 | Resonance | 0-99 |
+| 7 | Sweep Modulation Delay + Flanger | Time (Sweep time) | 0-99 | Type: 0=Sweep down, 1=Sweep up | 0-1 | Mix (Flanger mix) | 0-99 |
+| 8 | Tube OD + Flanger | Drive (Distortion/boost) | 0-99 | Speed (Flanger speed) | 0-99 | Mix (Flanger mix) | 0-99 |
+| 9 | Random Step Filter + Delay | Speed (Random step filter speed) | 0-99 | Depth (Modulation depth) | 0-99 | Time (Delay time) | 0-99 |
 
 ## Rhythm Patterns
 
