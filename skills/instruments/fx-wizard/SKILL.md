@@ -1,10 +1,17 @@
 ---
 name: "fx-wizard"
-description: "Korg kastle 2 FX Wizard — patchable stereo multi-FX unit with 9 effects (Delay/Flanger/Freezer/Panner/Crusher/Slicer/Pitcher/Replayer/Shifter), pattern generator, LFO, envelope follower, and full CV/Gate/MIDI modulation. Firmware v1.5+."
+description: "Bastl Kastle 2 FX Wizard — patchable stereo multi-FX unit with 9 effects (Delay/Flanger/Freezer/Panner/Crusher/Slicer/Pitcher/Replayer/Shifter), pattern generator, LFO, envelope follower, and full CV/Gate/MIDI modulation. Firmware v1.6+. Bastl Instruments (bastl-instruments.com), NOT Korg."
 category: instruments
+globs: ~/Documents/git/hermes-music-sampling/skills/instruments/fx-wizard/**/*
 ---
 
-# Korg kastle 2 — FX Wizard
+# Bastl Kastle 2 — FX Wizard
+
+**Manufacturer:** [Bastl Instruments](https://bastl-instruments.com/instruments/kastle2-fx-wizard) (Czech Republic) — NOT Korg
+**Original Kastle (v1):** https://bastl-instruments.com/instruments/kastle
+**Platform GitHub:** https://github.com/bastl-instruments/kastle2
+
+> "Instead of navigating thru preset effects, you can craft your own unique effects with dynamic behavior using modulation. The FX WIZARD embraces happy accidents, sparking excitement with unexpected and unheard sonic transformations."
 
 ## Device
 
@@ -12,11 +19,10 @@ category: instruments
 |------|--------|
 | Mode | FX Wizard (effects processor) — separate firmware from Wave Bard |
 | Audio | Stereo in/out, 44kHz/16-bit |
-| Power | USB-C (5V) or 3× AA batteries (~15–18 hours) |
+| Power | USB-C (5V) or 3× AA batteries (~15–18 hours, ~100–150mA) |
 | I/O | 3.5mm patch points: CV, Gate, LFO, Trigger, Sync; USB MIDI; analog sync in/out |
 | Memory | 15 presets per mode |
-| Dimensions | Compact portable (specific mm not published) |
-| Weight | ~350g estimated |
+| Dimensions | Compact portable (~350g) |
 
 **Battery**: Low battery → backlight turns red. Fresh alkaline: 3×1.5V=4.5V. NiMh: 3×1.2V=3.6V. Below 3V = dead.
 
@@ -26,12 +32,12 @@ category: instruments
 
 **⚠️ USB does NOT charge batteries.**
 
-***
+---
 
 ## Quick Reference
 
 | Control | Function |
-|---------|---------|
+|---------|----------|
 | **FX MODE** button | Cycle to next FX mode |
 | **SHIFT + FX MODE** | Previous FX mode |
 | **SHIFT + KNOB** | Secondary (silver) function |
@@ -42,7 +48,7 @@ category: instruments
 | **SHIFT + LFO knob** | Set internal tempo |
 | **SHIFT + FX MODE (tap)** | Tap tempo |
 
-***
+---
 
 ## 9 FX Modes
 
@@ -96,7 +102,110 @@ All modes share the same 3 main parameter knobs (white rabbits): **TIME**, **FEE
 
 **Shifter (red/pink)**: Nuanced pitch shifting avoiding transient duplication. TIME = pitch direction (above middle=up, below=down), AMOUNT = dry/wet, FEEDBACK = global feedback. Cool noises when slight shift + input fades. TRIG = resets LFO sync.
 
-***
+---
+
+## Patch Recipes (Cookbook)
+
+16 preset patches from the official FX Wizard Cookbook. Each recipe shows suggested cable connections.
+
+### FX Mode 1: DELAY (blue) — Page 1
+
+#### 1. Ducking Delay
+**Sound:** Great for vocals — delay ducks under input signal.
+**Patch:** `ENV` → `FX MODE`
+> ENV output controls FX MODE input, attenuate with FX MODE + AMOUNT knob.
+
+#### 2. Vibrato + Chorus and Flanger
+**Sound:** Adds pitch modulation. Lower AMOUNT for chorus, add FEEDBACK for flanger.
+**Patch:** `LFO TRI` → `TIME MOD`
+> Patch LFO triangle output into time modulation input for chorus/flanger.
+
+#### 3. Broken Tape
+**Sound:** Randomly modulated triangle LFO warbles delay time (nostalgia effect).
+**Patch:** `LFO TRI` → `STEP` → `TIME MOD`
+> Chain: LFO TRI → STEP input, then STEP output → TIME MOD input.
+
+#### 4. Haas Effect
+**Sound:** Detune delay between L/R channels for stereo widening.
+**Patch:** None required — use STEREO knob (SHIFT + middle left) to detune L/R.
+
+### FX Mode 2: FLANGER (green) — Page 1
+
+#### 5. Signal Responsive Stereo Chorus
+**Sound:** ENV resets modulation with transients. Add FEEDBACK for flanging.
+**Patch:** `ENV` → `RESET`
+> ENV output resets the LFO timing on transients.
+
+#### 6. Auto Freezer
+**Sound:** ENV triggers refreeze of audio buffer.
+**Patch:** `ENV` → `TRIG`
+> Adjust INPUT to set envelope sensitivity.
+
+### FX Mode 3: FREEZER (blue) — Page 1
+
+#### 7. Rhythm Freezer
+**Sound:** Refreeze with CV-modulated synced LFO. Add variation with TIME modulation.
+**Patch:** `LFO TRI` → `TRIG`, `PATTERN R` → `LFO TEMPO`
+> LFO resets freeze on rhythm; Pattern R controls LFO tempo.
+
+#### 8. Rhythm Glitcher
+**Sound:** Rhythmical freezes synchronized to tempo. Be nuanced or totally glitch out!
+**Patch:** `PATTERN G` → `TRIG`
+> Gate pattern triggers freeze rhythm.
+
+### FX Mode 4: PANNER (white) — Page 2
+
+#### 9. Tail Panner & Distorter
+**Sound:** Loud parts stay centered; tails get panned. Add FEEDBACK to distort.
+**Patch:** `ENV` → `FX MODE`, `LFO TRI` → `TIME MOD`
+> ENV controls panning, LFO adds time-based wobble.
+
+#### 10. Stereo Ring Mod
+**Sound:** Speed up panner to audio rate for stereo ring modulation.
+**Patch:** `LFO TRI` → `TIME MOD`
+> High LFO rate creates ring mod effect. Modulate TIME for more fun.
+
+### FX Mode 5: CRUSHER (yellow) — Page 2
+
+#### 11. LO-FI Phaser
+**Sound:** Animate downsampling frequency with LFO for subtle modulation. Add STEREO.
+**Patch:** `LFO TRI` → `TIME MOD`
+> Slow LFO sweep creates moving bitcrush artifacts.
+
+### FX Mode 6: SLICER (light green) — Page 2
+
+#### 12. Dynamic Slicer
+**Sound:** Modulate slicer decay with slow LFO for dynamic chops.
+**Patch:** `LFO TRI` → `FX MODE`
+> LFO modulates the slice envelope.
+
+### FX Mode 7: PITCHER (red) — Page 2
+
+#### 13. Pitched Repeater (with crickets)
+**Sound:** Pitch up and speed up. ENV → TRIG aligns with input.
+**Patch:** `ENV` → `TRIG`, `LFO TRI` → `TIME MOD`
+> Add FEEDBACK for "cricket" sounds.
+
+### FX Mode 8: REPLAYER (orange) — Page 2
+
+#### 14. Twin Peaks Reverse Speech
+**Sound:** Reverse-speech effect ("Hello agent Cooper").
+**Patch:** `ENV` → `TIME MOD`, `LFO TRI` → `FX MODE`
+> ENV modulates pitch window, LFO triggers mode changes.
+
+### FX Mode 9: SHIFTER (pink) — Page 2
+
+#### 15. Space Vinyl Saucer
+**Sound:** Adjust tempo changes modulation speed. Add FEEDBACK for "intergalactic lift off."
+**Patch:** `STEP` → `TIME MOD`
+> Stepped CV creates quantized time modulation.
+
+#### 16. 8bit Synth
+**Sound:** Turn LFO into VCO. Use AMOUNT and FILTER for timbral modulation.
+**Patch:** `LFO TRI` → `AUDIO IN L`, `LFO PULSE` → `TRIG`, `ENV` → `FX MODE`
+> LFO triangle into audio input creates oscillator; pulse triggers envelope.
+
+---
 
 ## Tempo Generator
 
@@ -125,7 +234,7 @@ Enter: **SHIFT + FX MODE (>2s)**
 - **SYNC OUT**: Outputs master clock. Acts as **SYNC THRU** when SYNC IN is connected.
 - SYNC OUT R patch point for non-clock use.
 
-***
+---
 
 ## Modulation Sources
 
@@ -159,7 +268,7 @@ Always tempo-synced. Produces two signals:
 
 **GATE rhythm**: **SHIFT + LFO MOD knob** → cycles through 16 patterns
 
-***
+---
 
 ## Patchbay
 
@@ -185,7 +294,7 @@ Patching + and − together → ~2.5V (resistor protected).
 
 **⚠️ When connecting multiple Kastles or devices: must connect grounds together. Audio/sync jacks connect grounds automatically. Use ⏚ → ground or − patch point for explicit ground connection.**
 
-***
+---
 
 ## MIDI Implementation
 
@@ -244,7 +353,7 @@ FX Wizard syncs to incoming USB MIDI clock. Clock divider options (via TEMPO kno
 
 **Sends MIDI clock** when NOT receiving MIDI clock (or after ignore setting).
 
-***
+---
 
 ## Advanced Settings
 
@@ -259,7 +368,7 @@ FX Wizard syncs to incoming USB MIDI clock. Clock divider options (via TEMPO kno
 
 **Firmware Update**: Power OFF → hold SHIFT → power ON → copy .uf2 to RPI-RP2 disk.
 
-***
+---
 
 ## Linux / USB MIDI
 
@@ -268,10 +377,9 @@ Class-compliant USB MIDI device. No driver needed.
 ```bash
 # List MIDI ports
 amidi -l
-# Find Kastle 2
 
-# Set MIDI channel (via alsa)
-aconnect or a2jmidid for bridge
+# Find Kastle 2
+# "Kastle 2 FX Wizard" appears as a MIDI device
 
 # Send CC to FX Wizard
 sendmidi dev "Kastle 2 FX Wizard" cc 14 64  # TIME = 64
@@ -280,3 +388,18 @@ sendmidi dev "Kastle 2 FX Wizard" cc 14 64  # TIME = 64
 # CC14 = TIME, CC16 = FEEDBACK, CC18 = AMOUNT
 # Notes 0-8 = switch FX modes
 ```
+
+---
+
+## Resources
+
+| Document | Source |
+|----------|--------|
+| Quickstart Guide | `/home/rjodouin/Downloads/kastle2-stuff/manual-kastle2-fxwizard-quickstart.pdf` |
+| Complete Manual | `/home/rjodouin/Downloads/kastle2-stuff/manual-kastle2-fxwizard-web.pdf` |
+| Cookbook (recipes) | `/home/rjodouin/Downloads/kastle2-stuff/kastle2_fxwizard_cookbook.pdf` |
+| Patch Sheets | `/home/rjodouin/Downloads/kastle2-stuff/kastle2_fxwizard_patchsheet.pdf` |
+| PO Sync Guide | `/home/rjodouin/Downloads/kastle2-stuff/kastle2-po-sync-guide.pdf` |
+| Firmware + Release Notes | [bastl-instruments.com](https://bastl-instruments.com/instruments/kastle2-fx-wizard) |
+| Web App (patterns/sequencer) | [apps.bastl-instruments.com/fx-wizard-chamber](https://apps.bastl-instruments.com/fx-wizard-chamber/) |
+| GitHub (open-source) | [github.com/bastl-instruments/kastle2](https://github.com/bastl-instruments/kastle2) |
