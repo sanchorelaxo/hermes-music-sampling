@@ -248,24 +248,4 @@ All patchbay signals map to the `Hardware::DigitalOutput`, `Hardware::AnalogOutp
 All patchbay inputs are protected by **ESD diodes** (D5–D11, PESD5V0L2BT).
 
 ---
-
-## Circuitary.ai Notes
-
-**Circuitary** (`github.com/tonny-2200/circuitry`) is a YOLOv8 + LLaMA 3 circuit schematic analyzer. Its pipeline:
-
-1. **YOLOv8** detects 43 electronic component classes (resistors, capacitors, ICs, transistors, etc.) with bounding boxes.
-2. **OpenCV** (Canny + HoughLinesP) detects wire segments between components.
-3. **Structured prompt** lists detected components + wire endpoints, sent to **LLaMA 3** via `gpt4all`.
-4. **LLM reasoning** generates a circuit explanation from spatial and functional relationships.
-
-**Status:** The `best.pt` YOLO weights file in the repo is a 2-byte text placeholder (not actual weights). The real weights were trained on Roboflow dataset `development-tohnm/cghd-1152` but never committed. The LLaMA 3 GGUF model (~5GB) must be downloaded manually from gpt4all.io.
-
-To make circuitary operational:
-```bash
-# 1. Download YOLO weights from Roboflow (or retrain)
-# 2. Download LLaMA 3 GGUF (Meta-Llama-3-8B-Instruct-Q4_0.gguf) from https://gpt4all.io/
-# 3. Fix paths in test.py (hardcoded Windows paths)
-# 4. Install deps: ultralytics, gpt4all, opencv-python
-```
-
-For Kastle 2 specifically, the schematic analysis above was performed using vision AI directly on the PDF render, cross-referenced with firmware source -- a manual version of what circuitary automates.
+---
