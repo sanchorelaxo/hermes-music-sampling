@@ -43,8 +43,7 @@ hermes-music-sampling/
     │   ├── qunexus/        # KMI QuNexus — 25-key USB MIDI keyboard
     │   ├── kaoss-dj-mixer/ # Korg KAOSS DJ MIXER — USB DJ controller
     │   └── op-1/           # Teenage Engineering OP-1 — 13 synth engines
-    │
-    quneo/                  # QuNeo 3D multi-touch MIDI controller
+    └── quneo/           # QuNeo 3D multi-touch MIDI controller (Keith McMillen)
         ├── SKILL.md        # Category index
         ├── quneo-controller/    # SysEx preset loading, Linux MIDI, reload
         ├── quneo-led-mapping/  # CC vs Note On LED control

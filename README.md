@@ -9,7 +9,6 @@ This project collects and organizes music sampling and audio processing skills f
 **Architecture**: Skills live under three namespaces:
 - `daw-master` — unified interface: `transform(input, pipeline, output)`, `mix(tracks, output)`, `analyze(file)`
 - `instruments` — hardware instrument reference skills (audio/MIDI specs, routing, workflows)
-- `quneo` — QuNeo 3D multi-touch MIDI controller skills (SysEx presets, LED mapping, OSC)
 
 ## Audio Processing Skills (daw-master)
 
@@ -45,13 +44,13 @@ This project collects and organizes music sampling and audio processing skills f
 
 > All Korg instruments (kaossilator-v1/v2, minikp-v1/v2, kaoss-dj-mixer) include complete effect program tables sourced from the original manuals.
 
-## QuNeo Controller Skills (quneo)
+## QuNeo Controller Skills (instruments/quneo)
 
 | Skill | Description |
 |-------|-------------|
-| [quneo-controller](skills/quneo/quneo-controller/SKILL.md) | SysEx preset loading, Linux MIDI, reload command, device detection |
-| [quneo-led-mapping](skills/quneo/quneo-led-mapping/SKILL.md) | CC-based vs Note On LED control, preset slot layout |
-| [quneo-osc-integration](skills/quneo/quneo-osc-integration/SKILL.md) | OSC LED control, QuNeOSC Bridge addresses, pyliblo |
+| [quneo-controller](skills/instruments/quneo/quneo-controller/SKILL.md) | SysEx preset loading, Linux MIDI, reload command, device detection |
+| [quneo-led-mapping](skills/instruments/quneo/quneo-led-mapping/SKILL.md) | CC-based vs Note On LED control, preset slot layout |
+| [quneo-osc-integration](skills/instruments/quneo/quneo-osc-integration/SKILL.md) | OSC LED control, QuNeOSC Bridge addresses, pyliblo |
 
 ## Reference
 
