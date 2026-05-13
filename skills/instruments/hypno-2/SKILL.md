@@ -285,6 +285,8 @@ Loaded on Channels 1 and 2. These are 2D oscillator shapes that generate video f
 
 > **Shader parameter count rule:** Shaders can expose 0–5 custom uniforms. When fewer than 5 are exposed, unused CCs show `---` in the UI.
 
+> **Shader development skill:** See [shader-dev/SKILL.md](shader-dev/SKILL.md) for comprehensive GLSL techniques, Hypno 2 constraints, and ready-to-run `.frag` templates. Covers noise generators, SDF shapes, domain warping, Voronoi, edge detection, blend modes, time animation, and audio-reactive patterns — all optimized for the Pi 5 GPU.
+
 ## Patch Recipe Patterns
 
 Common workflows for the Hypno 2. Each recipe assumes you know the basic controls from Quick Reference.
@@ -436,6 +438,7 @@ Write and test custom shaders on-device.
 6. Compile errors display inline — fix and re-save
 
 > **Tip:** Copy working shaders from the factory library as starting templates. The 5 classic Hypno 1 shapes (`sin.frag`, `tan.frag`, `poly.frag`, `circle.frag`, `noise.frag`) are good reference examples.
+> See [shader-dev/](shader-dev/) for GLSL technique guides and ready-to-use `.frag` templates (bare-minimum, generative-shape, video-effect, audio-reactive).
 
 ## Resources
 
@@ -447,3 +450,5 @@ Write and test custom shaders on-device.
 - Firmware: https://sleepycircuits.gitbook.io/sleepy-circuits/hypno2/hypno-2-firmware
 - Forum: https://forum.sleepycircuits.com/
 - Matrix chat: #sleepycircuits:matrix.org
+- Shader development guides: [shader-dev/techniques/](shader-dev/techniques/) — noise, SDF, voronoi, color palettes, domain warping, blend modes, edge detection, time animation
+- Shader templates: [shader-dev/templates/](shader-dev/templates/) — bare-minimum.frag, generative-shape.frag, video-effect.frag, audio-reactive.frag
