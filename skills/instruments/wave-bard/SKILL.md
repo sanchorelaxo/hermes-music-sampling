@@ -1,37 +1,29 @@
 ---
 name: "wave-bard"
-description: "Bastl Kastle 2 Wave Bard — patchable stereo sample player with 8 samples/bank, scale quantization, resonant filter, stereo delay/chorus-flanger, pattern generator, LFO, and full CV/Gate/MIDI modulation. Firmware v1.1+. Bastl Instruments (bastl-instruments.com), NOT Korg."
-category: instruments
-globs: ~/Documents/git/hermes-music-sampling/skills/instruments/wave-bard/**/*
+description: "Use when working with the Bastl Kastle 2 Wave Bard — patchable stereo sample player with 8 samples/bank, scale quantization, resonant filter, stereo delay/chorus-flanger, pattern generator, LFO, and full CV/Gate/MIDI modulation. Firmware v1.1+."
+version: 1.0.0
+author: Hermes Agent
+license: MIT
+metadata:
+  hermes:
+    tags: ["instrument", "sampler", "kastle2", "bastl", "cv", "midi", "patchbay"]
+    related_skills: ["fx-wizard", "kastle2-hardware"]
 ---
 
 # Bastl Kastle 2 — Wave Bard
 
-**Manufacturer:** [Bastl Instruments](https://bastl-instruments.com/instruments/kastle-2-wave-bard) (Czech Republic) — NOT Korg
-**Original Kastle (v1):** https://bastl-instruments.com/instruments/kastle
+**Manufacturer:** [Bastl Instruments](https://bastl-instruments.com/instruments/kastle-2-wave-bard) (Czech Republic) — NOT Korg  
 **Platform GitHub:** https://github.com/bastl-instruments/kastle2
 
-> "Wave Bard is not just a sound box — it's a powerful MIDI controller and sequencer."
+Wave Bard is a patchable stereo sample player with 8 samples per bank, scale quantization, resonant filter, stereo delay/chorus-flanger, pattern generator, LFO, and full CV/Gate/MIDI modulation.
 
-## Device
+## When to Use
 
-| Spec | Detail |
-|------|--------|
-| Mode | Wave Bard (sample player) — separate firmware from FX Wizard |
-| Samples | 8 samples per bank (3–32 adjustable in editor), 6 factory banks |
-| Sample Time | 89s mono / 44s stereo at 44kHz; more time at lower sample rates |
-| Memory | 7.5 MiB; banks: 1–32; all banks must have same sample count |
-| Audio | Stereo in/out, 44kHz/16-bit |
-| Power | USB-C (5V) or 3× AA batteries (~15–18 hours, ~100–150mA) |
-| I/O | 3.5mm patch points: CV, Gate, LFO, Trigger, Sync; USB MIDI; analog sync in/out |
-| MIDI | Sends/receives: notes, CC, pitch bend, clock |
-| Dimensions | Compact portable (~350g) |
-
-**Factory banks**: 6 pre-loaded banks by Oliver Torr.
-
-**⚠️ USB does NOT charge batteries.**
-
----
+- Triggering and playing audio samples with CV/MIDI modulation
+- Building quantized melodic sequences on a Eurorack-compatible platform
+- Creating rhythmic patterns with the internal pattern generator and LFO
+- Patching custom signal chains using the 3.5mm patchbay
+- Loading custom samples via the web app editor
 
 ## Quick Reference
 
@@ -47,8 +39,6 @@ globs: ~/Documents/git/hermes-music-sampling/skills/instruments/wave-bard/**/*
 | **SHIFT + BANK (>10s)** | Memory reset |
 | **SHIFT + BANK (tap)** | Tap tempo |
 
----
-
 ## Main Controls (Follow the White Woodpeckers)
 
 | Knob | Parameter | Secondary (SHIFT+) |
@@ -62,8 +52,6 @@ globs: ~/Documents/git/hermes-music-sampling/skills/instruments/wave-bard/**/*
 | **LFO MOD** (bottom left) | LFO modulation amount | Load preset rhythm |
 | **BANK** button | Next bank | Previous bank (hold SHIFT) |
 
----
-
 ## Sample Organization
 
 - **8 samples per bank** (adjustable 3–32 in editor)
@@ -72,108 +60,17 @@ globs: ~/Documents/git/hermes-music-sampling/skills/instruments/wave-bard/**/*
 - Each bank has a color. **BANK button** cycles banks.
 - Samples organized as: Bank → Sample index → Sound
 
-**Loading custom samples**: Via web app → generates .uf2 firmware file → copy to Wave Bard in boot mode (hold SHIFT + power ON).
-
----
-
-## Patch Recipes (Cookbook)
-
-16 preset patches from the official Wave Bard Cookbook. Each recipe shows suggested cable connections.
-
-### Page 1
-
-#### 1. Beat Discovery
-**Sound:** Explore grooves. Hold BANK and turn LENGTH.
-**Patch:** `LFO TRI` → `TRIG`, `ENV` → `BANK`
-> Turn knobs and experience the grooves.
-
-#### 2. On & Off the Grid
-**Sound:** Shift between quantized (on-grid) and unquantized (groove) rhythms.
-**Patch:** `LFO TRI` → `TRIG`, `PATTERN G` → `ENV`
-> Sample Mod left = CUE (on grid), right = GROOOVE.
-
-#### 3. Free Jazz
-**Sound:** Chaotic drum rolls. Push SAMPLE MOD right to fire drum rolls.
-**Patch:** `LFO TRI` → `FREE NOTE`, `LFO PULSE` → `TRIG`
-> Adjust LFO to jam.
-
-#### 4. Tempo Shuffle
-**Sound:** Rhythmic irregularity by CV-modulated LFO tempo.
-**Patch:** `SYNC OUT L` → `PATTERN R`, `ENV` → `LFO MOD`
-> Adjust TEMPO divider for feel.
-
-#### 5. Ratchets
-**Sound:** Rapid repeated notes synced to grid by modulating synced LFO rate.
-**Patch:** `PATTERN G` → `LFO MOD`, `LFO TRI` → `TRIG`, `ENV` → `CV`
-> Ratchets on the grid.
-
-#### 6. LAZERS
-**Sound:** "PiuPiu" sci-fi lasers by modulating pitch with envelope.
-**Patch:** `LFO PULSE` → `TRIG`, `ENV` → `PITCH MOD`
-> Modulate pitch with envelope.
-
-#### 7. Crazy Fast Delay
-**Sound:** Internal delay forced to high speeds by patching + to LFO MOD.
-**Patch:** `+` (positive voltage) → `LFO MOD`, `SYNC OUT L` → `TRIG`, `LFO TRI` → `BANK`
-> Delay is tempo-synced; make it faster with positive voltage.
-
-#### 8. Retrig Heaven
-**Sound:** LFO speed increases as envelope rises, combined with GATE.
-**Patch:** `LFO PULSE` → `TRIG`, `ENV` → `LFO MOD`, `PATTERN G` → `GATE`
-> LFO triggers combined with GATE for retrigs.
-
-### Page 2
-
-#### 9. Walking Backwards
-**Sound:** Modulate LENGTH from reverse to forward for different accents.
-**Patch:** `LFO TRI` → `LENGTH MOD`, `ENV` → `TRIG`
-> LFO modulates length from reverse to forward.
-
-#### 10. Hyper Polka
-**Sound:** Simple, efficient beats. Modulate BANK for variety.
-**Patch:** `LFO PULSE` → `TRIG`, `ENV` → `BANK`
-> Simplest of beats, very efficient.
-
-#### 11. Ambient Textures
-**Sound:** Reversed atmospheric textures. Turn down TEMPO/LFO, turn up DELAY.
-**Patch:** `LFO TRI` → `LENGTH MOD`, `ENV` → `TRIG`, `PATTERN C` → `BANK`
-> Explore reversed textures.
-
-#### 12. Linear Drumming with Tupplets
-**Sound:** LFO in SAW config to trigger; SAMPLE MOD sets density.
-**Patch:** `LFO TRI` → `TRIG`, `ENV` → `RESET`
-> LFO in saw configuration.
-
-#### 13. TOTALLY RADOM
-**Sound:** C PATTERN input as random CV for unpredictable rhythms.
-**Patch:** `PATTERN C` → `LFO MOD`, `SYNC L` → `TRIG`, `ENV` → `BANK`
-> Connect C PATTERN input to + for RANDOM CV.
-
-#### 14. Drunk Groove
-**Sound:** Fast LFO reset by GATE RHYTHM triggers off-grid between gates.
-**Patch:** `LFO TRI` → `TRIG`, `PATTERN G` → `RESET`
-> Fast-ish LFO reset by GATE.
-
-#### 15. Odd Beat Rhythms
-**Sound:** RHYTHM resets LFO, which shortens pattern oddly.
-**Patch:** `LFO TRI` → `TRIG`, `LFO PULSE` → `PATTERN G`, `ENV` → `RESET`
-> Pick RHYTHM with only first beat to reset free LFO.
-
-#### 16. ???WHAT IS HAPPENING???
-**Sound:** Experimental for life — nothing is stable.
-**Patch:** `SYNC L` → `TRIG`, `PATTERN C` → `LFO MOD`, `LFO TRI` → `LENGTH MOD`, `ENV` → `RESET`, `PATTERN G` → `BANK`
-> Self-modulating patch — NOTHING IS STABLE!
-
----
+**Loading custom samples:** Via web app → generates .uf2 firmware file → copy to Wave Bard in boot mode (hold SHIFT + power ON).
 
 ## Pitch & Quantizer
 
-**PITCH knob**: ±2 octaves playback rate (4 octaves total range). Not quantized by default — works in free mode.
+**PITCH knob**: ±2 octaves playback rate (4 octaves total range). Not quantized by default.
 
 **Quantized pitch**: Sample pitch aligns to musical scale when NOTE PITCH MOD input changes or when previewing scale (hold BANK + turn PITCH).
 
 ### Scale Selection
-**BANK + PITCH MOD** → cycles through scales. Default scales available (with ROOT=C):
+
+**BANK + PITCH MOD** → cycles through scales. Default scales:
 
 | Scale | Notes (from C) |
 |-------|---------------|
@@ -186,6 +83,7 @@ globs: ~/Documents/git/hermes-music-sampling/skills/instruments/wave-bard/**/*
 User-defined scales loadable via web app editor.
 
 ### Pitch Controls
+
 | Action | Control |
 |--------|---------|
 | Change octave | **BANK + PITCH** (triggers sample on change) |
@@ -197,8 +95,6 @@ User-defined scales loadable via web app editor.
 
 > **Note**: All loaded samples should be tuned to tone C for tonal accuracy with scales.
 
----
-
 ## Sample Trigger & Envelope
 
 ### Trigger
@@ -207,16 +103,12 @@ User-defined scales loadable via web app editor.
 
 ### Length Envelope
 - **LENGTH right**: Sets decay time
-- **LENGTH left**: Sets reverse attack envelope (sample plays backward, then fades in forward — attack from reversed)
-- During reverse attack: sample does **not retrigger** (held note plays through reversal before forward starts)
+- **LENGTH left**: Sets reverse attack envelope (sample plays backward, then fades in forward)
+- During reverse attack: sample does **not retrigger**
 - **LENGTH MOD**: CV modulation of length envelope (updates only at trigger)
 - **ENV OUT**: Patchable output of the length envelope
 
----
-
 ## Sample Select Modulation (SAMPLE MOD)
-
-Controls CV modulation of sample selection.
 
 | Mode | Setting | Behavior |
 |------|---------|----------|
@@ -225,21 +117,17 @@ Controls CV modulation of sample selection.
 
 **BANK input**: Patch point for bank selection CV with attenuation.
 
----
-
 ## Effects
 
-### Delay / Chorus-Flanger
-**SHIFT + SAMPLE MOD** knob:
+### Delay / Chorus-Flanger (**SHIFT + SAMPLE MOD**)
 
 | Position | Effect |
 |----------|--------|
 | Center | No effect |
 | Left | Stereo delay (tempo-synced to 3/8th note) |
-| Right | Chorus + flanger + soft-clipping distortion (further right = more flanging resonance) |
+| Right | Chorus + flanger + soft-clipping distortion |
 
-### Filter
-**SHIFT + SAMPLE** knob:
+### Filter (**SHIFT + SAMPLE**)
 
 | Position | Type |
 |----------|------|
@@ -247,81 +135,51 @@ Controls CV modulation of sample selection.
 | Left | Lowpass filter |
 | Right | Highpass filter |
 
----
-
 ## Tempo Generator
 
 Tempo source priority: **USB MIDI clock > SYNC IN > Internal clock**
 
-### Set Internal Tempo
-- **SHIFT + LFO knob**: Set tempo (magenta metronome light = internal)
+- **SHIFT + LFO knob**: Set tempo (magenta = internal, cyan = external active)
 - **SHIFT + tap BANK**: Tap tempo
 
-### Sync to External
-- Connect analog clock to **SYNC IN** jack
-- **SHIFT + LFO knob**: Select tempo divider (cyan light = external active)
-- If clock missing >2s: Pattern Generator resets to step 1
-
-### Clock Priority (Advanced Settings)
-Enter: **SHIFT + BANK (>2s)**
-
-| LFO Knob Position | Light | Behavior |
-|-------------------|-------|----------|
-| Left (khaki) | Ignore MIDI clock |
-| Center (white) | Normal priority |
-| Right (orange) | Ignore analog SYNC IN |
-
-### SYNC Jacks
-- **SYNC IN** (left channel): External clock detection. Right channel → `SYNC IN R` patch point.
-- **SYNC OUT**: Outputs master clock. Acts as **SYNC THRU** when SYNC IN is connected.
-- SYNC OUT R patch point for non-clock use.
-
----
+**SYNC Jacks:**
+- **SYNC IN** (left channel): External clock detection
+- **SYNC OUT**: Outputs master clock; acts as **SYNC THRU** when SYNC IN is connected
 
 ## Modulation Sources
 
 ### LFO
-- **LFO knob right section**: Free-running, speed increases as knob turns right (warm white light)
-- **LFO knob center**: Synced to tempo, knob sets divider (cold white light)
+- **LFO knob right**: Free-running (warm white light)
+- **LFO knob center**: Synced to tempo (cold white light)
 - **LFO outputs**: `TRI` (triangle), `PULSE` (high when triangle rises)
-- **LFO inputs**: `RESET` (rising edge resets to triangle peak), `LFO MOD` (attenuverting modulation of speed)
+- **LFO inputs**: `RESET` (rising edge resets to peak), `LFO MOD` (speed modulation)
 
-**Shaping LFO waveforms**:
-- Ramp/Saw: Patch PULSE → LFO MOD, adjust LFO MOD
-- Exp/Log: Patch TRI → LFO MOD, adjust LFO MOD
-- Saw wave: Patch PULSE → LFO RESET
-- Hybrid: Patch TRI → LFO RESET
+**Shaping waveforms:** Patch PULSE → LFO MOD for ramp/saw; patch TRI → LFO MOD for exp/log.
 
 ### Pattern Generator
-Always tempo-synced. Produces two signals:
-- **GATE**: Rhythmic (75% gate length per step), 8-step sequence (16 step in pseudo 32-step mode)
+
+Always tempo-synced:
+- **GATE**: Rhythmic 8-step sequence (75% gate length per step)
 - **CV**: Stepped voltage sequence, 8-step
 
-**Patchbay inputs for Pattern Generator**:
-| Input | Function |
-|-------|----------|
-| PATTERN G (left pin) | Modifies GATE rhythm (patch + = randomize, patch − = invert steps) |
-| PATTERN C (right pin) | Modifies CV sequence (patch + = randomize level, patch − = invert around 2.5V) |
-| PATTERN R (middle pin) | RESETS both GATE and CV sequences on rising edge |
+**Patchbay inputs:**
+- `PATTERN G` (left): Modifies GATE rhythm
+- `PATTERN C` (right): Modifies CV sequence
+- `PATTERN R` (middle): RESETS both GATE and CV on rising edge
 
-**GATE rhythm**: **SHIFT + LFO MOD knob** → cycles through 16 preset rhythms loaded from web app.
+**GATE rhythm**: **SHIFT + LFO MOD knob** → cycles through 16 preset rhythms from web app.
 
-**Pattern length**: Default 8-step; configurable to 16-step (pseudo 32-step) via web app.
-
----
-
-## Patchbay
+## Patchbay Summary
 
 ### Triple Patch Points
-Three horizontal points are interconnected. Multiple outputs → single input = combined signal (safe to combine).
+Three horizontal points are interconnected. Multiple outputs → single input = combined signal.
 
 ### Output vs Input
-- **Outputs**: White outline, labeled inside outline
-- **Inputs**: White text or white arrows pointing toward destination (no outline)
+- **Outputs**: White outline, labeled inside
+- **Inputs**: White text or white arrows (no outline)
 
 ### Voltage Compatibility
-- Inputs: 0–5V
-- Outputs: 0–5V (or less, depending on power source)
+- Inputs: 0–5V | Outputs: 0–5V
 
 ### Bi-Directional Ports (TRS at back)
 | Symbol | Description |
@@ -330,115 +188,22 @@ Three horizontal points are interconnected. Multiple outputs → single input = 
 | **−** | Logic low output (~0V) |
 | **⏚** | Direct ground reference |
 
-Patching + and − together → ~2.5V (resistor protected).
-
-**⚠️ When connecting multiple Kastles or devices: must connect grounds together. Audio/sync jacks connect grounds automatically. Use ⏚ → ground or − patch point for explicit ground connection.**
-
----
+**⚠️ When connecting multiple Kastles: connect grounds together.** Audio/sync jacks connect grounds automatically; use ⏚ → ground for explicit connection.
 
 ## Audio Input Routing
 
 **SHIFT + PITCH MOD knob**: Adjust input gain.
 
 **Input routing** (Advanced Settings → PITCH knob):
-
-| Knob Position | Light | Routing |
-|---------------|-------|---------|
-| Right | Blue | Mix AUDIO IN with Wave Bard at output |
-| Left | Red | Route AUDIO IN through Wave Bard effects |
+- Right (blue): Mix AUDIO IN with Wave Bard at output
+- Left (red): Route AUDIO IN through Wave Bard effects
 
 **Mono input mode** (Advanced Settings → PITCH MOD knob):
-- Left = mono left channel only
-- Center = stereo
-- Right = mono right channel only
-
-Useful for: clock on right channel + audio on left (e.g., TE-PO sync), or mono-only devices.
-
----
-
-## MIDI Implementation
-
-### Setting MIDI Channel
-**Learn mode**: Hold **BANK** ≥1s → top right light turns off → send any MIDI message → light turns orange → release BANK → light blinks channel number.
-
-**Manual**: Hold **SHIFT + tap BANK** N times → release → light blinks N.
-
-### Receiving MIDI Notes
-Notes 0–48 (lowest 4 octaves): switch and trigger samples in current bank. Note C = first sample in bank. Only first 12 samples can be triggered.
-
-| Octave Range | Pitch Behavior |
-|-------------|----------------|
-| 0–23 | Original pitch |
-| 24–47 | Original pitch |
-| 0–11, 12–23 | Original pitch (same) |
-
-Notes above 48 = trigger only (no pitch info).
-
-### Receiving MIDI CC
-
-| CC | Parameter | Physical Knob |
-|----|-----------|---------------|
-| 1 | GATE trigger | TRIG input |
-| 7 | Output Volume | SHIFT + PITCH |
-| 9 | Input Gain | SHIFT + PITCH MOD |
-| 14 | PITCH | PITCH knob |
-| 15 | PITCH MOD | PITCH MOD knob |
-| 16 | SAMPLE | SAMPLE knob |
-| 17 | SAMPLE MOD | SAMPLE MOD knob |
-| 18 | LENGTH | LENGTH knob |
-| 19 | LENGTH MOD | SHIFT + LENGTH |
-| 20 | FILTER | SHIFT + SAMPLE |
-| 21 | FX (delay/chorus) | SHIFT + SAMPLE MOD |
-| 22 | LFO | LFO knob |
-| 23 | LFO MOD | LFO MOD knob |
-| 24 | TEMPO | SHIFT + LFO |
-| 25 | RHYTHM | SHIFT + LFO MOD |
-| 74 | BANK | BANK button |
-
-### Sending MIDI
-Wave Bard acts as MIDI controller/sequencer. Sends notes, CC, pitch bend, clock.
-
-### MIDI Clock Sync
-Same as FX Wizard: syncs to incoming USB MIDI clock. Clock divider options (via TEMPO): 24 (¼), 12 (8th), 6 (16th), 3 (32nd), 1 (1:1).
-
-**Transport**: MIDI Start = reset pattern gen; MIDI Stop = reset + stop; MIDI Continue = resume from position.
-
-**Sends MIDI clock** when NOT receiving MIDI clock (or after ignore setting).
-
----
-
-## Web App Editor (Sample Loader)
-
-Access: Chrome/Edge/Firefox desktop (not Safari). PWA-installable.
-
-**Features**:
-- Load WAV, MP3, OGG, AAC, M4A, AIFF
-- Organize samples into banks (3–32 per bank)
-- Edit scales (3–32 custom scales)
-- Edit rhythms (3–32 patterns)
-- Set number of sequencer steps (polyrhythms/polymeters)
-- Preview samples
-- Generate .uf2 firmware file
-
-**To upload**:
-1. Go to web app
-2. Add/organize samples
-3. Click **GENERATE FIRMWARE FILE**
-4. Power off → hold SHIFT → power on (connected to USB)
-5. Copy .uf2 to RPI-RP2 disk
-6. Wait 2–5 minutes
-
-**Tips**:
-- Samples should be tuned to C for scale accuracy
-- Remove silence from samples to save memory
-- All banks must have same number of samples
-- Draft saves allow re-editing before generating .uf2
-
----
+- Left = mono left | Center = stereo | Right = mono right
 
 ## Advanced Settings
 
-**Enter**: **SHIFT + BANK (>2s)**
+**Enter**: **SHIFT + BANK (>2s)** | **Exit**: Power cycle or **SHIFT + BANK (>2s)**
 
 | Setting | Control | Values |
 |---------|---------|--------|
@@ -447,29 +212,17 @@ Access: Chrome/Edge/Firefox desktop (not Safari). PWA-installable.
 | Clock priority | LFO knob | Khaki=ignore MIDI, White=normal, Orange=ignore SYNC IN |
 | Memory reset | SHIFT + BANK (>10s) | — |
 
-**Exit**: Power cycle (settings auto-save) or **SHIFT + BANK (>2s)**.
+## Patch Recipes
 
----
+Full cookbook (16 recipes): [references/patch-recipes.md](mdc:references/patch-recipes.md)
 
-## Linux / USB MIDI
+## MIDI Implementation
 
-Class-compliant USB MIDI + audio device.
+Full CC table, note mapping, and clock sync: [references/midi-cc.md](mdc:references/midi-cc.md)
 
-```bash
-# List MIDI ports
-amidi -l
+## Web App Editor (Sample Loader)
 
-# Connect to DAW
-aconnect or a2jmidid for bridge
-
-# Send MIDI to Wave Bard
-sendmidi dev "Kastle 2 Wave Bard" cc 14 64  # PITCH = 64
-
-# Note CC example
-sendmidi dev "Kastle 2 Wave Bard" note 60 127 1  # C4, velocity 127, channel 1
-```
-
----
+Full editor guide, upload steps, and tips: [references/web-app.md](mdc:references/web-app.md)
 
 ## Resources
 

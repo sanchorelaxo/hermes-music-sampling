@@ -1,38 +1,29 @@
 ---
 name: "fx-wizard"
-description: "Bastl Kastle 2 FX Wizard — patchable stereo multi-FX unit with 9 effects (Delay/Flanger/Freezer/Panner/Crusher/Slicer/Pitcher/Replayer/Shifter), pattern generator, LFO, envelope follower, and full CV/Gate/MIDI modulation. Firmware v1.6+. Bastl Instruments (bastl-instruments.com), NOT Korg."
-category: instruments
-globs: ~/Documents/git/hermes-music-sampling/skills/instruments/fx-wizard/**/*
+description: "Bastl Kastle 2 FX Wizard — patchable stereo multi-FX unit with 9 effects (Delay/Flanger/Freezer/Panner/Crusher/Slicer/Pitcher/Replayer/Shifter), pattern generator, LFO, envelope follower, and full CV/Gate/MIDI modulation. Firmware v1.6+. Bastl Instruments, NOT Korg."
+version: 1.0.0
+author: Hermes Agent
+license: MIT
+metadata:
+  hermes:
+    tags: ["instrument", "fx", "kastle2", "bastl", "multi-fx", "patchbay", "midi", "cv"]
+    related_skills: ["wave-bard", "kastle2-hardware"]
 ---
 
 # Bastl Kastle 2 — FX Wizard
 
-**Manufacturer:** [Bastl Instruments](https://bastl-instruments.com/instruments/kastle2-fx-wizard) (Czech Republic) — NOT Korg
-**Original Kastle (v1):** https://bastl-instruments.com/instruments/kastle
+**Manufacturer:** [Bastl Instruments](https://bastl-instruments.com/instruments/kastle2-fx-wizard) (Czech Republic) — NOT Korg  
 **Platform GitHub:** https://github.com/bastl-instruments/kastle2
 
-> "Instead of navigating thru preset effects, you can craft your own unique effects with dynamic behavior using modulation. The FX WIZARD embraces happy accidents, sparking excitement with unexpected and unheard sonic transformations."
+Patchable stereo multi-FX unit with 9 effects, pattern generator, LFO, envelope follower, and full CV/Gate/MIDI modulation.
 
-## Device
+## When to Use
 
-| Spec | Detail |
-|------|--------|
-| Mode | FX Wizard (effects processor) — separate firmware from Wave Bard |
-| Audio | Stereo in/out, 44kHz/16-bit |
-| Power | USB-C (5V) or 3× AA batteries (~15–18 hours, ~100–150mA) |
-| I/O | 3.5mm patch points: CV, Gate, LFO, Trigger, Sync; USB MIDI; analog sync in/out |
-| Memory | 15 presets per mode |
-| Dimensions | Compact portable (~350g) |
-
-**Battery**: Low battery → backlight turns red. Fresh alkaline: 3×1.5V=4.5V. NiMh: 3×1.2V=3.6V. Below 3V = dead.
-
-**Audio Input**: +12dB gain max, accepts up to 6Vpp. WHILE HOLDING SHIFT: KASTLE logo light shows signal strength (orange=good, red=clipping). For Eurorack (>6Vpp): attenuate externally first.
-
-**Audio Output**: Drives headphones up to 250 Ohm.
-
-**⚠️ USB does NOT charge batteries.**
-
----
+- Applying any of 9 FX types to audio (Delay, Flanger, Freezer, Panner, Crusher, Slicer, Pitcher, Replayer, Shifter)
+- Routing audio through a Eurorack-compatible patchbay for modular FX chains
+- Creating rhythmic, CV-modulated effects synchronized to an external clock
+- Using MIDI CC to control FX parameters from a DAW or controller
+- Building complex, self-modulating FX patches with LFO + Pattern Generator
 
 ## Quick Reference
 
@@ -46,13 +37,11 @@ globs: ~/Documents/git/hermes-music-sampling/skills/instruments/fx-wizard/**/*
 | **SHIFT + FX MODE (>2s)** | Advanced settings |
 | **SHIFT + FX MODE (>15s)** | Memory reset |
 | **SHIFT + LFO knob** | Set internal tempo |
-| **SHIFT + FX MODE (tap)** | Tap tempo |
-
----
+| **SHIFT + tap FX MODE** | Tap tempo |
 
 ## 9 FX Modes
 
-All modes share the same 3 main parameter knobs (white rabbits): **TIME**, **FEEDBACK**, **AMOUNT** — plus FILTER and STEREO (secondary functions).
+All modes share 3 main knobs: **TIME** (top right), **FEEDBACK** (middle right), **AMOUNT** (center) — plus FILTER and STEREO (secondary SHIFT functions).
 
 | # | Mode | Color | TIME | FEEDBACK | AMOUNT |
 |---|------|-------|------|----------|--------|
@@ -66,7 +55,7 @@ All modes share the same 3 main parameter knobs (white rabbits): **TIME**, **FEE
 | 8 | **Replayer** | orange | tape speed (±=fwd/rev) | feedback for new signal only | output+input buffer mix |
 | 9 | **Shifter** | pink | pitch change (±=±semitones) | global feedback | dry/wet |
 
-### Common Parameters (All Modes)
+## Common Parameters (All Modes)
 
 | Parameter | Control | Description |
 |-----------|---------|-------------|
@@ -82,206 +71,59 @@ All modes share the same 3 main parameter knobs (white rabbits): **TIME**, **FEE
 | **STEREO** | SHIFT + middle left knob | Detunes TIME for L/R channels (widens stereo image) |
 | **TRIG** | Patch input | Aligns effect to tempo or triggers rhythmic events |
 
-### Mode-Specific Details
+**Mode-specific details:** [references/midi-cc.md](mdc:references/midi-cc.md) — see Mode-Specific Notes section
 
-**Delay (blue)**: Clean stereo delay. Max delay time ~1.15s (FW v1.1+). TIME = delay length, FEEDBACK = repeats, AMOUNT = mix.
+## Patch Recipes
 
-**Flanger (green)**: Chorus/flanger with extremes. TIME = speed, FEEDBACK = resonance/feedback, AMOUNT = depth. STEREO = L/R channel detune.
-
-**Freezer (blue)**: Captures and holds moments of audio. TIME = freeze buffer chunk size, FEEDBACK = density of frozen audio, AMOUNT = freeze (fully left = freeze new audio as it leaves minimum). TRIG = freeze new chunk.
-
-**Panner (white)**: Amplitude modulation L/R inverse. TIME = panning frequency (up to audio rate = stereo ring mod), AMOUNT = modulation depth (clipping sine→square wave = extreme panning), FEEDBACK = global feedback. TRIG = reset panner direction.
-
-**Crusher (yellow)**: Downsampling + bitcrushing. TIME = downsampling frequency, AMOUNT = downsampling intensity + XOR bitcrush (right), FEEDBACK = distorted tonal backdrop. TRIG = envelope dips sampling frequency temporarily.
-
-**Slicer (light green)**: Internal tempo-synced rhythm triggers amplitude decay envelope. TIME = slice pattern (step), AMOUNT = decay (left=long, right=short) + dry/wet, FEEDBACK = random trigger inversion probability + global feedback. STEREO = different pattern per channel. TRIG = triggers slice envelope.
-
-**Pitcher (red)**: RAMP modulation delay buffer for crude pitch-up shifting. TIME = shifting window/grain size (slow=rhythmic chops, fast=formant shifts), AMOUNT = ramp mod pitch shift + dry/wet, FEEDBACK = global feedback. TRIG = envelope temporarily enlarges window.
-
-**Replayer (orange)**: Tape looper emulation. TIME = tape speed (left=backward, right=forward), AMOUNT = output level vs new input (right=lock buffer, left=add new signal), FEEDBACK = feedback for new signal only (not output). TRIG = fills buffer with new audio.
-
-**Shifter (red/pink)**: Nuanced pitch shifting avoiding transient duplication. TIME = pitch direction (above middle=up, below=down), AMOUNT = dry/wet, FEEDBACK = global feedback. Cool noises when slight shift + input fades. TRIG = resets LFO sync.
-
----
-
-## Patch Recipes (Cookbook)
-
-16 preset patches from the official FX Wizard Cookbook. Each recipe shows suggested cable connections.
-
-### FX Mode 1: DELAY (blue) — Page 1
-
-#### 1. Ducking Delay
-**Sound:** Great for vocals — delay ducks under input signal.
-**Patch:** `ENV` → `FX MODE`
-> ENV output controls FX MODE input, attenuate with FX MODE + AMOUNT knob.
-
-#### 2. Vibrato + Chorus and Flanger
-**Sound:** Adds pitch modulation. Lower AMOUNT for chorus, add FEEDBACK for flanger.
-**Patch:** `LFO TRI` → `TIME MOD`
-> Patch LFO triangle output into time modulation input for chorus/flanger.
-
-#### 3. Broken Tape
-**Sound:** Randomly modulated triangle LFO warbles delay time (nostalgia effect).
-**Patch:** `LFO TRI` → `STEP` → `TIME MOD`
-> Chain: LFO TRI → STEP input, then STEP output → TIME MOD input.
-
-#### 4. Haas Effect
-**Sound:** Detune delay between L/R channels for stereo widening.
-**Patch:** None required — use STEREO knob (SHIFT + middle left) to detune L/R.
-
-### FX Mode 2: FLANGER (green) — Page 1
-
-#### 5. Signal Responsive Stereo Chorus
-**Sound:** ENV resets modulation with transients. Add FEEDBACK for flanging.
-**Patch:** `ENV` → `RESET`
-> ENV output resets the LFO timing on transients.
-
-#### 6. Auto Freezer
-**Sound:** ENV triggers refreeze of audio buffer.
-**Patch:** `ENV` → `TRIG`
-> Adjust INPUT to set envelope sensitivity.
-
-### FX Mode 3: FREEZER (blue) — Page 1
-
-#### 7. Rhythm Freezer
-**Sound:** Refreeze with CV-modulated synced LFO. Add variation with TIME modulation.
-**Patch:** `LFO TRI` → `TRIG`, `PATTERN R` → `LFO TEMPO`
-> LFO resets freeze on rhythm; Pattern R controls LFO tempo.
-
-#### 8. Rhythm Glitcher
-**Sound:** Rhythmical freezes synchronized to tempo. Be nuanced or totally glitch out!
-**Patch:** `PATTERN G` → `TRIG`
-> Gate pattern triggers freeze rhythm.
-
-### FX Mode 4: PANNER (white) — Page 2
-
-#### 9. Tail Panner & Distorter
-**Sound:** Loud parts stay centered; tails get panned. Add FEEDBACK to distort.
-**Patch:** `ENV` → `FX MODE`, `LFO TRI` → `TIME MOD`
-> ENV controls panning, LFO adds time-based wobble.
-
-#### 10. Stereo Ring Mod
-**Sound:** Speed up panner to audio rate for stereo ring modulation.
-**Patch:** `LFO TRI` → `TIME MOD`
-> High LFO rate creates ring mod effect. Modulate TIME for more fun.
-
-### FX Mode 5: CRUSHER (yellow) — Page 2
-
-#### 11. LO-FI Phaser
-**Sound:** Animate downsampling frequency with LFO for subtle modulation. Add STEREO.
-**Patch:** `LFO TRI` → `TIME MOD`
-> Slow LFO sweep creates moving bitcrush artifacts.
-
-### FX Mode 6: SLICER (light green) — Page 2
-
-#### 12. Dynamic Slicer
-**Sound:** Modulate slicer decay with slow LFO for dynamic chops.
-**Patch:** `LFO TRI` → `FX MODE`
-> LFO modulates the slice envelope.
-
-### FX Mode 7: PITCHER (red) — Page 2
-
-#### 13. Pitched Repeater (with crickets)
-**Sound:** Pitch up and speed up. ENV → TRIG aligns with input.
-**Patch:** `ENV` → `TRIG`, `LFO TRI` → `TIME MOD`
-> Add FEEDBACK for "cricket" sounds.
-
-### FX Mode 8: REPLAYER (orange) — Page 2
-
-#### 14. Twin Peaks Reverse Speech
-**Sound:** Reverse-speech effect ("Hello agent Cooper").
-**Patch:** `ENV` → `TIME MOD`, `LFO TRI` → `FX MODE`
-> ENV modulates pitch window, LFO triggers mode changes.
-
-### FX Mode 9: SHIFTER (pink) — Page 2
-
-#### 15. Space Vinyl Saucer
-**Sound:** Adjust tempo changes modulation speed. Add FEEDBACK for "intergalactic lift off."
-**Patch:** `STEP` → `TIME MOD`
-> Stepped CV creates quantized time modulation.
-
-#### 16. 8bit Synth
-**Sound:** Turn LFO into VCO. Use AMOUNT and FILTER for timbral modulation.
-**Patch:** `LFO TRI` → `AUDIO IN L`, `LFO PULSE` → `TRIG`, `ENV` → `FX MODE`
-> LFO triangle into audio input creates oscillator; pulse triggers envelope.
-
----
+16 preset patches from the official cookbook. Full recipes: [references/patch-recipes.md](mdc:references/patch-recipes.md)
 
 ## Tempo Generator
 
 Tempo source priority: **USB MIDI clock > SYNC IN > Internal clock**
 
-### Set Internal Tempo
-- **SHIFT + LFO knob**: Set tempo (magenta metronome light = internal)
+- **SHIFT + LFO knob**: Set tempo (magenta = internal, cyan = external active)
 - **SHIFT + tap FX MODE**: Tap tempo
 
-### Sync to External
-- Connect analog clock to **SYNC IN** jack
-- **SHIFT + LFO knob**: Select tempo divider (cyan light = external active)
-- If clock missing >2s: Pattern Generator resets to step 1
+**SYNC Jacks:**
+- **SYNC IN** (left channel): External clock detection
+- **SYNC OUT**: Outputs master clock; acts as **SYNC THRU** when SYNC IN is connected
 
-### Clock Priority (Advanced Settings)
-Enter: **SHIFT + FX MODE (>2s)**
-
-| LFO Knob Position | Light | Behavior |
-|-------------------|-------|----------|
-| Left | Khaki | Ignore MIDI clock |
-| Center | White | Normal priority |
-| Right | Orange | Ignore analog SYNC IN |
-
-### SYNC Jacks
-- **SYNC IN** (left channel): External clock detection. Right channel → `SYNC IN R` patch point.
-- **SYNC OUT**: Outputs master clock. Acts as **SYNC THRU** when SYNC IN is connected.
-- SYNC OUT R patch point for non-clock use.
-
----
+**Clock Priority (Advanced Settings → SHIFT + FX MODE >2s):** LFO knob left = ignore MIDI clock; center = normal; right = ignore SYNC IN.
 
 ## Modulation Sources
 
 ### LFO
-- **LFO knob right section**: Free-running, speed increases as knob turns right (warm white light)
-- **LFO knob center**: Synced to tempo, knob sets divider (cold white light)
+- **LFO knob right**: Free-running (warm white light)
+- **LFO knob center**: Synced to tempo (cold white light)
 - **LFO outputs**: `TRI` (triangle), `PULSE` (high when triangle rises)
-- **LFO inputs**: `RESET` (rising edge resets to triangle peak), `LFO MOD` (attenuverting modulation of speed)
+- **LFO inputs**: `RESET` (rising edge resets to peak), `LFO MOD` (speed modulation)
 
-**Shaping LFO waveforms**:
-- Ramp/Saw: Patch PULSE → LFO MOD, adjust LFO MOD
-- Exp/Log: Patch TRI → LFO MOD, adjust LFO MOD
-- Saw wave: Patch PULSE → LFO RESET
-- Hybrid: Patch TRI → LFO RESET
+**Shaping:** PULSE → LFO MOD for ramp/saw; TRI → LFO MOD for exp/log; PULSE → LFO RESET for saw.
 
 ### Envelope Follower
 - `ENV OUT`: Audio envelope amplitude output
-- `ENV IN`: Envelope follower input (for ducking effects — audio in → ENV → modulates AMOUNT/FEEDBACK)
+- `ENV IN`: Envelope follower input (for ducking — audio in → ENV → modulates AMOUNT/FEEDBACK)
 
 ### Pattern Generator
-Always tempo-synced. Produces two signals:
-- **GATE**: Rhythmic (75% gate length per step), 8-step sequence
+Always tempo-synced:
+- **GATE**: Rhythmic 8-step sequence (75% gate length per step)
 - **CV**: Stepped voltage sequence, 8-step
 
-**Patchbay inputs for Pattern Generator**:
-| Input | Function |
-|-------|----------|
-| PATTERN G (left pin) | Modifies GATE rhythm (patch + = randomize, patch − = invert steps) |
-| PATTERN C (right pin) | Modifies CV sequence (patch + = randomize level, patch − = invert around 2.5V) |
-| PATTERN R (middle pin) | RESETS both GATE and CV sequences on rising edge |
+**Patchbay inputs:** `PATTERN G` (left) modifies GATE rhythm; `PATTERN C` (right) modifies CV sequence; `PATTERN R` (middle) resets both on rising edge.
 
-**GATE rhythm**: **SHIFT + LFO MOD knob** → cycles through 16 patterns
+**GATE rhythm**: **SHIFT + LFO MOD knob** → cycles through 16 patterns.
 
----
-
-## Patchbay
+## Patchbay Summary
 
 ### Triple Patch Points
-Three horizontal points are interconnected. Multiple outputs → single input = combined signal (safe to combine).
+Three horizontal points are interconnected. Multiple outputs → single input = combined signal.
 
 ### Output vs Input
-- **Outputs**: White outline, labeled inside outline
-- **Inputs**: White text or white arrows pointing toward destination (no outline)
+- **Outputs**: White outline, labeled inside
+- **Inputs**: White text or white arrows (no outline)
 
 ### Voltage Compatibility
-- Inputs: 0–5V
-- Outputs: 0–5V (or less, depending on power source)
+- Inputs: 0–5V | Outputs: 0–5V
 
 ### Bi-Directional Ports (TRS at back)
 | Symbol | Description |
@@ -290,106 +132,11 @@ Three horizontal points are interconnected. Multiple outputs → single input = 
 | **−** | Logic low output (~0V) |
 | **⏚** | Direct ground reference |
 
-Patching + and − together → ~2.5V (resistor protected).
-
-**⚠️ When connecting multiple Kastles or devices: must connect grounds together. Audio/sync jacks connect grounds automatically. Use ⏚ → ground or − patch point for explicit ground connection.**
-
----
+**⚠️ When connecting multiple Kastles: connect grounds together.** Audio/sync jacks connect grounds automatically; use ⏚ → ground for explicit connection.
 
 ## MIDI Implementation
 
-### Setting MIDI Channel
-**Learn mode**: Hold **BANK** ≥1s → top right light turns off → send any MIDI message → light turns orange → release BANK → light blinks channel number.
-
-**Manual**: Hold **SHIFT + tap BANK** N times → release → light blinks N.
-
-### Receiving MIDI Notes
-Notes 0–44 (lowest 4 octaves) switch FX modes. C = mode 1 (Delay).
-
-| Note | Mode |
-|------|------|
-| C (0, 12, 24, 36) | Delay |
-| C# (1, 13, 25, 37) | Flanger |
-| D (2, 14, 26, 38) | Freezer |
-| D# (3, 15, 27, 39) | Panner |
-| E (4, 16, 28, 40) | Crusher |
-| F (5, 17, 29, 41) | Slicer |
-| F# (6, 18, 30, 42) | Pitcher |
-| G (7, 19, 31, 43) | Replayer |
-| G# (8, 20, 32, 44) | Shifter |
-
-Notes above 48 (C2) = trigger only.
-
-### Receiving MIDI CC
-
-| CC | Parameter | Physical Knob |
-|----|-----------|---------------|
-| 0 | — | — |
-| 1 | FX Mode | mapped from 0–127 to mode values |
-| 7 | Output Volume | SHIFT + top right knob |
-| 9 | Input Gain | SHIFT + top left knob |
-| 14 | TIME | top right knob |
-| 15 | TIME MOD | top left knob |
-| 16 | FEEDBACK | middle right knob |
-| 17 | FEEDBACK MOD | middle left knob |
-| 18 | AMOUNT | center knob |
-| 19 | AMOUNT MOD | SHIFT + center knob |
-| 20 | FILTER | SHIFT + middle right knob |
-| 21 | STEREO | SHIFT + middle left knob |
-| 22 | LFO | bottom right knob |
-| 23 | LFO MOD | bottom left knob |
-| 24 | TEMPO | SHIFT + bottom right knob |
-| 25 | RHYTHM | SHIFT + bottom left knob |
-| 26 | FX MODE MOD | FX Mode + center knob |
-| 121 | Reset all controllers | Restore knob control |
-
-### Sending MIDI CC
-Knobs send CC 1 (FX MODE), 14–26 on the set MIDI channel when adjusted. CC1 (trigger) also sent when TRIG input fires.
-
-### MIDI Clock Sync
-FX Wizard syncs to incoming USB MIDI clock. Clock divider options (via TEMPO knob): 24 (¼ note), 12 (8th), 6 (16th), 3 (32nd), 1 (1:1).
-
-**Transport**: MIDI Start = reset pattern gen + LFO; MIDI Stop = reset + stop; MIDI Continue = resume from current position.
-
-**Sends MIDI clock** when NOT receiving MIDI clock (or after ignore setting).
-
----
-
-## Advanced Settings
-
-**Enter/Exit**: **SHIFT + FX MODE (>2s)**
-
-| Setting | Control | Values |
-|---------|---------|--------|
-| Clock priority | LFO knob | Khaki=ignore MIDI, White=normal, Orange=ignore SYNC IN |
-| Memory reset | SHIFT + FX MODE (>15s) | — |
-
-**Test Mode**: Hold **FX MODE** + power ON. Announces firmware version via voice. Full HW test requires: USB power, loopback cables (SYNC OUT→SYNC IN, AUDIO OUT→AUDIO IN), specific patch cables.
-
-**Firmware Update**: Power OFF → hold SHIFT → power ON → copy .uf2 to RPI-RP2 disk.
-
----
-
-## Linux / USB MIDI
-
-Class-compliant USB MIDI device. No driver needed.
-
-```bash
-# List MIDI ports
-amidi -l
-
-# Find Kastle 2
-# "Kastle 2 FX Wizard" appears as a MIDI device
-
-# Send CC to FX Wizard
-sendmidi dev "Kastle 2 FX Wizard" cc 14 64  # TIME = 64
-
-# Connect to DAW
-# CC14 = TIME, CC16 = FEEDBACK, CC18 = AMOUNT
-# Notes 0-8 = switch FX modes
-```
-
----
+Full CC table, note mapping, and clock sync: [references/midi-cc.md](mdc:references/midi-cc.md)
 
 ## Resources
 
@@ -400,6 +147,5 @@ sendmidi dev "Kastle 2 FX Wizard" cc 14 64  # TIME = 64
 | Cookbook (recipes) | `/home/rjodouin/Downloads/kastle2-stuff/kastle2_fxwizard_cookbook.pdf` |
 | Patch Sheets | `/home/rjodouin/Downloads/kastle2-stuff/kastle2_fxwizard_patchsheet.pdf` |
 | PO Sync Guide | `/home/rjodouin/Downloads/kastle2-stuff/kastle2-po-sync-guide.pdf` |
-| Firmware + Release Notes | [bastl-instruments.com](https://bastl-instruments.com/instruments/kastle2-fx-wizard) |
-| Web App (patterns/sequencer) | [apps.bastl-instruments.com/fx-wizard-chamber](https://apps.bastl-instruments.com/fx-wizard-chamber/) |
+| Web App (patterns) | [apps.bastl-instruments.com/fx-wizard-chamber](https://apps.bastl-instruments.com/fx-wizard-chamber/) |
 | GitHub (open-source) | [github.com/bastl-instruments/kastle2](https://github.com/bastl-instruments/kastle2) |
