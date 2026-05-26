@@ -251,6 +251,7 @@ amidi -p hw:X,Y,Z -d
 - Class-compliant — no driver needed
 - X-Y pad sends MIDI data for real-time control
 
-## Source
+## References
 
-`~/Downloads/current_music_docs/miniKP_OM_EFG1.pdf`
+- Manual: `~/Downloads/current_music_docs/miniKP_OM_EFG1.pdf`
+- Shared Korg program data (all products): [korg-programs.md](mdc:../../references/korg-programs.md) — load via `skill_view(name='hermes-music-sampling', file_path='references/korg-programs.md')`

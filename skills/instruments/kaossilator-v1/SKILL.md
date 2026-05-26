@@ -232,6 +232,7 @@ amidi -p hw:X,Y,Z -d
 - X-Y pad outputs MIDI note and CC data
 - Program changes via MIDI also supported
 
-## Source
+## References
 
-`~/Downloads/current_music_docs/KAOSSILATOR1_OM_EFG1.pdf`
+- Manual: `~/Downloads/current_music_docs/KAOSSILATOR1_OM_EFG1.pdf`
+- Shared Korg program data (all products): [korg-programs.md](mdc:../../references/korg-programs.md) — load via `skill_view(name='hermes-music-sampling', file_path='references/korg-programs.md')`

@@ -53,6 +53,8 @@ Internal speaker — auto power-off when headphones connected.
 
 Full program table with X/Y axis assignments: [references/programs.md](mdc:references/programs.md)
 
+Shared Korg program data (all products): [korg-programs.md](mdc:../../references/korg-programs.md) — load via `skill_view(name='hermes-music-sampling', file_path='references/korg-programs.md')`
+
 ## Controls
 
 | Element | Function |

@@ -87,6 +87,7 @@ jack_connect system:capture_1 wavedrum:input_1
 jack_connect wavedrum:output_1 system:playback_1
 ```
 
-## Reference
+## References
 
 - Manual: `~/Downloads/current_music_docs/WAVEDRUM_Mini_OM_EFGJ2.pdf`
+- Shared Korg program data (all products): [korg-programs.md](mdc:../../references/korg-programs.md) — load via `skill_view(name='hermes-music-sampling', file_path='references/korg-programs.md')`

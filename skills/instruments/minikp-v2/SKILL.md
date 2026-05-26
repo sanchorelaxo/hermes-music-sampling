@@ -215,6 +215,7 @@ amidi -p hw:X,Y,Z -d
 - Class-compliant USB MIDI
 - X-Y pad outputs MIDI data for each axis
 
-## Source
+## References
 
-`~/Downloads/current_music_docs/miniKP_V2_OM_EFG1.pdf`
+- Manual: `~/Downloads/current_music_docs/miniKP_V2_OM_EFG1.pdf`
+- Shared Korg program data (all products): [korg-programs.md](mdc:../../references/korg-programs.md) — load via `skill_view(name='hermes-music-sampling', file_path='references/korg-programs.md')`

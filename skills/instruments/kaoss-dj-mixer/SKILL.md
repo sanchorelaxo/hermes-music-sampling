@@ -280,6 +280,7 @@ On Linux without Serato, use the MIDI data to control any DAW (Ardour, Mixxx, et
 | b9 | Rise/Fall | Pitch | Rise – Fall |
 | c0 | Sweep | Pitch, Pan | LFO Speed |
 
-## Reference
+## References
 
 - Manual: `~/Downloads/current_music_docs/KAOSS_DJ_MIXER_OM_EFG1.pdf`
+- Shared Korg program data (all products): [korg-programs.md](mdc:../../references/korg-programs.md) — load via `skill_view(name='hermes-music-sampling', file_path='references/korg-programs.md')`
