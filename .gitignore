@@ -15,3 +15,5 @@ out/
 *.flac
 *.aiff
 *.bak
+# Hermes orchestrator SKILL.md — managed by Hermes, not versioned
+/SKILL.md
