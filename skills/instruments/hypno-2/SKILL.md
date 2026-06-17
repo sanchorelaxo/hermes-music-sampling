@@ -70,6 +70,12 @@ Full hardware specs, rear panel I/O, settings pages, desktop mode keyboard mappi
 
 Full CC table + MIDI note mapping: [references/midi-cc.md](mdc:references/midi-cc.md)
 
+## Mezzz Wireless Controller
+
+Sleepy Circuits Mezzz is a handheld BLE MIDI controller with a dedicated Hypno Emulation Mode (CH 16) that mirrors the Hypno UI. 8 haptic encoders, 1,024 CC parameters, built-in gyroscope for gestural control.
+
+Full Mezzz integration guide: [references/mezzz-controller.md](mdc:references/mezzz-controller.md)
+
 ## Modulation Sources
 
 Each parameter (tap label) offers: **Internal LFO** (14 waveforms), **Audio Input** (mic/AUX with 3-band), **CV Input** (4 jacks), **MIDI CC**, **Clock/BPM Sync**, **Audio Track**.
