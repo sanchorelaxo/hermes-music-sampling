@@ -2,6 +2,15 @@
 
 Sleepy Circuits Mezzz is a handheld Bluetooth (BLE) MIDI controller with 8 haptic push-encoder knobs, 8 knob banks per channel (1,024 CC parameters), and a built-in IMU gyroscope. Mezzz has a dedicated Hypno Emulation Mode on Channel 16 that mirrors the Hypno's UI layout for intuitive wireless control.
 
+> **Device relationship (don't conflate the two):** the **Mezzz** is a *separate
+> physical device* — a handheld **controller** (ESP32-S3 MCU) — that wirelessly
+> controls the **Hypno 2**, which is the video synthesizer itself (a Raspberry
+> Pi 5 running vidOS). The Mezzz connects to the Hypno 2 over **BLE MIDI**
+> (Hypno Emulation, CH 16) and, when USB-connected, over **USB serial
+> (`/dev/ttyACM0`)** to vidOS. This reference covers the Mezzz's user-facing
+> controls; its internal firmware (flash layout, custom GATT UUIDs, MIDI map,
+> presets/combos) is documented separately in [firmware.md](firmware.md).
+
 **Manufacturer:** [Sleepy Circuits](https://sleepycircuits.com/mezzz)
 **Docs:** [docs.sleepycircuits.com/mezzz/manual](https://docs.sleepycircuits.com/mezzz/manual)
 **PDF manual (V1.4):** [Dropbox link](https://www.dropbox.com/scl/fi/lnbu7nvizg67lt33c3rl4/MezzzManualV1.4.pdf?rlkey=lcjhh2zhxxlnudxayur86amof&dl=1)

@@ -76,6 +76,19 @@ Sleepy Circuits Mezzz is a handheld BLE MIDI controller with a dedicated Hypno E
 
 Full Mezzz integration guide: [references/mezzz-controller.md](mdc:references/mezzz-controller.md)
 
+## Firmware Internals (reverse-engineered)
+
+The Mezzz is an **ESP32-S3** (Adafruit Feather ESP32-S3 TFT revA) running
+Arduino-ESP32 on **ESP-IDF v4.4.5** with **NimBLE**. In the Sleepy/teafella repos
+it is called **"H2ctl"** (Hypno 2 controller). It advertises `Mezzz` (or
+`Sleepy Hypno2` in Hypno Emulation mode), exposes a **fully custom 128-bit GATT**
+interface (no standard BLE-MIDI), and talks to vidOS over **USB serial
+(`/dev/ttyACM0`)**. MIDI map: Main = ch 16, A/B = ch 1/2; presets MAGENTA
+(user 1) / TEAL (user 2); combos A→B, B→A, A→Master, B→Master.
+
+Full firmware internals (flash layout, GATT, MIDI map, presets/combos, hardware
+drivers, host integration): [references/firmware.md](mdc:references/firmware.md)
+
 ## Modulation Sources
 
 Each parameter (tap label) offers: **Internal LFO** (14 waveforms), **Audio Input** (mic/AUX with 3-band), **CV Input** (4 jacks), **MIDI CC**, **Clock/BPM Sync**, **Audio Track**.
