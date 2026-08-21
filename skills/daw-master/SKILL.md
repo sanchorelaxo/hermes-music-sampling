@@ -38,19 +38,19 @@ This meta-skill defines standards and base capabilities for audio processing ski
 
 Sub-skills under `daw-master`:
 
-|| Skill | Tool | Purpose |
+| Skill | Tool | Purpose |
 |-------|------|---------|
-|| `dawdreamer` | DawDreamer (Python) | Full-featured DAW: effects, mixing, time/pitch, VST |
-|| `sox-engine` | SoX | Simple edits, effects, conversions |
-|| `ffmpeg-audio` | FFmpeg | Codec work, filtering, stream ops |
-|| `rubber-band-engine` | Rubber Band CLI | High-quality time-stretch/pitch-shift |
-|| `audio-analyzer` | librosa + sonic-annotator | Extract BPM, key, MFCC, loudness |
-|| `batch-processor` | SoX/FFmpeg scripts | Apply same pipeline to many files |
-|| `metadata-manager` | BWFMetaEdit + mutagen | BWF/RIFF metadata embedding |
-|| `ardour-automator` | Ardour (Lua) | Headless session automation & export |
-|| `carla-rack` | Carla (LV2/VST) | Plugin rack — single-pass multi-effect chains |
-||| `mix-engineer` | SoX/FFmpeg/audio-analyzer | Smart mixing, balance, panning automation |
-||| `mastering-engineer` | FFmpeg/audio-analyzer | Album loudness normalization & QC |
+| `dawdreamer` | DawDreamer (Python) | Full-featured DAW: effects, mixing, time/pitch, VST |
+| `sox-engine` | SoX | Simple edits, effects, conversions |
+| `ffmpeg-audio` | FFmpeg | Codec work, filtering, stream ops |
+| `rubber-band-engine` | Rubber Band CLI | High-quality time-stretch/pitch-shift |
+| `audio-analyzer` | librosa + sonic-annotator | Extract BPM, key, MFCC, loudness |
+| `batch-processor` | SoX/FFmpeg scripts | Apply same pipeline to many files |
+| `metadata-manager` | BWFMetaEdit + mutagen | BWF/RIFF metadata embedding |
+| `ardour-automator` | Ardour (Lua) | Headless session automation & export |
+| `carla-rack` | Carla (LV2/VST) | Plugin rack — single-pass multi-effect chains |
+| `mix-engineer` | SoX/FFmpeg/audio-analyzer | Smart mixing, balance, panning + mixing craft (five-pass workflow, EQ/compression frameworks) |
+| `mastering-engineer` | FFmpeg/audio-analyzer | Album loudness normalization & QC |
 
 ## Common Patterns
 

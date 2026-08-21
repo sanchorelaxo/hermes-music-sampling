@@ -1,12 +1,12 @@
 ---
 name: daw-master:mix-engineer
-description: "Use when polishing AI-generated audio — per-stem processing with SoX cleanup, EQ, compression, and remix. Processes stems or full mixes into polished WAVs ready for mastering."
-version: 0.1.0
+description: "Use when polishing AI-generated audio OR when asked about mixing craft — per-stem SoX cleanup (EQ, compression, noise/click removal) and remix into polished WAVs, plus the five-pass mix workflow, gain staging, bus routing, EQ/compression frameworks, and spatial processing mapped to SoX/FFmpeg/DawDreamer."
+version: 0.2.0
 author: Ported from bitwize-music-studio
 license: MIT
 metadata:
   hermes:
-    tags: ["audio", "mix", "polish", "stems", "sox", "ffmpeg"]
+    tags: ["audio", "mix", "polish", "stems", "sox", "ffmpeg", "craft", "workflow", "gain-staging", "sidechain", "parallel-compression", "reverb"]
     related_skills: ["daw-master:sox-engine", "daw-master:ffmpeg-audio", "daw-master:audio-analyzer", "daw-master:mastering-engineer"]
 ---
 
@@ -14,8 +14,8 @@ metadata:
 
 Polishes raw AI-generated audio (Suno, etc.) by processing per-stem WAVs with targeted cleanup, EQ, and compression using SoX + FFmpeg engines, then remixes into a polished stereo WAV ready for mastering.
 
-**Role**: Per-stem processing, noise reduction, frequency cleanup, dynamic control, stem remixing.
-**Not role**: Creative production, lyrics, generation.
+**Role**: Per-stem processing, noise reduction, frequency cleanup, dynamic control, stem remixing, and mixing craft guidance (five-pass workflow, gain staging, bus routing, EQ/compression frameworks, spatial processing).
+**Not role**: Creative production/songwriting, lyrics, generation, or mastering (see `mastering-engineer`).
 **Primary tools**: `sox-engine.transform`, `ffmpeg-audio.transform`, `audio-analyzer.analyze`
 
 ## Core Principles
@@ -56,6 +56,39 @@ No external Python packages beyond those already installed.
 - Removing clicks or transient spikes from generated audio
 - Mixing stems into a polished full stereo mix
 - Applying genre-specific processing chains (hip-hop, rock, EDM, folk, ambient)
+- Explaining or applying mixing craft: the five-pass workflow, gain staging,
+  bus routing, the EQ decision framework, parallel/sidechain/multiband
+  compression, or spatial processing (reverb/delay/width)
+- Answering "how do I mix a track" / "teach me EQ, compression, reverb" questions
+
+## When NOT to Use
+
+- Songwriting, lyrics, or audio *generation* — this skill processes existing audio
+- Mastering / loudness-normalization / platform delivery — use `mastering-engineer`
+- Simple single-effect edits (a lone fade, trim, or format conversion) — use
+  `sox-engine` or `ffmpeg-audio` directly
+
+## Creative Mixing Craft
+
+The art-layer guidance (five-pass workflow, gain staging, bus routing, EQ
+decision framework + frequency cheat sheet, parallel/sidechain/multiband
+compression, spatial processing, genre architecture, anti-patterns), mapped to
+SoX/FFmpeg/DawDreamer/Carla tooling:
+
+- **Full guide:** [references/mixing-craft.md](mdc:references/mixing-craft.md)
+
+Quick reference:
+
+| Topic | Core idea |
+|-------|-----------|
+| Five-pass workflow | static mix → subtractive EQ → compression → additive EQ/saturation → spatial |
+| Gain staging | -18 dBFS working level; peaks < -6 dBFS/track; mix bus -6 to -3 dBFS |
+| Bus routing | Drum/Bass/Vocal/Music/FX/Mix buses for macro balance |
+| EQ framework | level → arrangement → masking → resonance → enhancement, in that order |
+| Parallel comp | crush duplicate (10-15 dB GR) + blend under dry; for drums/vocals |
+| Sidechain comp | kick→bass pump, kick→pads EDM pump, vocal→music 1-2 dB duck |
+| Multiband comp | band-split only for specific problems (sox `mcompand`) |
+| Spatial | 2-3 reverb sends, pre-delay 20-80 ms, short (50-120 ms) vs tempo-synced delays |
 
 ## API
 
