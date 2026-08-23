@@ -25,6 +25,7 @@ This project collects and organizes music sampling and audio processing skills f
 | [`dawdreamer`](skills/daw-master/dawdreamer/SKILL.md) | DawDreamer (Python, JUCE) | ⚙️ Scaffolded | Full DAW: VST hosting, multi-track, effect graphs |
 | [`mastering-engineer`](skills/daw-master/mastering-engineer/SKILL.md) | SoX + FFmpeg | ✅ | Multi-band compression, limiting, loudness normalization |
 | [`mix-engineer`](skills/daw-master/mix-engineer/SKILL.md) | DawDreamer + Carla | ✅ | Multi-track mixing with per-channel effects |
+| [`mixxx`](skills/daw-master/mixxx/SKILL.md) | Mixxx + FFmpeg | ✅ | Read Mixxx library/playlists/cues; render crossfaded DJ mixes; MIDI autopilot |
 
 ## Hardware Instrument Skills (instruments)
 
@@ -268,6 +269,7 @@ skills/daw-master/
 ├── metadata-manager/           # ✅ Implemented — BWF/iXML/ID3 tagging
 ├── ardour-automator/           # ✅ Implemented — Ardour headless automation & export
 ├── carla-rack/                 # Implemented — Carla plugin chain rack
+├── mixxx/                      # ✅ Mixxx DJ — library/playlists/cues + mix render + autopilot
 ```
 
 ---

@@ -28,6 +28,7 @@ hermes-music-sampling/
     │   ├── carla-rack/     # ✅ Carla plugin chain rack
     │   ├── mastering-engineer/ # ✅ Multi-band compression/limiting
     │   ├── mix-engineer/   # ✅ Multi-track mixing
+    │   ├── mixxx/          # ✅ Mixxx DJ — library/playlists/cues + ffmpeg mix render + MIDI autopilot
     │   └── dawdreamer/     # ⚙️ Scaffolded — VST hosting
     │
     instruments/             # Hardware instrument reference skills
@@ -60,6 +61,7 @@ hermes-music-sampling/
 | `sox-engine` | SoX | ✅ | Normalize, fade, trim, EQ, compand, reverb, mix — 12+ ops |
 | `ffmpeg-audio` | FFmpeg | ✅ | Loudnorm, acompress, atrim, amix, all codecs |
 | `rubber-band-engine` | Rubber Band | ✅ | Professional time-stretch & pitch-shift with formants |
+| `mixxx` | Mixxx + ffmpeg | ✅ | Read library/playlists/cues from mixxxdb.sqlite; render crossfaded DJ mixes; MIDI autopilot |
 
 ---
 

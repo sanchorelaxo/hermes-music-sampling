@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: ["audio", "daw", "production", "pipeline", "transformations"]
-    related_skills: ["daw-master:dawdreamer", "daw-master:batch-processor", "daw-master:mix-engineer", "daw-master:mastering-engineer"]
+    related_skills: ["daw-master:dawdreamer", "daw-master:batch-processor", "daw-master:mix-engineer", "daw-master:mastering-engineer", "daw-master:mixxx"]
 ---
 
 # DAW Master
@@ -51,6 +51,7 @@ Sub-skills under `daw-master`:
 | `carla-rack` | Carla (LV2/VST) | Plugin rack — single-pass multi-effect chains |
 | `mix-engineer` | SoX/FFmpeg/audio-analyzer | Smart mixing, balance, panning + mixing craft (five-pass workflow, EQ/compression frameworks) |
 | `mastering-engineer` | FFmpeg/audio-analyzer | Album loudness normalization & QC |
+| `mixxx` | Mixxx + FFmpeg | Read Mixxx library/playlists/cues; render crossfaded DJ mixes; MIDI autopilot |
 
 ## Common Patterns
 
