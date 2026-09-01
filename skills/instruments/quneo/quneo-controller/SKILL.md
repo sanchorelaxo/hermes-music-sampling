@@ -17,15 +17,17 @@ amidi -l | grep -i quneo
 ```
 
 ### Prerequisites
-- Wine + QuNeo Editor (Windows binary) for initial preset creation
+- **Official editor (preferred, Linux-native):** ~/Documents/git/quneo-qt6-editor/ (`bash install.sh`)
+- Wine + KMI QuNeo Editor v2 (Windows) — **NOT required** for preset work on Linux; only needed if you specifically want the legacy Windows GUI under Wine
 - quneo-linux: ~/Documents/git/quneo-linux/
 - quneo-node: ~/Documents/git/quneo-node/ (Node.js v22+)
 - MIDI group: sudo usermod -aG audio $USER
 
 ## Preset Workflow
 
-### 1. Create/Edit Preset (QuNeo Editor via Wine)
-- Run via Wine: wine QuNeoEditor.exe
+### 1. Create/Edit Preset
+- **Preferred:** run the native Qt6 editor: `quneo-editor` (build via `bash install.sh` in quneo-qt6-editor)
+- Legacy Wine path (see midi-controller skill): wine QuNeoEditor.exe
 - Configure CoMA mode: hold Mode button 1s until all LEDs flash
 - Export preset as JSON
 
@@ -72,17 +74,25 @@ port = mido.open_output('QuNeo:QuNeo MIDI 1')
 
 Sending preset SysEx alone does NOT activate the preset. MUST send reload command after SysEx.
 
-Reload SysEx format: [0xf0, 0x00, 0x01, 0x7b, 0x30, 0x00, <preset>, 0xf7]
+**Official reload command (7-bit + CRC encoded, from quneo-qt6-editor `slotLoadPreset`):**
+`F0 00 01 5F 7A 1E 00 01 00 02 30 <preset> <crc16> <padding> F7`
+The `<crc16>` and padding are computed by the official encoder — do not hardcode the
+raw form. See `midi-controller/references/QuNeo_Official_Protocol.md`.
+
+The legacy raw form `F0 00 01 7B 30 00 <preset> F7` is a community-simplified variant,
+NOT what the official editor emits.
 
 ```python
-def reload_preset(preset_number):
-    # SysEx: F0 00 01 7B 30 00 <preset> F7
-    return bytes([0xf0, 0x00, 0x01, 0x7b, 0x30, 0x00, preset_number, 0xf7])
+# Use the OFFICIAL encoder: midi-controller/scripts/quneo_sysex.py (matches
+# quneo-qt6-editor sysexformat.cpp slotLoadPreset byte-for-byte).
+import sys
+sys.path.insert(0, "~/.hermes/skills/music/midi-controller/scripts")
+from quneo_sysex import load_preset
 
 sysex = build_syx_preset_data(preset, preset_number=0)
 port_out.send(mido.Message.from_bytes(sysex))
 time.sleep(0.5)
-port_out.send(mido.Message.from_bytes(reload_preset(0)))
+port_out.send(mido.Message.from_bytes(load_preset(0)))   # official 17-byte reload cmd
 ```
 
 ## Remote LED Control
@@ -100,15 +110,18 @@ Sustained hold required: re-send every ~50ms or LED disappears.
 
 ## CC LED Mappings (Factory Preset 1)
 
-| Component | CC | Effect |
-|----------|-----|--------|
-| LongSlider | 5 | LED position: 0=left, 127=right |
-| Left Rotary | 16 | LED position: 0=bottom, 127=top |
-| Right Rotary | 17 | LED position: 0=bottom, 127=top |
-| HSlider2 | 2 | VU gradient green-yellow-red |
-| HSlider3 | 3 | VU gradient |
-| VSlider2 | 8 | VU gradient |
-| VSlider3 | 9 | VU gradient |
+Authoritative (official `QuNeo.json` → Preset 1, `*B1outLocation` fields):
+
+| Component | Location CC |
+|-----------|-------------|
+| HSlider0–3 | 0, 1, 2, 3 |
+| Rotary0–1 | 4, 5 |
+| VSlider0–3 | 6, 7, 8, 9 |
+| LongSlider0 | 10 (location), 11 (width) |
+
+Press CCs: sliders 12–21, LongSlider 22, Pad0 23. See quneo-led-mapping skill for
+the full table. (An earlier learned table here listed Rotary as CC 16/17 and
+LongSlider as CC 5 — those were wrong; 16/17 are rotary outPress CCs.)
 
 ## Command Reference
 
