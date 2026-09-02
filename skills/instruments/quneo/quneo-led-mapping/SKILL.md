@@ -131,7 +131,16 @@ running = False
 t.join()
 ```
 
+## Preset-Agnostic Testing Tool
+
+`scripts/led_sweep.py` ingests QuNeo.json, derives expected LED maps for any preset
+slot, records a webcam sweep, and compares observed vs expected. Empirically
+validated results (webcam + human-confirmed) live in
+`references/empirical-led-mapping.md` — read it before running tests.
+
 ## Reference Files
+
+- **Empirical webcam-validated mapping:** references/empirical-led-mapping.md
 
 - **Official factory presets (authoritative):** ~/Documents/git/quneo-qt6-editor/Content/Presets/QuNeo.json
 - **Official preset SysEx dumps:** ~/Documents/git/quneo-qt6-editor/QT6-QuNeo/sysex/data/dataPreset{0-15}.syx
