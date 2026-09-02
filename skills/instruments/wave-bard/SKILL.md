@@ -1,6 +1,6 @@
 ---
 name: "wave-bard"
-description: "Use when working with the Bastl Kastle 2 Wave Bard — patchable stereo sample player with 8 samples/bank, scale quantization, resonant filter, stereo delay/chorus-flanger, pattern generator, LFO, and full CV/Gate/MIDI modulation. Firmware v1.1+."
+description: "Use when working with the Bastl Kastle 2 Wave Bard — patchable stereo sample player with 8 samples/bank, scale quantization, resonant filter, stereo delay/chorus-flanger, pattern generator, LFO, and full CV/Gate/MIDI modulation. Firmware v1.6+."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -158,9 +158,9 @@ Tempo source priority: **USB MIDI clock > SYNC IN > Internal clock**
 
 ### Pattern Generator
 
-Always tempo-synced:
-- **GATE**: Rhythmic 8-step sequence (75% gate length per step)
-- **CV**: Stepped voltage sequence, 8-step
+Always tempo-synced. Sequence length is selectable via the web app (v1.6+; default 8 steps):
+- **GATE**: Rhythmic sequence (75% gate length per step)
+- **CV**: Stepped voltage sequence
 
 **Patchbay inputs:**
 - `PATTERN G` (left): Modifies GATE rhythm
