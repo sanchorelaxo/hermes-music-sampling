@@ -14,6 +14,7 @@ Reference skills for all hardware instruments in the studio. Each skill covers d
 |-------|--------|-------------|
 | [sp404-mk2](sp404-mk2/SKILL.md) | Roland SP-404 MK2 | 16-pad sampler/sequencer, 4 bus effects, 29 MFX, 14 INPUT FX, DJ mode, TR-REC |
 | [op-1](op-1/SKILL.md) | Teenage Engineering OP-1 | Portable synth with 13 engines, 6 sequencers, 4-track tape, mixer, wireless radio |
+| [spotykach](spotykach/SKILL.md) | Synthux Spotykach | Screenless dual-deck looper, Reel/Slice/Drift modes, per-deck trigger sequencer, grit/flux FX, CV/Gate, MIDI, SD-card tapes |
 
 ## Synths & Drum Machines
 
