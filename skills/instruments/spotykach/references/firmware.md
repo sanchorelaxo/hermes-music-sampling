@@ -19,6 +19,9 @@ while holding Reset.)
 In bootloader mode the device enumerates as an Electrosmith **Daisy Bootloader** (STM32
 DFU, `0483:df11`).
 
+Firmware is flashed over the **rear USB-C port on the main PCB** — not the Seed's own
+onboard USB port (application firmware can only be flashed via the main PCB's USB-C).
+
 ## Flashing (Linux, headless via dfu-util)
 
 One-time udev rule (grants userspace access to the DFU device):
@@ -50,3 +53,11 @@ aconnect -l   # client 'Spotykach' [type=kernel,card=2]
 
 The official (non-headless) path is the **Daisy Programmer** in Google Chrome
 (https://flash.daisy.audio/ → File Upload → FLASH); WebUSB only works in Chrome.
+
+## USB file transfer (v1.4.0+)
+
+v1.4.0 adds USB file transfer (WebUSB via the WAV.builder web app). Known open issue
+([#15](https://github.com/Synthux-Academy/Spotykach/issues/15)): large transfers stall
+mid-upload ("corrupted request") and the device can drop the session if a resend also
+stalls. The **SD-card workflow is the reliable path** — prefer it over USB transfer for
+loading samples.
