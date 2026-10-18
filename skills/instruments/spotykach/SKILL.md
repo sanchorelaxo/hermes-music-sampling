@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: ["instrument", "looper", "sampler", "granular", "synthux", "eurorack", "cv", "midi", "sd-card", "firmware", "dfu", "sk-engines"]
-    related_skills: []
+    related_skills: ["spotykach-engine-authoring"]
 ---
 
 # Synthux Spotykach — Looping Playground
@@ -185,6 +185,8 @@ python3 scripts/sk_engines.py restore
 Preview the exact flash command without touching hardware with `install <engine> --dry-run` / `restore --dry-run`.
 
 **What the device becomes per engine** (all 22 — release + build-only — with type, build kind, SD-card need, and the non-obvious control remappings that turn the shared knob/pad/switch surface into each different instrument): [references/engines.md](mdc:references/engines.md).
+
+> To **write a whole new engine** for sk-engines (the `IEngine` contract, the three authoring methods — native C++, Faust/cyfaust, gen~/gen-dsp — build-time registration, and the SDRAM-arena memory model), see the sibling skill **`spotykach-engine-authoring`**.
 
 ## WAV.builder Automation
 

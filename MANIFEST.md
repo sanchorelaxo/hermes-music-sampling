@@ -43,7 +43,9 @@ hermes-music-sampling/
     │   ├── minikp-v2/      # Korg mini kaoss pad 2s (2011) — audio player, fnc
     │   ├── qunexus/        # KMI QuNexus — 25-key USB MIDI keyboard
     │   ├── kaoss-dj-mixer/ # Korg KAOSS DJ MIXER — USB DJ controller
-    │   └── op-1/           # Teenage Engineering OP-1 — 13 synth engines
+    │   ├── op-1/           # Teenage Engineering OP-1 — 13 synth engines
+    │   ├── spotykach/      # Synthux Spotykach — dual-deck looper, 22 swappable sk-engines
+    │   └── spotykach-engine-authoring/  # Author sk-engines engines (IEngine contract, C++/Faust/gen~)
     └── quneo/           # QuNeo 3D multi-touch MIDI controller (Keith McMillen)
         ├── SKILL.md        # Category index
         ├── quneo-controller/    # SysEx preset loading, Linux MIDI, reload
@@ -90,6 +92,7 @@ hermes-music-sampling/
 ## Changes Log
 | Date | Commit | Notes |
 |------|--------|-------|
+| 2026-10-17 | — | Add spotykach (Synthux looper — 22 swappable sk-engines, install/run/de-install lifecycle) + spotykach-engine-authoring (sk-engines engine authoring: IEngine contract, C++/Faust/gen~, SDRAM arena) |
 | 2026-05-05 | — | Split kaossilator (v1/v2), minikp (v1/v2); add op-1, quneo namespace (controller/led-mapping/osc-integration) |
 | 2026-05-05 | — | Add instruments category: sp404-mk2, kaossilator, kastle2, wavedrum-mini, minikp, qunexus, kaoss-dj-mixer |
 | 2026-04-29 | `0fe240b` | Add rubber-band-engine skill (time-stretch, pitch-shift) |

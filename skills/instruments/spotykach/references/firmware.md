@@ -51,6 +51,13 @@ amidi -l      # IO  hw:2,0,0  Spotykach MIDI 1
 aconnect -l   # client 'Spotykach' [type=kernel,card=2]
 ```
 
+USB MIDI re-enumeration **lags the reboot by a few seconds** — a `status` / `amidi -l`
+read taken immediately after `restore` (or any stock flash) can still show
+`MIDI device: no` while the `0483:5740` VCP / `Spotykach MIDI 1` interface is coming up.
+Re-check after `sleep 4` before concluding a flash failed; the early absence is the unit
+still booting, not a bad flash. (SRAM engines are audio-only and never enumerate MIDI,
+so this lag only matters for the stock firmware after `restore`.)
+
 The official (non-headless) path is the **Daisy Programmer** in Google Chrome
 (https://flash.daisy.audio/ → File Upload → FLASH); WebUSB only works in Chrome.
 

@@ -45,6 +45,12 @@ The Kastle 2 ships with two swappable firmware modes — **FX Wizard** and **Wav
 |-------|--------|-------------|
 | [quneo](quneo/SKILL.md) | Keith McMillen QuNeo | 3D multi-touch MIDI controller — see quneo/ subdirectory |
 
+## Firmware Development
+
+| Skill | Target | Description |
+|-------|--------|-------------|
+| [spotykach-engine-authoring](spotykach-engine-authoring/SKILL.md) | sk-engines (Spotykach) | Author new Firmware engines: `IEngine` contract, three authoring methods (native C++, Faust/cyfaust, gen~/gen-dsp), build-time registration, SDRAM-arena memory model |
+
 ## Reference Sources
 
 - Manuals: `~/Downloads/current_music_docs/` (SP-404 MK2, KAOSSILATOR V1/V2, miniKP V1/V2, qunexus, KAOSS DJ MIXER, kastle 2 FX Wizard + Wave Bard)
