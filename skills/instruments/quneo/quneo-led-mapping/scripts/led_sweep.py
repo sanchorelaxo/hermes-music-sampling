@@ -15,10 +15,26 @@ Pipeline:
   4. Map blob centroids to physical components (calibrated grid regions).
   5. Compare observed vs expected, print report + JSON artifacts.
 """
-import os,time,subprocess,json,argparse,sys
+import os,time,subprocess,json,argparse,sys,re,glob
 
 QUENO_JSON=os.path.expanduser('~/Documents/git/quneo-qt6-editor/Content/Presets/QuNeo.json')
-MIDI='/dev/snd/midiC1D0'
+
+def detect_midi():
+    """Find the raw ALSA MIDI device node for the QuNeo (card number changes across reboots)."""
+    try:
+        out=subprocess.run(['amidi','-l'],capture_output=True,text=True).stdout
+        for line in out.splitlines():
+            if 'QuNeo' in line:
+                m=re.search(r'hw:(\d+),(\d+)',line)
+                if m:
+                    node='/dev/snd/midiC%sD%s'%(m.group(1),m.group(2))
+                    if os.path.exists(node): return node
+    except Exception:
+        pass
+    nodes=sorted(glob.glob('/dev/snd/midiC*'))
+    return nodes[0] if nodes else None
+
+MIDI=os.environ.get('QUENO_MIDI') or detect_midi()
 # 540p calibrated regions (video is scaled to 960x540)
 COLS=[(362,437),(457,535),(557,636),(658,737)]
 ROWS=[(36,104),(121,193),(212,287),(307,384)]
@@ -172,12 +188,18 @@ def compare(exp,observed):
             print('%-18s %-14s %-28s -> %s %s'%(comp,k,key,sorted(set(named)) or '-',status))
 
 def main():
+    global MIDI
     ap=argparse.ArgumentParser()
     ap.add_argument('--preset',type=int,required=True)
     ap.add_argument('--sweep-only',action='store_true')
     ap.add_argument('--expected-only',action='store_true')
     ap.add_argument('--workdir',default='/tmp')
+    ap.add_argument('--midi',default=MIDI,help='raw MIDI device node (auto-detected if omitted)')
     a=ap.parse_args()
+    MIDI=a.midi
+    if not MIDI or not os.path.exists(MIDI):
+        sys.exit('MIDI device not found: %r (run `amidi -l`, or pass --midi /dev/snd/midiC?D?)'%MIDI)
+    print('MIDI device: %s'%MIDI)
     name,cs=load_preset_json(a.preset)
     print('Preset %d: %s'%(a.preset,name))
     exp=expected_map(cs)
