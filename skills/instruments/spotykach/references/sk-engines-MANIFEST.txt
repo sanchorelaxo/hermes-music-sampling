@@ -1,0 +1,24 @@
+spotykach firmware release
+version:    0.6.1-1-g4faeddd
+git commit: 4faeddd
+note:       these apps require the spotykach bootloader already installed (see RELEASE_NOTES.md)
+
+engine                bytes  binary
+bard                 167184  sk-bard-0.6.1-1-g4faeddd.bin
+chuck               1415344  sk-chuck-0.6.1-1-g4faeddd.bin
+csound              2345828  sk-csound-0.6.1-1-g4faeddd.bin
+delay                154432  sk-delay-0.6.1-1-g4faeddd.bin
+filter               158424  sk-filter-0.6.1-1-g4faeddd.bin
+edrums               163388  sk-edrums-0.6.1-1-g4faeddd.bin
+glitch               158056  sk-glitch-0.6.1-1-g4faeddd.bin
+graincloud           184492  sk-graincloud-0.6.1-1-g4faeddd.bin
+mosc                 304820  sk-mosc-0.6.1-1-g4faeddd.bin
+pstretch             164448  sk-pstretch-0.6.1-1-g4faeddd.bin
+qdelay               155376  sk-qdelay-0.6.1-1-g4faeddd.bin
+radio                159808  sk-radio-0.6.1-1-g4faeddd.bin
+reso                 184140  sk-reso-0.6.1-1-g4faeddd.bin
+reverb               185796  sk-reverb-0.6.1-1-g4faeddd.bin
+shuttle              173864  sk-shuttle-0.6.1-1-g4faeddd.bin
+softcut              179340  sk-softcut-0.6.1-1-g4faeddd.bin
+tape                 173376  sk-tape-0.6.1-1-g4faeddd.bin
+voice                160248  sk-voice-0.6.1-1-g4faeddd.bin

@@ -1,12 +1,12 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.0.0
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: ["instrument", "looper", "sampler", "granular", "synthux", "eurorack", "cv", "midi", "sd-card"]
+    tags: ["instrument", "looper", "sampler", "granular", "synthux", "eurorack", "cv", "midi", "sd-card", "firmware", "dfu", "sk-engines"]
     related_skills: []
 ---
 
@@ -160,6 +160,31 @@ Full navigation, import, pre-loading and config.txt reference: [references/sd-ca
 Latest: **v1.4.0 beta 2** (adds USB file transfer) · stable: v1.3.1. A Daisy device doesn't expose its installed version over USB, so confirming "latest" means flashing it and verifying the unit boots into normal (MIDI) mode. The bootloader is fail-safe — a bad flash just leaves it in DFU mode.
 
 Flash on Linux with `dfu-util` (QSPI address `0x90040000`; a udev rule grants userspace access). Full procedure, bootloader entry, and verification: [references/firmware.md](mdc:references/firmware.md)
+
+## Alternative firmware — sk-engines
+
+[sk-engines](https://github.com/shakfu/sk-engines) is a community firmware that replaces the stock looper with a pick-and-choose engine system: 18 release engines (delays, reverbs, granular clouds, tape/softcut, radio, Bard, and QSPI language runtimes for ChucK/Csound/Mosc) plus build-only engines (including the original `granular` looper). Its lifecycle — **install → run → de-install** — is automated headlessly by `scripts/sk_engines.py` (same pattern as `wav_builder.py`, covered by tests):
+
+```bash
+# install: download + checksum-verify + flash one engine
+python3 scripts/sk_engines.py install delay
+
+# run: engine boots on-device; confirm success as "DFU mode: no"
+python3 scripts/sk_engines.py status
+
+# de-install: re-flash the original Synthux firmware
+python3 scripts/sk_engines.py restore
+```
+
+- **install** resolves the pinned release URL (`sk-<engine>-0.6.1-1-g4faeddd.bin`, tag `0.6.1`), verifies its SHA-256 against the bundled `SHA256SUMS`, then flashes it to QSPI `0x90040000` via `dfu-util`.
+- **run** is the engine executing on the unit: after flash the device resets out of the bootloader and boots the app. The success signal is **`DFU mode: no`** (the bootloader's `0483:df11` interface left the bus), *not* USB MIDI — SRAM engines ship `USB_MIDI=0`, so a running engine presents no MIDI at all (it's audio-only). A binary's identity is read back from its embedded `spotykach <ver> engine=<name>` string.
+- **de-install / restore** downloads `spotykach_1.3.1.bin` (latest stable official release) and re-flashes it — the same DFU path, so a bad flash just leaves the device in DFU mode rather than bricked. After `restore`, the stock firmware *does* re-enumerate as `Spotykach MIDI 1`.
+
+`granular`, `passthrough`, `chorus` and `gigaverb` have no release binary — build from source with `make -j8 ENGINE=<name>` after `make -j8 libs`. **Every** engine requires the sk-engines (spotykach) bootloader (`bootloader-spotykach-v2.bin`, in-tree, `APP_TYPE = BOOT_SRAM`) to actually run — flashed alone over a stock unit, an engine only partially boots. Installing that bootloader is a one-time, riskier device-level change (moves DFU to the rear USB-C port) done deliberately, not during routine engine swaps. The `:leave` reset can print a harmless `Error 74`/`get_status` regardless of build type. Full detail and the bootloader caveat: [references/firmware.md](mdc:references/firmware.md).
+
+Preview the exact flash command without touching hardware with `install <engine> --dry-run` / `restore --dry-run`.
+
+**What the device becomes per engine** (all 22 — release + build-only — with type, build kind, SD-card need, and the non-obvious control remappings that turn the shared knob/pad/switch surface into each different instrument): [references/engines.md](mdc:references/engines.md).
 
 ## WAV.builder Automation
 
