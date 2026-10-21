@@ -2,6 +2,8 @@
 
 Authoritative reconstruction of the engine contract, transcribed from the sk-engines headers so you author against the real surface without re-deriving it. Everything below is contract-owned under `namespace spotykach` in `src/engine/`. Keep it as the API reference; the workflow lives in [../SKILL.md](../SKILL.md).
 
+**Scope:** this file documents the **fork** (`shakfu/sk-engines`) only. The manufacturer firmware (`Synthux-Academy/Spotykach`) has no `IEngine`, no `src/engine/`, and no `engine_select.h` — its equivalent is the concrete `Core`/`Deck`/`Fx` graph described in [official-firmware.md](official-firmware.md) and Part 1 of `SKILL.md`. If a member here looks missing on the device, that is why.
+
 ## The three required methods + the no-op strategy
 
 `IEngine` (with `SPK_TERMINAL=0`) has exactly three pure-virtual methods — every engine implements these — and **every other method is a no-op default** you override only as needed. `capabilities()` advertises which optional regions are live so the platform knows what to drive.
