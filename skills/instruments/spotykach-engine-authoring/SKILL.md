@@ -1,7 +1,7 @@
 ---
 name: "spotykach-engine-authoring"
-description: "Use when writing Spotykach firmware or sk-engines DSP engines."
-version: 2.1.0
+description: "Use when writing Spotykach firmware or sk-engines DSP engines, or when the unit will not flash / enter DFU."
+version: 2.2.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -20,6 +20,7 @@ Two codebases run on the same Spotykach hardware and **they are not the same fir
 - Writing a **new engine** (a whole different DSP behind the same panel) on `shakfu/sk-engines`.
 - Answering "how does the device actually behave?" — knob grammar, pad gestures, clock, memory budget, bootloader.
 - Debugging a link failure (`SRAM_EXEC` / `.bss` overflow), a click on FX engage, or an SD-load hang on this platform.
+- The unit will not take a flash: no "DFU in FS mode" in the browser programmer, Reset does nothing, or a previous update was interrupted (Part 5).
 
 Not for *playing* the device or installing/removing shipped engines — that is the `spotykach` skill.
 
@@ -55,7 +56,7 @@ make -j8 libs && make -j8        # link prints SRAM_EXEC usage = the binding bud
 make program-dfu                 # after putting the unit in DFU mode
 ```
 
-DFU: hold **Reset** on the back panel ~3 s → `AppImpl::Loop()` sees `GetBootButtonHeldTime() >= 3000` → `System::ResetToBootloader(DAISY_INFINITE_TIMEOUT)`; the UI stops running, then `make program-dfu`. The app is linked for SRAM (`APP_TYPE = BOOT_SRAM`, `LDSCRIPT = alt_sram.lds`) and started by the in-tree `bootloader-spotykach-v2.bin`; README is explicit that bootloader and app are separate images, so flashing one leaves the other intact.
+DFU: hold **Reset** on the back panel ~3 s → `AppImpl::Loop()` sees `GetBootButtonHeldTime() >= 3000` → `System::ResetToBootloader(DAISY_INFINITE_TIMEOUT)`; the UI stops running, then `make program-dfu`. The app is linked for SRAM (`APP_TYPE = BOOT_SRAM`, `LDSCRIPT = alt_sram.lds`) and started by the in-tree `bootloader-spotykach-v2.bin`; README is explicit that bootloader and app are separate images, so flashing one leaves the other intact. If the device will not enumerate (no "DFU in FS mode"), see **Part 5**.
 
 `CPP_SOURCES` wildcards `src/core/`, `src/core/fx/`, `src/hw/`, `src/ui/`, `src/memory/` — a new file compiles with **no registration**, and a stray scratch file compiles silently. `DEBUG=1` → `-DINFS_LOG=1`; the commented `METER` define in `app.cpp` reports DSP load.
 
@@ -253,6 +254,40 @@ PanRange KeyInterval Crossfade | capability-gated: AltPos (CapAltPos), Aux (CapA
 - gen~ `t_sample` is `double` off-target — desktop gen~ builds pass `-DGENLIB_USE_FLOAT32`; `genlib_arena.cpp` `static_assert`s on `sizeof(t_sample)`.
 - gen~ engines: `make clean` between switches (shared object basenames + stale-`.d` mtime race).
 - Its `granular` engine is an **older snapshot**: two Grit modes (no `Filter`), no `Config`/`Tempo`/`SynchClock`. Behaviour questions → official repo.
+
+---
+
+# Part 5 — Troubleshooting a flash that will not happen
+
+Manufacturer guidance (Synthux Notion, *Spotykach Firmware → Troubleshooting steps*) for the player-facing path. It applies to **both trees**: `make program-dfu` (Part 1.1) and the browser WebUSB programmer behave identically at the USB level, because both talk to the same in-tree `bootloader-spotykach-v2.bin`.
+
+**The default failure is not a brick — it is the device never enumerating.** After Reset, the Daisy web programmer's port list stays empty (or never shows *"DFU in FS mode"*). Work the list in order, cheapest first.
+
+**Cable and port**
+
+- **Data cable, not a charge-only cable.** This is the single most common cause. Prove it by using the same cable to move files to a phone/external drive or to talk to a MIDI keyboard. Powered hubs are usually fine with a good cable (confirmed by a user on an older MacBook Pro); unpowered hubs and adapters are not — plug straight into the machine.
+- **Different USB port, then a different computer**, before touching drivers.
+- **Rear USB-C on the main PCB only** — not the USB port on the Seed.
+
+**Getting into bootloader mode**
+
+- Hold rear **Reset** 3–5 s, release when the LED ring **glows white** (pads breathe white). The application firmware sees this as `GetBootButtonHeldTime() >= 3000` and resets into DFU.
+- **Button does nothing → plug in power while holding Reset.** Normal boot can fail after an interrupted update (power loss mid-flash); the bootloader itself is a separate image and survives a failed app flash, so this is the failsafe.
+- The rear button has both roles: normal update while the app runs, forced DFU when the app cannot start.
+
+**Host side**
+
+- **Google Chrome only** — WebUSB. Firefox/Safari cannot flash. Keep Chrome current (`chrome://settings/help`), and fully quit and relaunch all Chrome windows when the device is not listed.
+- **Windows:** install the driver with **Zadig** once (`https://daisy.audio/tutorials/zadig`). If Zadig still does not surface the device, uninstall Zadig and/or Chrome, reboot, reinstall.
+- **Verify enumeration independent of the programmer:** Windows Device Manager (should show a Daisy bootloader entry), macOS System Information → USB, and Chrome `chrome://device-log` (connect in bootloader mode and watch whether the browser sees it at all — this separates "Chrome cannot see it" from "the programmer page is broken").
+
+**After a successful flash**
+
+- Windows flow reads `Erasing Daisy → Flashing Daisy → Done`, then returns to the flash screen. Once the LED rings are back to **block orange**, **unplug and replug** to restart cleanly.
+
+**Escalation.** If it still does not respond, collect a short video of the current state plus the manufacturer checklist — cable is data-capable and tested, bootloader white LEDs, direct USB port, several ports tried, current Chrome, Chrome and machine restarted, Zadig installed (Windows), device visible in Device Manager / System Information / `chrome://device-log`, Chrome+Zadig reinstalled, another computer tried — and post to the Synthux Discord `#spotykach-firmware` channel: `https://discord.com/channels/802197755442626590/1345797126038487122`.
+
+**For firmware work specifically:** if you are debugging your own build rather than a stock update, reproduce the same steps *before* suspecting the binary, then check that you built and flashed the same artifact — `make program-dfu` flashes whatever is already in `build/` and does **not** rebuild (`make ENGINE=<name> && make program-dfu`, or `make ENGINE=<name> program-dfu`).
 
 ---
 

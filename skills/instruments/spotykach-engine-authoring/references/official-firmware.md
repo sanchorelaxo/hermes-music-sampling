@@ -84,6 +84,7 @@ Clock: internal 48 PPQN (`kPPQNIntern`); external = TS-4 analog or MIDI clock.
 - Bootloader entry: hold **Reset** on the back panel ~3 s → `AppImpl::Loop()` sees `GetBootButtonHeldTime() >= 3000` → `System::ResetToBootloader(DAISY_INFINITE_TIMEOUT)`. The UI stops; the device is now a DFU target. Then `make program-dfu`.
 - Bootloader and app are separate images; flashing one leaves the other intact. A USB re-plug may be needed after DFU.
 - `README.md` documents that the bootloader enables USB DFU firmware updating from the **external** (host) connection.
+- When the target never appears (no "DFU in FS mode", Reset inert, interrupted previous update): follow the ordered checklist in `SKILL.md` **Part 5** before suspecting the binary or the bootloader.
 
 ## Build flags that matter
 

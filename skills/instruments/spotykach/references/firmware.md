@@ -22,6 +22,36 @@ DFU, `0483:df11`).
 Firmware is flashed over the **rear USB-C port on the main PCB** — not the Seed's own
 onboard USB port (application firmware can only be flashed via the main PCB's USB-C).
 
+## Device not detected (no DFU target)
+
+The usual failure is not a brick — it is the unit never enumerating. Work down this list,
+cheapest first, before reflashing or blaming a binary: the bootloader is a separate image
+and survives a failed app flash, so a unit that looks dead is almost always reachable.
+
+- **Cable.** Charge-only cables are the most common cause by far. Prove the cable by moving
+  files to a phone or external drive with it. Powered hubs usually work with a good cable;
+  unpowered hubs and adapters do not — plug straight into the machine.
+- **Port, then host.** Try another USB port, then another computer, before touching drivers.
+- **Bootloader entry.** Hold Reset 3–5 s, release when the rings go white. If that does
+  nothing, start the unit **with Reset held** — normal boot can fail after an interrupted
+  update (power loss mid-flash) while the bootloader is still intact.
+- **Confirm enumeration independently of the programmer.** Linux: `lsusb | grep 0483:df11`.
+  Windows: Device Manager (Daisy bootloader entry) plus the Zadig driver
+  (https://daisy.audio/tutorials/zadig). macOS: System Information → USB. This separates
+  "host/USB problem" from "programmer tool problem".
+- **Browser path only:** Chrome (WebUSB) — Firefox/Safari cannot flash. Keep Chrome current
+  (`chrome://settings/help`), fully quit and relaunch every window when the list stays empty,
+  and use `chrome://device-log` to see whether Chrome sees the device at all.
+- **After a successful flash:** once the rings stop glowing bootloader-white, unplug and
+  replug once to restart cleanly (matters most on Windows, where the flow reads
+  erasing → flashing → done and then returns to the flash screen).
+
+If every hardware-level check passes and the unit still will not appear, that is a
+manufacturer support question, not a firmware build problem — record a short video of the
+current state and post it to the Synthux Discord `#spotykach-firmware` channel with what
+was already tried:
+https://discord.com/channels/802197755442626590/1345797126038487122
+
 ## Flashing (Linux, headless via dfu-util)
 
 One-time udev rule (grants userspace access to the DFU device):

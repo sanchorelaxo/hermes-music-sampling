@@ -1,7 +1,7 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.1.0
+version: 1.2.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -160,6 +160,8 @@ Full navigation, import, pre-loading and config.txt reference: [references/sd-ca
 Latest: **v1.4.0 beta 2** (adds USB file transfer) · stable: v1.3.1. A Daisy device doesn't expose its installed version over USB, so confirming "latest" means flashing it and verifying the unit boots into normal (MIDI) mode. The bootloader is fail-safe — a bad flash just leaves it in DFU mode.
 
 Flash on Linux with `dfu-util` (QSPI address `0x90040000`; a udev rule grants userspace access). Full procedure, bootloader entry, and verification: [references/firmware.md](mdc:references/firmware.md)
+
+If the unit never appears as a DFU target — blank list in the Daisy web programmer, empty `dfu-util -l` / no `0483:df11` in `lsusb`, or Reset doing nothing — it is almost never a brick: the bootloader is a separate image and survives a failed app flash. Work the ordered device-not-detected triage (cable → port/host → bootloader entry with Reset held while powering → independent enumeration check) in [references/firmware.md](mdc:references/firmware.md#device-not-detected-no-dfu-target) before reflashing or suspecting the binary.
 
 ## Alternative firmware — sk-engines
 

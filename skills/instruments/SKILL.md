@@ -49,7 +49,7 @@ The Kastle 2 ships with two swappable firmware modes — **FX Wizard** and **Wav
 
 | Skill | Target | Description |
 |-------|--------|-------------|
-| [spotykach-engine-authoring](spotykach-engine-authoring/SKILL.md) | sk-engines (Spotykach) | Author new Firmware engines: `IEngine` contract, three authoring methods (native C++, Faust/cyfaust, gen~/gen-dsp), build-time registration, SDRAM-arena memory model |
+| [spotykach-engine-authoring](spotykach-engine-authoring/SKILL.md) | sk-engines (Spotykach) | Author new Firmware engines: `IEngine` contract, three authoring methods (native C++, Faust/cyfaust, gen~/gen-dsp), build-time registration, SDRAM-arena memory model, plus flash/DFU troubleshooting |
 
 ## Reference Sources
 

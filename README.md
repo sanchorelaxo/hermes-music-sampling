@@ -43,7 +43,7 @@ This project collects and organizes music sampling and audio processing skills f
 | [kaoss-dj-mixer](skills/instruments/kaoss-dj-mixer/SKILL.md) | Korg KAOSS DJ MIXER | USB DJ controller, X-Y touchpad, 86 programs with full effect table (FILTER/MOD/LFO/DELAY/REVERB/GRAIN/LOOPER/LEAD/AC/BASS/CHORD/SE), Serato DJ Intro |
 | [op-1](skills/instruments/op-1/SKILL.md) | Teenage Engineering OP-1 | 13 synth engines, drum sampler, 6 sequencers, 4-track tape, mixer, USB audio/MIDI |
 | [spotykach](skills/instruments/spotykach/SKILL.md) | Synthux Spotykach | Screenless dual-deck looper — 22 swappable sk-engines, Reel/Slice/Drift modes, per-deck trigger sequencer, grit/flux FX, CV/Gate, MIDI, SD-card tapes; install/run/de-install engine lifecycle + WAV.builder automation |
-| [spotykach-engine-authoring](skills/instruments/spotykach-engine-authoring/SKILL.md) | sk-engines firmware | Author new Spotykach firmware engines for sk-engines: the `IEngine` contract, three authoring methods (native C++, Faust/cyfaust, gen~/gen-dsp), build-time registration, SDRAM-arena memory model |
+| [spotykach-engine-authoring](skills/instruments/spotykach-engine-authoring/SKILL.md) | sk-engines firmware | Author new Spotykach firmware engines for sk-engines: the `IEngine` contract, three authoring methods (native C++, Faust/cyfaust, gen~/gen-dsp), build-time registration, SDRAM-arena memory model, plus flash/DFU troubleshooting |
 
 > All Korg instruments (kaossilator-v1/v2, minikp-v1/v2, kaoss-dj-mixer) include complete effect program tables sourced from the original manuals.
 
