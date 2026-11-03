@@ -1,7 +1,7 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.2.0
+version: 1.3.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -157,7 +157,7 @@ Full navigation, import, pre-loading and config.txt reference: [references/sd-ca
 
 ## Firmware
 
-Latest: **v1.4.0 beta 2** (adds USB file transfer) · stable: v1.3.1. A Daisy device doesn't expose its installed version over USB, so confirming "latest" means flashing it and verifying the unit boots into normal (MIDI) mode. The bootloader is fail-safe — a bad flash just leaves it in DFU mode.
+Latest stable: **v1.4.0** (`spotykach_1.4.0.bin`, adds USB file transfer). A Daisy device doesn't expose its installed version over USB, so confirming "latest" means flashing it and verifying the unit boots into normal (MIDI) mode. The bootloader is fail-safe — a bad flash just leaves it in DFU mode.
 
 Flash on Linux with `dfu-util` (QSPI address `0x90040000`; a udev rule grants userspace access). Full procedure, bootloader entry, and verification: [references/firmware.md](mdc:references/firmware.md)
 
@@ -190,6 +190,69 @@ Preview the exact flash command without touching hardware with `install <engine>
 
 > To **write a whole new engine** for sk-engines (the `IEngine` contract, the three authoring methods — native C++, Faust/cyfaust, gen~/gen-dsp — build-time registration, and the SDRAM-arena memory model), see the sibling skill **`spotykach-engine-authoring`**.
 
+## Sourcing a clip from the web (YouTube, Bandcamp, etc.)
+
+`scripts/yt_sample.py` is the tool for this: URL plus a time range in, native WAV in
+the right deck slot out. Repeated use is the point, so the download is cached by video
+id and the second run of the same video costs nothing.
+
+```bash
+# deck A <- 6:40..7:10  (installs as SK/B/1.WAV)
+python3 scripts/yt_sample.py --url 'https://youtu.be/VIDEOID' --start 6:40 --end 7:10 --deck a
+
+# deck B -> SK/B/2.WAV
+python3 scripts/yt_sample.py --url 'https://youtu.be/VIDEOID' --start 12:45 --end 13:15 --deck b
+
+# a local file skips the download; same pipeline, offline
+python3 scripts/yt_sample.py --url track.wav --start 0:10 --end 0:40 --deck a
+
+# build against a scratch card root to check without hardware
+python3 scripts/yt_sample.py --url ... --start 0:10 --end 0:40 --deck a --card /tmp/fakecard
+```
+
+Times accept `SS`, `MM:SS`, `HH:MM:SS`, or bare seconds. Deck mapping is
+**A -> `SK/B/1.WAV`**, **B -> `SK/B/2.WAV`** — storage is shared between decks; a tape is a
+folder, not a deck. Library call: `build_sample(url, start, end, is_deck_a) -> SampleResult`.
+
+What it handles so the next run does not rediscover it:
+
+- picks the **newest** yt-dlp by version, not by PATH order, and passes a JS runtime
+  (`node:`) explicitly
+- downloads once to `~/.hermes/cache/spotykach/<videoid>.*` and reuses it
+- refuses `end <= start`, refuses segments over the 42 s deck ceiling, and refuses a
+  range that runs past the end of the source
+- rewrites the header as plain IEEE float, then re-checks by sha256 after the copy
+- backs up a differing existing slot file to `<cache>/backup/` before overwriting
+- finds the card itself, including mounting an inserted-but-unmounted one via `udisksctl`
+
+**A range past the end of the source is the silent failure to know about:** ffmpeg still
+writes a valid 44-byte header with no samples, and that loads on the deck as silence. The
+tool rejects it; if you cut by hand, check the output is bigger than 44 bytes.
+
+Manual fallback when the tool does not fit (non-YouTube media, custom slot):
+
+Pull the audio with yt-dlp and cut it with ffmpeg — never screen-record the browser. That
+gives an exact timecode cut and a clean file:
+
+```bash
+# full audio, then cut locally (a ranged request is unreliable — see below)
+yt-dlp --js-runtimes node -f bestaudio -o full.%(ext)s "$URL"
+ffmpeg -ss 400 -t 30 -i full.webm -c:a pcm_f32le -ar 48000 -ac 2 slice.wav   # 6:40 + 30 s
+python3 scripts/wav_builder.py convert slice.wav out.WAV
+```
+
+- **403 Forbidden on the media fetch while `--list-formats` still lists formats** means the
+  yt-dlp build is stale, not that the site blocks downloads. `yt-dlp -U` cannot write
+  `/usr/local/bin`; install the current release binary into `~/.local/bin` and pass a JS
+  runtime with `--js-runtimes node` (deno is the default and usually absent; node lives
+  under `~/.hermes/node/bin`). Extract and download succeeding are separate failures.
+- **Do not cut with `--download-sections`**: the ranged googlevideo request 403s even when
+  the full stream downloads fine. Download whole, cut with `-ss/-t` locally.
+- **`--cookies-from-browser brave` extracts 0 cookies from a flatpak Brave** (the keyring
+  does not decrypt them). Fix the binary and runtime instead of hunting for a cookie file.
+- Prefer downloading over capturing the desktop audio sink: sink capture inherits whatever
+  the machine is routed to (a Bluetooth headset, for instance) and has no timecode accuracy.
+
 ## WAV.builder Automation
 
 Getting sounds onto the card is deterministic and can be automated headlessly. The script `scripts/wav_builder.py` (in this skill's directory) reproduces the file pipeline of the [WAV.builder webapp](https://jonwaterschoot.github.io/spotykach_WAV_builder/) — conversion to the native format, the `SK/` folder layout, and `config.txt` — so it runs from the CLI and is covered by tests. It uses ffmpeg/ffprobe, no mocks.
@@ -208,14 +271,22 @@ python3 scripts/wav_builder.py write-config --mid-ch-b 5 --pre-load 0 -o /media/
 python3 scripts/wav_builder.py validate file.WAV
 ```
 
+**Check the slot before you write it.** `build-card` overwrites `SK/<tape>/<track>.WAV`
+silently. List the target folder first and copy any existing file to the host scratch dir
+before overwriting. Do not move the occupant to a free slot on your own initiative — the
+slot number is what the deck UI selects by, so relocating it changes the user's layout.
+
 Tape letters map to colors (B blue, G green, P pink, R red, T turquoise, Y yellow); tracks are 1–6. `write-config` validates keys and ranges (MIDI channels 1–16, flags 0/1) and rejects unknown settings.
 
 **When to use the browser app instead:** the webapp is still the right tool for the *interactive* waveform editor (trim/fade/EQ/pitch/slice), the curated sample packs, and the beta USB transfer. This script covers the deterministic file-layout half; the app covers hands-on editing.
 
-**Tests:** `tests/test_spotykach_wav_builder.py` (repo root) runs real ffmpeg/ffprobe and asserts the native format, the tape/track tree, and the `config.txt` layout:
+**Tests:** both scripts run real ffmpeg/ffprobe against local files, no mocks and no network —
+`tests/test_spotykach_wav_builder.py` covers the format, tape/track tree and `config.txt`;
+`tests/test_spotykach_yt_sample.py` covers time parsing, deck mapping, the truncation guard,
+backup-before-overwrite, card discovery and the CLI:
 
 ```bash
-pytest tests/test_spotykach_wav_builder.py
+pytest tests/test_spotykach_wav_builder.py tests/test_spotykach_yt_sample.py
 ```
 
 ## Resources

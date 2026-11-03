@@ -92,6 +92,7 @@ hermes-music-sampling/
 ## Changes Log
 | Date | Commit | Notes |
 |------|--------|-------|
+| 2026-11-03 | — | spotykach v1.3.0: add `scripts/yt_sample.py` (URL + time range -> deck slot, cached download, newest-yt-dlp resolution, truncation guard, backup-before-overwrite) + `tests/test_spotykach_yt_sample.py` |
 | 2026-10-21 | — | spotykach-engine-authoring v2.2.0: add Part 5 flash/DFU troubleshooting (cable, bootloader entry, Chrome WebUSB, Zadig, scripted Makefile bindings) |
 | 2026-10-17 | — | Add spotykach (Synthux looper — 22 swappable sk-engines, install/run/de-install lifecycle) + spotykach-engine-authoring (sk-engines engine authoring: IEngine contract, C++/Faust/gen~, SDRAM arena) |
 | 2026-05-05 | — | Split kaossilator (v1/v2), minikp (v1/v2); add op-1, quneo namespace (controller/led-mapping/osc-integration) |
