@@ -163,6 +163,23 @@ def test_extract_segment_rejects_range_beyond_source(tmp_path):
     assert not (tmp_path / "seg.wav").exists()
 
 
+def test_extract_segment_rejects_duration_over_the_loop_ceiling(tmp_path):
+    # build_sample checks the ceiling before downloading; a direct
+    # extract_segment call must not smuggle a longer file past that check
+    src = _make_tone(tmp_path, 60)
+    dst = tmp_path / "seg.wav"
+    with pytest.raises(ValueError, match="42"):
+        ys.extract_segment(src, dst, 0.0, 43.0)
+    assert not dst.exists()
+
+
+def test_extract_segment_accepts_exactly_the_loop_ceiling(tmp_path):
+    # 42.000 s is legal: the deck loads up to 42 s, so the boundary is inclusive
+    src = _make_tone(tmp_path, 60)
+    out = ys.extract_segment(src, tmp_path / "seg.wav", 0.0, 42.0)
+    assert abs(_duration(out) - ys.MAX_LOOP_SECONDS) < 1e-6
+
+
 # --- card discovery ------------------------------------------------------
 
 def test_find_card_finds_root_with_sk(tmp_path):

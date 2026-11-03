@@ -326,8 +326,16 @@ def ensure_source(url, cache_dir):
 
 
 def extract_segment(src, dst, start, seconds):
-    """Cut ``[start, start+seconds)`` and write a native Spotykach WAV."""
+    """Cut ``[start, start+seconds)`` and write a native Spotykach WAV.
+
+    Enforces the deck's loop ceiling here as well as in :func:`build_sample`, so
+    a direct library call cannot produce a file the hardware would silently cut.
+    """
     src, dst = Path(src), Path(dst)
+    if seconds > MAX_LOOP_SECONDS:
+        raise ValueError(
+            f"segment is {seconds:g}s; a deck holds {MAX_LOOP_SECONDS:g}s max"
+        )
     dst.parent.mkdir(parents=True, exist_ok=True)
     rough = dst.with_name(dst.stem + ".cut.wav")
 
