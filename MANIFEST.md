@@ -92,6 +92,7 @@ hermes-music-sampling/
 ## Changes Log
 | Date | Commit | Notes |
 |------|--------|-------|
+| 2026-11-03 | — | spotykach v1.4.1: card check now validates the expected tree (six tape folders) after discovery; soft vs blocking findings; read-only contract documented |
 | 2026-11-03 | — | spotykach v1.4.0: "spottytube" trigger documented; card readiness checked before download/cut (`--check-card`, per-cause errors, ready line); loop ceiling enforced in `extract_segment` too |
 | 2026-11-03 | — | spotykach v1.3.1: add "When NOT to Use"; correct restore-pin wording (1.3.1 is pinned, stable is v1.4.0); per-deck `SK/MEM` pre-load semantics; card-write verify + eject guidance |
 | 2026-11-03 | — | spotykach v1.3.0: add `scripts/yt_sample.py` (URL + time range -> deck slot, cached download, newest-yt-dlp resolution, truncation guard, backup-before-overwrite) + `tests/test_spotykach_yt_sample.py` |

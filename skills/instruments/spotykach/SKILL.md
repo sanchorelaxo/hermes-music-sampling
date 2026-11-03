@@ -1,7 +1,7 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.4.0
+version: 1.4.1
 author: Hermes Agent
 license: MIT
 metadata:
@@ -221,9 +221,36 @@ must not cost a download:
 
 ```bash
 python3 skills/instruments/spotykach/scripts/yt_sample.py --check-card
-# card: /media/<user>/1A43-4FD2  SK/ folder: yes  writable: yes  free: 29,777.8 MB
-#   slot B/1.WAV: 11,520,044 bytes (30.0s)   slot B/2.WAV: empty   state: ready
+# card: /media/<user>/1A43-4FD2
+#   SK/ folder: yes
+#   tapes:      B G P R T Y
+#   writable:   yes
+#   free:       29,777.8 MB
+#   slot B/1.WAV: 11,520,044 bytes (30.0s)
+#   slot B/2.WAV: empty
+# state: ready
 ```
+
+**How discovery and the structure check work.** Two questions, answered in order:
+
+1. *Which volume is the card?* `find_card()` walks mounted vfat/exfat volumes and takes the
+   first one that has an `SK/` folder. If nothing mounted qualifies, `autodetect_card()` asks
+   `udisksctl` to mount any unmounted vfat block device, then looks again — so a card that was
+   inserted but not auto-mounted is still found. A caller can pin the answer with `--card`, and
+   tests pass `search_roots`, which skips real hardware entirely.
+2. *Is that card laid out the way the firmware expects?* `card_status()` reads the root and
+   reports: `SK/` present, which of the six tape folders (`B G P R T Y`) exist, whether the mount
+   is writable, free bytes, and the size of both deck slots. `structure_problems()` turns that
+   into findings; `--check-card` prints them and exits non-zero if any exist.
+
+Track files are *not* part of the structure check. An empty track is a legitimate empty slot,
+so only folders count. Missing tape folders are reported but do **not** block a build: `_install`
+creates them as part of writing the slot, and the run prints `note: no folder for tape G yet;`
+it will be created before the slot is written`. A missing `SK/` or a read-only mount does block —
+neither is something a write can fix.
+
+The check is read-only. It never creates, moves, or repairs anything on the card; the only thing
+that touches the filesystem is the actual install, and it does so after the check has passed.
 
 The tool resolves the card *before* it downloads or cuts anything, and the normal run prints
 `card: <mount>  (ready)` as its first line, so a run that starts means the card was found,

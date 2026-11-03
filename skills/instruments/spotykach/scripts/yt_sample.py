@@ -296,10 +296,18 @@ class CardStatus:
     writable: bool
     free_bytes: int
     slots: dict          # "B/1.WAV" -> bytes, or None when the slot is empty
+    tapes_present: list  # tape folders that exist under SK/
+    tapes_missing: list  # tape folders the firmware expects but that are absent
 
 
 def card_status(root):
-    """Inspect a card root without changing anything."""
+    """Inspect a card root without changing anything.
+
+    `SK/` is what makes a volume the Spotykach card; the six tape folders
+    (B G P R T Y) are what the firmware expects inside it. Loose slots inside
+    them are normal — an empty track is just an empty track — so only the
+    folders are counted as structure.
+    """
     root = Path(root)
     sk = root / "SK"
     try:
@@ -309,12 +317,45 @@ def card_status(root):
     except OSError:
         free, writable = 0, False
 
+    tapes_present, tapes_missing = [], []
+    for letter in sorted(wb.TAPES):
+        (tapes_present if (sk / letter).is_dir() else tapes_missing).append(letter)
+
     slots = {}
     for tape, track in DECK_SLOTS.values():
         path = sk / tape / f"{track}.WAV"
         slots[f"{tape}/{track}.WAV"] = path.stat().st_size if path.is_file() else None
     return CardStatus(root=root, sk=sk, writable=writable, free_bytes=free,
-                      slots=slots)
+                      slots=slots, tapes_present=tapes_present,
+                      tapes_missing=tapes_missing)
+
+
+def structure_problems(status):
+    """Every way this card deviates from the expected layout, worst first."""
+    problems = []
+    if not status.sk.is_dir():
+        problems.append("no SK/ folder")
+    if status.sk.is_dir() and status.tapes_missing:
+        problems.append("missing tape folder(s) " + " ".join(status.tapes_missing))
+    if not status.writable:
+        problems.append("mounted read-only")
+    return problems
+
+
+def blocking_problems(status):
+    """Problems a write cannot fix by itself; missing tape folders are not one.
+
+    `_install` creates absent tape folders as part of writing the slot, so only
+    a missing `SK/` or a read-only mount actually stops a build. `--check-card`
+    still reports the soft ones, because "is this card laid out right" and "can
+    I write to it" are two different questions.
+    """
+    problems = []
+    if not status.sk.is_dir():
+        problems.append("no SK/ folder — not a Spotykach card")
+    if not status.writable:
+        problems.append("mounted read-only")
+    return problems
 
 
 def require_card(card=None, search_roots=None):
@@ -520,9 +561,14 @@ def build_sample(url, start, end, is_deck_a, card=None, cache_dir=None,
 def format_card_status(status):
     """Human-readable card readiness block."""
     free_mb = status.free_bytes / (1024 * 1024)
+    problems = structure_problems(status)
     lines = [f"card: {status.root}"]
-    ready = status.sk.is_dir() and status.writable
     lines.append(f"  SK/ folder: {'yes' if status.sk.is_dir() else 'MISSING'}")
+    if status.sk.is_dir():
+        tapes = " ".join(status.tapes_present) or "none"
+        if status.tapes_missing:
+            tapes += f"   (missing: {' '.join(status.tapes_missing)})"
+        lines.append(f"  tapes:      {tapes}")
     lines.append(f"  writable:   {'yes' if status.writable else 'no'}")
     lines.append(f"  free:       {free_mb:,.1f} MB")
     for name, size in status.slots.items():
@@ -531,7 +577,10 @@ def format_card_status(status):
         else:
             seconds = max(size - PLAIN_WAV_HEADER, 0) / (4 * wb.CHANNELS) / wb.SAMPLE_RATE
             lines.append(f"  slot {name}: {size:,} bytes ({seconds:.1f}s)")
-    lines.append(f"state: {'ready' if ready else 'not ready'}")
+    if problems:
+        lines.append("state: not ready — " + "; ".join(problems))
+    else:
+        lines.append("state: ready")
     return "\n".join(lines)
 
 
@@ -540,13 +589,11 @@ def _check_card(args):
     root = require_card(args.card, None)
     status = card_status(root)
     print(format_card_status(status))
-    if not status.sk.is_dir():
-        print(f"error: {root} has no SK/ folder — that is not a Spotykach card. "
-              "Run wav_builder.py build-card to initialise it.", file=sys.stderr)
-        return 1
-    if not status.writable:
-        print(f"error: {root} is mounted read-only; remount it writable.",
-              file=sys.stderr)
+    problems = structure_problems(status)
+    if problems:
+        print(f"error: {root} is not usable: {'; '.join(problems)}. "
+              "Run wav_builder.py build-card --card-root <mount> to lay out a "
+              "fresh SK/ tree, or point --card at the real card.", file=sys.stderr)
         return 1
     return 0
 
@@ -589,9 +636,13 @@ def main(argv=None):
     try:
         card_root = require_card(args.card, None)
         status = card_status(card_root)
-        if not status.writable:
-            raise CardNotFound(f"{card_root} is not writable; remount it.")
-        print(format_card_status(status).splitlines()[0] + "  (ready)")
+        problems = blocking_problems(status)
+        if problems:
+            raise CardNotFound(f"{card_root} is not usable: {'; '.join(problems)}")
+        print(f"card: {card_root}  (ready)")
+        if status.tapes_missing:
+            print(f"note: no folder for tape {' '.join(status.tapes_missing)} yet; "
+                  f"it will be created before the slot is written")
         result = build_sample(
             args.url, args.start, args.end, args.deck == "a",
             card=card_root, cache_dir=args.cache_dir, backup=not args.no_backup,
