@@ -71,7 +71,7 @@ BUILD_ONLY_ENGINES = {"granular", "passthrough", "chorus", "gigaverb"}
 
 # Original Synthux firmware — the de-install / restore target.
 ORIGINAL_REPO = "https://github.com/Synthux-Academy/Spotykach"
-ORIGINAL_TAG = "v1.3.1"          # latest stable official release
+ORIGINAL_TAG = "v1.3.1"          # pinned deliberately — NOT "newest stable"
 ORIGINAL_BIN = "spotykach_1.3.1.bin"
 
 # DFU flash parameters (same for sk-engines and official firmware).

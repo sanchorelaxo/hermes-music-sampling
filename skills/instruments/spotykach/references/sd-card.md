@@ -50,9 +50,37 @@ The file must match Spotykach's internal format: **32-bit float, 48kHz, stereo W
 - Files shorter than 42s → file length becomes the max loop size.
 - Files longer than 42s → only the first 42 seconds are loaded.
 
+### Verify the write, then eject
+
+Do not hand the card back on the strength of a successful `cp`/`build-card` message. Prove
+what actually landed on the removable media:
+
+```bash
+md5sum "$MNT/SK/B/1.WAV" source.WAV          # same hash = same bytes, not a truncated write
+ffprobe -v error -show_entries format=duration -show_entries stream=sample_fmt,sample_rate,channels \
+  -of default=noprint_wrappers=1 "$MNT/SK/B/1.WAV"
+xxd -s 20 -l 2 "$MNT/SK/B/1.WAV"             # expect 0300 (IEEE float), not feff
+sync && udisksctl unmount -b /dev/mmcblk0p1  # unmount BEFORE the user pulls the card
+```
+
+Unmounting before the card is pulled matters on FAT32: a write still buffered when the card
+leaves corrupts the FAT, and the symptom is a card that spuriously fails to be recognised
+on next power-up.
+
 ## Pre-loading
 
 Spotykach remembers the last tape+slot and pre-loads it on next power-on. Cancel a slow pre-load with **tap + deck play** (also discards pre-load info). Pre-load info is stored in the `MEM` file in the `SK` folder. Disable globally via `pre_load` in config.txt.
+
+**Pre-load is remembered per deck, not globally.** `SK/MEM` is four bytes: two tape/slot pairs, one
+per deck. `1100` was read after only deck A had ever loaded a slot (deck B still zeroed); after
+deck B loaded blue slot 1 the file read `1111`. So the entry that decides deck B's pre-load is
+written by the deck B load itself — load `SK/B/2.WAV` once on deck B and it sticks.
+
+Consequences worth knowing:
+
+- Writing a file to a slot from the host does **not** register it. Only the deck loading it does.
+- Cancelling deck B's pre-load at power-up (tap + deck play) erases deck B's entry too.
+- Both decks can point at the same slot, in which case they come up with identical audio.
 
 ## config.txt
 

@@ -1,7 +1,7 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.3.0
+version: 1.3.1
 author: Hermes Agent
 license: MIT
 metadata:
@@ -49,6 +49,17 @@ Spotykach is a screenless, dual-deck looper built for hands-on sound exploration
 - Step-triggering deck playback with the per-deck trigger sequencer
 - Using Spotykach as a real-time distortion / delay / stutter effect (effects process live input too)
 - Integrating with Eurorack via CV/Gate, or as a 4PPQN↔24PPQN clock converter
+
+## When NOT to Use
+
+- **Writing or debugging sk-engines firmware** (the `IEngine` contract, C++/Faust/gen~ builds,
+  SDRAM arena): use the sibling skill **`spotykach-engine-authoring`**.
+- **A unit that never appears on USB**: work the ordered device-not-detected triage in
+  [references/firmware.md](mdc:references/firmware.md#device-not-detected-no-dfu-target) before
+  reflashing or suspecting a binary. It is almost never a brick.
+- **Loops longer than 42 s per deck, or USB audio**: neither exists on this hardware. USB is
+  MIDI and power (plus file transfer on v1.4.0+), not an audio interface. Longer material has
+  to be split across slots or the two decks.
 
 ## Deck Modes
 
@@ -153,6 +164,10 @@ Full CC implementation chart: [references/midi-cc.md](mdc:references/midi-cc.md)
 
 Tape-based storage (6 tapes × 6 tracks = 36 slots), 32-bit float 48kHz stereo WAV. Files live under the `SK` folder; tapes are B/G/P/R/T/Y (blue/green/pink/red/turquoise/yellow).
 
+Storage is **shared between decks**: a tape is a folder, not a deck. Deck A and deck B load
+from the same 36 slots, and each deck remembers its own tape+slot pair in `SK/MEM` for
+pre-load at power-on.
+
 Full navigation, import, pre-loading and config.txt reference: [references/sd-card.md](mdc:references/sd-card.md)
 
 ## Firmware
@@ -180,7 +195,11 @@ python3 scripts/sk_engines.py restore
 
 - **install** resolves the pinned release URL (`sk-<engine>-0.6.1-1-g4faeddd.bin`, tag `0.6.1`), verifies its SHA-256 against the bundled `SHA256SUMS`, then flashes it to QSPI `0x90040000` via `dfu-util`.
 - **run** is the engine executing on the unit: after flash the device resets out of the bootloader and boots the app. The success signal is **`DFU mode: no`** (the bootloader's `0483:df11` interface left the bus), *not* USB MIDI — SRAM engines ship `USB_MIDI=0`, so a running engine presents no MIDI at all (it's audio-only). A binary's identity is read back from its embedded `spotykach <ver> engine=<name>` string.
-- **de-install / restore** downloads `spotykach_1.3.1.bin` (latest stable official release) and re-flashes it — the same DFU path, so a bad flash just leaves the device in DFU mode rather than bricked. After `restore`, the stock firmware *does* re-enumerate as `Spotykach MIDI 1`.
+- **de-install / restore** downloads the stock firmware pinned in `scripts/sk_engines.py`
+  (`spotykach_1.3.1.bin`; the stable line has since moved to v1.4.0, so bump `ORIGINAL_TAG`
+  deliberately rather than assuming the pin is newest) and re-flashes it — the same DFU path,
+  so a bad flash just leaves the device in DFU mode rather than bricked. After `restore`, the
+  stock firmware *does* re-enumerate as `Spotykach MIDI 1`.
 
 `granular`, `passthrough`, `chorus` and `gigaverb` have no release binary — build from source with `make -j8 ENGINE=<name>` after `make -j8 libs`. **Every** engine requires the sk-engines (spotykach) bootloader (`bootloader-spotykach-v2.bin`, in-tree, `APP_TYPE = BOOT_SRAM`) to actually run — flashed alone over a stock unit, an engine only partially boots. Installing that bootloader is a one-time, riskier device-level change (moves DFU to the rear USB-C port) done deliberately, not during routine engine swaps. The `:leave` reset can print a harmless `Error 74`/`get_status` regardless of build type. Full detail and the bootloader caveat: [references/firmware.md](mdc:references/firmware.md).
 
@@ -275,6 +294,9 @@ python3 scripts/wav_builder.py validate file.WAV
 silently. List the target folder first and copy any existing file to the host scratch dir
 before overwriting. Do not move the occupant to a free slot on your own initiative — the
 slot number is what the deck UI selects by, so relocating it changes the user's layout.
+
+`yt_sample.py` does this backup for you (to `<cache>/backup/`); the warning applies when you
+reach for `build-card` directly.
 
 Tape letters map to colors (B blue, G green, P pink, R red, T turquoise, Y yellow); tracks are 1–6. `write-config` validates keys and ranges (MIDI channels 1–16, flags 0/1) and rejects unknown settings.
 

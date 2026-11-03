@@ -92,6 +92,7 @@ hermes-music-sampling/
 ## Changes Log
 | Date | Commit | Notes |
 |------|--------|-------|
+| 2026-11-03 | — | spotykach v1.3.1: add "When NOT to Use"; correct restore-pin wording (1.3.1 is pinned, stable is v1.4.0); per-deck `SK/MEM` pre-load semantics; card-write verify + eject guidance |
 | 2026-11-03 | — | spotykach v1.3.0: add `scripts/yt_sample.py` (URL + time range -> deck slot, cached download, newest-yt-dlp resolution, truncation guard, backup-before-overwrite) + `tests/test_spotykach_yt_sample.py` |
 | 2026-10-21 | — | spotykach-engine-authoring v2.2.0: add Part 5 flash/DFU troubleshooting (cable, bootloader entry, Chrome WebUSB, Zadig, scripted Makefile bindings) |
 | 2026-10-17 | — | Add spotykach (Synthux looper — 22 swappable sk-engines, install/run/de-install lifecycle) + spotykach-engine-authoring (sk-engines engine authoring: IEngine contract, C++/Faust/gen~, SDRAM arena) |

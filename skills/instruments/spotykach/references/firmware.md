@@ -1,7 +1,15 @@
 # Spotykach — Firmware
 
-Current installed: **v1.4.0 beta 2** (latest, adds USB file transfer).
-Most recent stable: v1.3.1.
+Latest stable: **v1.4.0** (`spotykach_1.4.0.bin`, adds USB file transfer).
+
+Do not trust a remembered version number here — query the releases API and read the asset
+names. The stable line moves without this document changing, and a stale version here sends
+the next session chasing a binary that no longer matches reality:
+
+```bash
+curl -s https://api.github.com/repos/Synthux-Academy/Spotykach/releases \
+  | python3 -c "import json,sys;[print(r['tag_name'],'pre' if r['prerelease'] else 'stable',[a['name'] for a in r['assets']]) for r in json.load(sys.stdin)[:6]]"
+```
 
 - Releases: https://github.com/Synthux-Academy/Spotykach/releases
 - Firmware notes: https://tsemah.notion.site/p/Spotykach-Firmware-2396331933b880d89f04f61ecf0f58e6
@@ -162,10 +170,11 @@ python3 scripts/sk_engines.py restore       # downloads + flashes spotykach_1.3.
 # raw: dfu-util -a 0 -s 0x90040000:leave -D spotykach_1.3.1.bin -d ,0483:df11
 ```
 
-`restore` uses the latest **stable** official release (v1.3.1,
-`spotykach_1.3.1.bin`). To return to the beta line instead, download the pre-release
-binary from the same [releases](https://github.com/Synthux-Academy/Spotykach/releases)
-page and flash it with the same `dfu-util` command.
+`restore` uses the version pinned inside `scripts/sk_engines.py` (v1.3.1 at time of writing —
+check the pin against the current stable before relying on it). To flash a newer stable or a
+prerelease instead, download its binary from the same
+[releases](https://github.com/Synthux-Academy/Spotykach/releases) page and flash it with the
+same `dfu-util` command.
 
 ### Bootloader — required for SRAM engines to run
 
