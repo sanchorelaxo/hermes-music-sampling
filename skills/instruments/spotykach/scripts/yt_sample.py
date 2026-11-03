@@ -34,6 +34,7 @@ Usage:
 
 import argparse
 import hashlib
+import os
 import re
 import shutil
 import subprocess
@@ -286,6 +287,70 @@ def autodetect_card(search_roots=None, try_mount=True):
     return find_card() if mounted_any else None
 
 
+@dataclass
+class CardStatus:
+    """What a card root looks like right now, for `--check-card` and errors."""
+
+    root: Path
+    sk: Path
+    writable: bool
+    free_bytes: int
+    slots: dict          # "B/1.WAV" -> bytes, or None when the slot is empty
+
+
+def card_status(root):
+    """Inspect a card root without changing anything."""
+    root = Path(root)
+    sk = root / "SK"
+    try:
+        st = os.statvfs(root)
+        free = st.f_bavail * st.f_frsize
+        writable = not (st.f_flag & os.ST_RDONLY) and os.access(root, os.W_OK)
+    except OSError:
+        free, writable = 0, False
+
+    slots = {}
+    for tape, track in DECK_SLOTS.values():
+        path = sk / tape / f"{track}.WAV"
+        slots[f"{tape}/{track}.WAV"] = path.stat().st_size if path.is_file() else None
+    return CardStatus(root=root, sk=sk, writable=writable, free_bytes=free,
+                      slots=slots)
+
+
+def require_card(card=None, search_roots=None):
+    """Return the card root or raise :class:`CardNotFound` saying why.
+
+    Runs before any download or cut, so an unplugged card costs nothing.
+    """
+    if card is not None:
+        root = Path(card)
+        if not root.is_dir():
+            raise CardNotFound(
+                f"{root} is not a mounted directory. Insert the card and re-run "
+                f"— the Spotykach only reads it at power-up, so the card has to "
+                f"be in before you turn the unit on."
+            )
+        return root
+
+    root = autodetect_card(search_roots=search_roots)
+    if root is not None:
+        return root
+
+    seen = [Path(r) for r in (search_roots if search_roots is not None
+                              else _mounted_fat_roots())]
+    if seen:
+        raise CardNotFound(
+            "a card-like volume is present but none has an SK/ folder "
+            f"(looked in {', '.join(str(p) for p in seen)}). Point --card at "
+            "the Spotykach card's mount point."
+        )
+    raise CardNotFound(
+        "no SD card found. Insert the Spotykach card and re-run — it is "
+        "checked before anything is downloaded, and the unit only reads the "
+        "card at power-up."
+    )
+
+
 # --- media ---------------------------------------------------------------
 
 def ensure_source(url, cache_dir):
@@ -422,6 +487,10 @@ def build_sample(url, start, end, is_deck_a, card=None, cache_dir=None,
     tape, track = deck_slot(is_deck_a)
     cache = Path(cache_dir) if cache_dir else DEFAULT_CACHE
 
+    # Card first. A missing card must cost nothing, so nothing is downloaded,
+    # cut or cached until a writable root is in hand.
+    card_root = require_card(card, search_roots) if install else None
+
     source, vid = ensure_source(url, cache)
     label = vid or Path(source).stem
     segment = cache / "segments" / f"{label}_{int(start_s)}-{int(end_s)}.WAV"
@@ -434,13 +503,6 @@ def build_sample(url, start, end, is_deck_a, card=None, cache_dir=None,
     )
     if not install:
         return result
-
-    card_root = Path(card) if card else autodetect_card(search_roots=search_roots)
-    if card_root is None:
-        raise CardNotFound(
-            f"no SD card with an SK/ folder found; the segment is ready at "
-            f"{segment} — insert the card and re-run, or pass --card"
-        )
 
     dst, backup_path = _install(segment, card_root, tape, track,
                                 backup=backup, backup_dir=cache / "backup")
@@ -455,6 +517,40 @@ def build_sample(url, start, end, is_deck_a, card=None, cache_dir=None,
 
 # --- CLI -----------------------------------------------------------------
 
+def format_card_status(status):
+    """Human-readable card readiness block."""
+    free_mb = status.free_bytes / (1024 * 1024)
+    lines = [f"card: {status.root}"]
+    ready = status.sk.is_dir() and status.writable
+    lines.append(f"  SK/ folder: {'yes' if status.sk.is_dir() else 'MISSING'}")
+    lines.append(f"  writable:   {'yes' if status.writable else 'no'}")
+    lines.append(f"  free:       {free_mb:,.1f} MB")
+    for name, size in status.slots.items():
+        if size is None:
+            lines.append(f"  slot {name}: empty")
+        else:
+            seconds = max(size - PLAIN_WAV_HEADER, 0) / (4 * wb.CHANNELS) / wb.SAMPLE_RATE
+            lines.append(f"  slot {name}: {size:,} bytes ({seconds:.1f}s)")
+    lines.append(f"state: {'ready' if ready else 'not ready'}")
+    return "\n".join(lines)
+
+
+def _check_card(args):
+    """`--check-card`: report readiness without downloading or writing."""
+    root = require_card(args.card, None)
+    status = card_status(root)
+    print(format_card_status(status))
+    if not status.sk.is_dir():
+        print(f"error: {root} has no SK/ folder — that is not a Spotykach card. "
+              "Run wav_builder.py build-card to initialise it.", file=sys.stderr)
+        return 1
+    if not status.writable:
+        print(f"error: {root} is mounted read-only; remount it writable.",
+              file=sys.stderr)
+        return 1
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="yt_sample.py",
@@ -463,23 +559,42 @@ def main(argv=None):
             "(deck A -> SK/B/1.WAV, deck B -> SK/B/2.WAV)."
         ),
     )
-    parser.add_argument("--url", required=True,
-                        help="YouTube URL, or a local file to skip downloading")
-    parser.add_argument("--start", required=True, help="SS, MM:SS or HH:MM:SS")
-    parser.add_argument("--end", required=True, help="SS, MM:SS or HH:MM:SS")
-    parser.add_argument("--deck", required=True, choices=["a", "b"],
+    parser.add_argument("--url", help="YouTube URL, or a local file to skip downloading")
+    parser.add_argument("--start", help="SS, MM:SS or HH:MM:SS")
+    parser.add_argument("--end", help="SS, MM:SS or HH:MM:SS")
+    parser.add_argument("--deck", choices=["a", "b"],
                         help="which deck loads it (isDeckA true/false)")
     parser.add_argument("--card", help="card mount point (auto-detected if omitted)")
     parser.add_argument("--cache-dir", help=f"download cache (default {DEFAULT_CACHE})")
+    parser.add_argument("--check-card", action="store_true",
+                        help="only report whether the SD card is ready, then exit")
     parser.add_argument("--no-backup", action="store_true",
                         help="overwrite the slot without keeping the old file")
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     args = parser.parse_args(argv)
 
+    if args.check_card:
+        try:
+            return _check_card(args)
+        except (ValueError, RuntimeError) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
+
+    missing = [flag for flag, value in (("--url", args.url), ("--start", args.start),
+                                        ("--end", args.end), ("--deck", args.deck))
+               if value is None]
+    if missing:
+        parser.error("the following arguments are required: " + ", ".join(missing))
+
     try:
+        card_root = require_card(args.card, None)
+        status = card_status(card_root)
+        if not status.writable:
+            raise CardNotFound(f"{card_root} is not writable; remount it.")
+        print(format_card_status(status).splitlines()[0] + "  (ready)")
         result = build_sample(
             args.url, args.start, args.end, args.deck == "a",
-            card=args.card, cache_dir=args.cache_dir, backup=not args.no_backup,
+            card=card_root, cache_dir=args.cache_dir, backup=not args.no_backup,
         )
     except (ValueError, RuntimeError) as error:
         print(f"error: {error}", file=sys.stderr)

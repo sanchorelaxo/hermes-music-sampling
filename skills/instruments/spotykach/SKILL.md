@@ -1,7 +1,7 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.3.1
+version: 1.4.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -210,6 +210,49 @@ Preview the exact flash command without touching hardware with `install <engine>
 > To **write a whole new engine** for sk-engines (the `IEngine` contract, the three authoring methods — native C++, Faust/cyfaust, gen~/gen-dsp — build-time registration, and the SDRAM-arena memory model), see the sibling skill **`spotykach-engine-authoring`**.
 
 ## Sourcing a clip from the web (YouTube, Bandcamp, etc.)
+
+**Trigger word: "spottytube".** When the user says they want to spottytube ("spottytube
+this", "let's spottytube", "i want to spottytube"), they mean: run `scripts/yt_sample.py`
+with a URL plus start/end times. Do not hand-run yt-dlp/ffmpeg, and do not reach for the
+manual recipe further down.
+
+**Always check the card is ready first.** A missing card is the most common failure and it
+must not cost a download:
+
+```bash
+python3 skills/instruments/spotykach/scripts/yt_sample.py --check-card
+# card: /media/<user>/1A43-4FD2  SK/ folder: yes  writable: yes  free: 29,777.8 MB
+#   slot B/1.WAV: 11,520,044 bytes (30.0s)   slot B/2.WAV: empty   state: ready
+```
+
+The tool resolves the card *before* it downloads or cuts anything, and the normal run prints
+`card: <mount>  (ready)` as its first line, so a run that starts means the card was found,
+has an `SK/` folder, and is writable. If it exits non-zero, the error names the actual
+problem: no card, a volume with no `SK/`, or a read-only mount. Insert the card before
+powering the unit on, because the Spotykach only reads it at boot.
+
+```bash
+# deck A <- 6:40..7:10  (installs as SK/B/1.WAV)
+~/.local/bin/yt_sample.py --url 'https://youtu.be/Rnltl0euaSw' --start 6:40 --end 7:10 --deck a
+
+# deck B -> SK/B/2.WAV
+~/.local/bin/yt_sample.py --url 'https://youtu.be/Rnltl0euaSw' --start 12:45 --end 13:15 --deck b
+
+# a local file skips the download; same pipeline, offline
+~/.local/bin/yt_sample.py --url /path/track.flac --start 12:45 --end 13:15 --deck b
+
+# build against a scratch card root to check without hardware
+~/.local/bin/yt_sample.py --url '<url>' --start 6:40 --end 7:10 --deck a \
+    --card /home/<user>/.hermes/cache/scratch/FAKECARD
+```
+
+When driving it through a shell that inspects scripts (and refuses to run large binaries such
+as `yt-dlp`), invoke it in-process instead:
+
+```bash
+python3 -c "import sys; sys.path.insert(0, 'skills/instruments/spotykach/scripts'); \
+import yt_sample as y; sys.exit(y.main(['--check-card']))"
+```
 
 `scripts/yt_sample.py` is the tool for this: URL plus a time range in, native WAV in
 the right deck slot out. Repeated use is the point, so the download is cached by video
