@@ -235,13 +235,20 @@ def _mounted_fat_roots():
 
 
 def find_card(roots=None):
-    """Return the first root that looks like a Spotykach card (has SK/)."""
+    """Return the first root that looks like a Spotykach card (has SK/).
+
+    Probes are guarded: system vfat mounts such as /recovery are unreadable for
+    a normal user, and one PermissionError must not abort the scan.
+    """
     if roots is None:
         roots = _mounted_fat_roots()
     for root in roots:
         root = Path(root)
-        if (root / "SK").is_dir():
-            return root
+        try:
+            if (root / "SK").is_dir():
+                return root
+        except OSError:
+            continue
     return None
 
 

@@ -180,6 +180,64 @@ def test_extract_segment_accepts_exactly_the_loop_ceiling(tmp_path):
     assert abs(_duration(out) - ys.MAX_LOOP_SECONDS) < 1e-6
 
 
+# --- card readiness ------------------------------------------------------
+
+def test_card_is_checked_before_any_download_or_cut(tmp_path):
+    # "always check the card first": with no card the run must fail without
+    # touching the network, the cache, or ffmpeg
+    src = _make_tone(tmp_path, 800, sr=8000, ch=1)
+    cache = tmp_path / "cache"
+    with pytest.raises(ys.CardNotFound):
+        ys.build_sample(str(src), "6:40", "7:10", True,
+                        card=None, search_roots=[], cache_dir=cache)
+    assert not (cache / "segments").exists()
+
+
+def _full_card(path):
+    """A card laid out the way the firmware expects: SK/ and all six tapes."""
+    ys.wb.build_card_root(path)
+    return path
+
+
+def test_card_check_reports_a_ready_card(tmp_path, capsys):
+    card = _full_card(tmp_path / "CARD")
+    code = ys.main(["--check-card", "--card", str(card)])
+    out = capsys.readouterr().out
+    assert code == 0
+    assert str(card) in out
+    assert "ready" in out.lower()
+
+
+def test_card_check_fails_loudly_when_no_card(tmp_path, capsys):
+    code = ys.main(["--check-card", "--card", str(tmp_path / "absent")])
+    assert code != 0
+    assert "card" in capsys.readouterr().err.lower()
+
+
+def test_card_check_names_missing_tape_folders(tmp_path, capsys):
+    # a discovered card is checked for the expected tree: SK/ alone is not enough
+    card = tmp_path / "CARD"
+    (card / "SK" / "B").mkdir(parents=True)
+    code = ys.main(["--check-card", "--card", str(card)])
+    captured = capsys.readouterr()
+    assert code != 0
+    assert "not ready" in captured.out.lower()
+    for letter in ("G", "P", "R", "T", "Y"):
+        assert letter in captured.out
+    # report only: the check must not create anything on the card
+    assert sorted(p.name for p in (card / "SK").iterdir()) == ["B"]
+
+
+def test_card_check_lists_the_two_slots(tmp_path, capsys):
+    card = _full_card(tmp_path / "CARD")
+    (card / "SK" / "B" / "1.WAV").write_bytes(b"x" * 10)
+    code = ys.main(["--check-card", "--card", str(card)])
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "1.WAV" in out
+    assert "2.WAV" in out          # named as empty, so the gap is visible
+
+
 # --- card discovery ------------------------------------------------------
 
 def test_find_card_finds_root_with_sk(tmp_path):
@@ -248,7 +306,9 @@ def test_build_sample_backs_up_previous_slot(tmp_path):
     assert ys.sha256(slot) != original_hash
 
 
-def test_build_sample_without_card_raises_but_keeps_segment(tmp_path):
+def test_build_sample_without_card_fails_fast_and_writes_nothing(tmp_path):
+    # contract (changed deliberately): the card is checked before anything is
+    # downloaded or cut, so an absent card cannot leave a stale segment behind
     src = _make_tone(tmp_path, 60)
     empty = tmp_path / "empty"
     empty.mkdir()
@@ -256,9 +316,8 @@ def test_build_sample_without_card_raises_but_keeps_segment(tmp_path):
     with pytest.raises(ys.CardNotFound) as excinfo:
         ys.build_sample(str(src), "0", "30", True, card=None,
                         search_roots=[empty], cache_dir=tmp_path / "cache")
-    # the built segment survives the failure and is named in the error
-    assert str(excinfo.value).strip()
-    assert list((tmp_path / "cache").rglob("*.WAV"))
+    assert "SK" in str(excinfo.value)          # says why it was rejected
+    assert not (tmp_path / "cache").exists()
 
 
 # --- yt-dlp binary resolution -------------------------------------------
@@ -296,6 +355,7 @@ def test_cli_build_with_local_source(tmp_path, capsys):
     assert (card / "SK" / "B" / "1.WAV").exists()
     out = capsys.readouterr().out
     assert "1.WAV" in out
+    assert str(card) in out and "ready" in out.lower()
 
 
 def test_cli_rejects_bad_time_with_clear_error(tmp_path, capsys):
