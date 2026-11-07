@@ -170,6 +170,53 @@ pre-load at power-on.
 
 Full navigation, import, pre-loading and config.txt reference: [references/sd-card.md](mdc:references/sd-card.md)
 
+## USB file transfer (v1.4.0+)
+
+USB beats the card reader: no unmount dance, no "insert before power-on", and
+the card stays in the unit. Prefer USB when the unit is connected, fall back to
+a mounted card, and report *which* one is in use — a UI that cannot say why a
+send will fail is worse than no UI.
+
+```bash
+# what can take a sample right now: present/absent usb + card, and the choice
+python3 tools/sample_tool.py --status --json
+```
+
+Check availability **before** downloading or cutting — a missing unit or card
+should cost nothing. Full handshake, frame format, command table, throughput and
+failure signatures: [references/usb-transfer.md](mdc:references/usb-transfer.md).
+
+The three things that cost time:
+
+- **Transfer mode is transient** — it times out in well under a minute and takes
+  `/dev/ttyACM*` with it. Re‑enter per operation; never cache the node path.
+- **Open the link last.** Do the download, the cut and the retime first, then enter
+  transfer mode and write in one uninterrupted stretch. A port opened before the fetch
+  sits idle for tens of seconds and is dead before the first byte arrives
+  (`OSError: [Errno 5] Input/output error`); a `HELLO` that succeeded only proves the
+  port was alive at that moment. The up-front check stays a *presence* test
+  (`--status`, `/dev/serial/by-id/`, an existing `SK/`) that never switches mode.
+- **A drop is retried once, and only if no byte reached the tape.** Track a `wrote`
+  flag set before the first upload frame: re-running an install that already shifted
+  slots moves the whole tape down a second time, silently reordering the user's
+  layout. Map `EIO`/`ENXIO`/`ENODEV`/`EBADF` from the tty to a named error the UI can
+  phrase as advice instead of a traceback.
+- **The tty node is briefly `0600`** before udev runs. Poll for an openable node
+  rather than trusting the first glob.
+- **A udev rule must be `MODE="0666"`** scoped to `0483:5740`; `TAG+="uaccess"`
+  grants no ACL outside an active seat, so the usual rule silently does nothing.
+
+## Installing a sample onto a tape
+
+The instrument has no append: a tape is six fixed slots. A new sample goes to
+**slot 1** and everything shifts down (1→2 … 5→6); deck A reads slot 1 (newest),
+deck B slot 2. Slot 6 is renamed with a timestamp and saved to `SK/` instead of
+being deleted, and the shift runs high‑to‑low with a read‑back compare so an
+interruption leaves a duplicate rather than silence.
+
+Do not "find a free slot" on your own initiative — the slot number is what the
+deck UI selects by. Detail and the on‑wire slot semantics: [references/usb-transfer.md](mdc:references/usb-transfer.md).
+
 ## Firmware
 
 Latest stable: **v1.4.0** (`spotykach_1.4.0.bin`, adds USB file transfer). A Daisy device doesn't expose its installed version over USB, so confirming "latest" means flashing it and verifying the unit boots into normal (MIDI) mode. The bootloader is fail-safe — a bad flash just leaves it in DFU mode.
@@ -268,9 +315,11 @@ powering the unit on, because the Spotykach only reads it at boot.
 # a local file skips the download; same pipeline, offline
 ~/.local/bin/yt_sample.py --url /path/track.flac --start 12:45 --end 13:15 --deck b
 
-# build against a scratch card root to check without hardware
+# build against a scratch card root: --card alone does NOT stop a USB write,
+# add --transport card (and only while no unit is plugged in), or use
+# build_sample(..., install=False) to cut into the cache and touch nothing
 ~/.local/bin/yt_sample.py --url '<url>' --start 6:40 --end 7:10 --deck a \
-    --card /home/<user>/.hermes/cache/scratch/FAKECARD
+    --card /home/<user>/.hermes/cache/scratch/FAKECARD --transport card
 ```
 
 When driving it through a shell that inspects scripts (and refuses to run large binaries such
@@ -295,8 +344,8 @@ python3 scripts/yt_sample.py --url 'https://youtu.be/VIDEOID' --start 12:45 --en
 # a local file skips the download; same pipeline, offline
 python3 scripts/yt_sample.py --url track.wav --start 0:10 --end 0:40 --deck a
 
-# build against a scratch card root to check without hardware
-python3 scripts/yt_sample.py --url ... --start 0:10 --end 0:40 --deck a --card /tmp/fakecard
+# build against a scratch card root (--transport card, see the warning below)
+python3 scripts/yt_sample.py --url ... --start 0:10 --end 0:40 --deck a --card /tmp/fakecard --transport card
 ```
 
 Times accept `SS`, `MM:SS`, `HH:MM:SS`, or bare seconds. Deck mapping is
@@ -317,6 +366,34 @@ What it handles so the next run does not rediscover it:
 **A range past the end of the source is the silent failure to know about:** ffmpeg still
 writes a valid 44-byte header with no samples, and that loads on the deck as silence. The
 tool rejects it; if you cut by hand, check the output is bigger than 44 bytes.
+
+### `--card` does not mean "no hardware"
+
+`--card` supplies a card *root*, it does not pin the transport. `open_transport("auto",
+card_root=...)` still tries USB first and returns the unit whenever one is plugged in and in
+transfer mode — so a "safe" fake-card run installs on the real tape, shifts its slots and
+archives slot 6. Two ways to stay off the hardware, in order of preference:
+
+1. `build_sample(..., install=False)` — cuts into the cache and stops. Use this for any
+experiment whose point is the audio, not the delivery.
+2. `--transport card` with a scratch root that has an `SK/` folder, and check
+   `python3 tools/sample_tool.py --status` says `card: yes` first.
+
+Never run an installing path against a connected unit unless the user asked for a write to
+that unit. A test that writes is not a test, and tape contents are not recoverable by
+re-running the job.
+
+**The bridge harness is the same trap.** A test bridge launched with `--tool <wrapper>`,
+where the wrapper only pins `--card`, still lets `open_transport("auto")` pick USB and write
+the real tape. For an end-to-end HTTP test: pin `--transport card` *inside* the wrapper (or
+the job payload), and prefer a job with `install=False` when the point is the audio. Read
+`/status` before the first `POST /sample` and state the target transport out loud, so a
+wrapper typo shows up as a red status instead of a shifted tape. If a test does reach the
+unit, disclose it in the same reply, name the slot and duration written, and write nothing
+else to the instrument without being asked.
+
+Harness for exercising the whole download → cut → install chain with real ffmpeg but no
+hardware: [references/sample-tool-testing.md](mdc:references/sample-tool-testing.md).
 
 Manual fallback when the tool does not fit (non-YouTube media, custom slot):
 
@@ -380,6 +457,39 @@ backup-before-overwrite, card discovery and the CLI:
 ```bash
 pytest tests/test_spotykach_wav_builder.py tests/test_spotykach_yt_sample.py
 ```
+
+## Playback speed (heard rate → stored file)
+
+The deck knows nothing about speed: it loads an ordinary 48 kHz float32 WAV and plays it at
+1x. The rate the listener heard shapes the **file**, never the request made of the
+instrument, and it is applied as a **second pass over the already-sliced segment**:
+
+1. `extract_segment(src, dst, start, seconds)` — plain `-ss/-t` cut, no audio filter,
+   refuses `seconds > 42`.
+2. `retime_segment(src, dst, speed)` — one more ffmpeg run over that file. At 1x it is a
+   byte copy: no filter, no generation loss.
+3. Install the re-timed file. Nothing downstream (transport, slot shift, firmware) sees a
+   speed, so the sample can never arrive needing interpretation.
+
+- Length is `seconds / speed`: 4 s at 0.5x → 8 s, 6 s at 2x → 3 s. `atempo` is the audio
+  twin of `setpts` — `atempo=s` and `setpts=PTS/s` stretch a clip identically.
+- **`setpts` scales timestamps, so its factor is `1/speed`.** `setpts=0.5*PTS` makes a clip
+  play *twice as fast*; half speed is `setpts=2*PTS`. Writing the naive `speed*PTS` yields a
+  "slow" sample that sounds sped up — check the direction by duration, not by the formula.
+- `atempo` accepts one 0.5x–2x stage per instance: chain stages below 0.5x (0.25x = two
+  halves). At exactly 1x add no filter at all.
+- **The 42 s cap is fixed.** It caps the picked range and it caps the stored file, so a
+  slowdown never buys a longer selection: at 0.5x only 21 s of source fits in 42 s of tape,
+  and at 2x a 42 s pick just becomes a 21 s sample. Never scale the selection limit by the
+  speed — that cap belongs to the hardware, not to the rate, and a widget that widens it to
+  84 s “at 2x” is wrong even though the arithmetic looks tidy.
+- Keep 1x off the wire: omit the flag/field when the rate is 1 so existing callers and
+  filenames are unchanged, and tag the output name only when it differs (`…_0-4_0.5x.WAV`).
+- Measure the result from the WAV data chunk (`(size - 44) / (4 * channels * rate)`), not
+  ffprobe, and expect a few ms of atempo latency (4 s at 0.5x measures 7.977 s).
+- Detect the player's rate from the page's `<video>` element `playbackRate` — poll it, there
+  is no reliable event — and treat "snap" as "the slider follows the player", not as the
+  player following the slider.
 
 ## Resources
 
