@@ -197,8 +197,8 @@ The three things that cost time:
   port was alive at that moment. The up-front check stays a *presence* test
   (`--status`, `/dev/serial/by-id/`, an existing `SK/`) that never switches mode.
 - **A drop is retried once, and only if no byte reached the tape.** Track a `wrote`
-  flag set before the first upload frame: re-running an install that already shifted
-  slots moves the whole tape down a second time, silently reordering the user's
+  flag set before the first upload frame: re-running an install that already bumped
+  slots cascades down the chain a second time, silently reordering the user's
   layout. Map `EIO`/`ENXIO`/`ENODEV`/`EBADF` from the tty to a named error the UI can
   phrase as advice instead of a traceback.
 - **The tty node is briefly `0600`** before udev runs. Poll for an openable node
@@ -208,14 +208,34 @@ The three things that cost time:
 
 ## Installing a sample onto a tape
 
-The instrument has no append: a tape is six fixed slots. A new sample goes to
-**slot 1** and everything shifts down (1→2 … 5→6); deck A reads slot 1 (newest),
-deck B slot 2. Slot 6 is renamed with a timestamp and saved to `SK/` instead of
-being deleted, and the shift runs high‑to‑low with a read‑back compare so an
-interruption leaves a duplicate rather than silence.
+Storage is one chain, not six independent tapes: B G P R T Y in device order,
+six slots each, files always named `1.WAV` .. `6.WAV`, so the whole device is
+36 slots end to end. Placement has exactly two modes and the user picks one;
+never invent a third and never relocate an occupied slot on your own:
 
-Do not "find a free slot" on your own initiative — the slot number is what the
-deck UI selects by. Detail and the on‑wire slot semantics: [references/usb-transfer.md](mdc:references/usb-transfer.md).
+- **bump** (default): the new sample takes slot 1 of the target tape and every
+  occupied slot behind it moves one place down the chain (`1.WAV` bumps into
+  `2.WAV`, `B/6.WAV` bumps into `G/1.WAV`), each file renamed to its new slot.
+  A file can only fall off the chain when the last slot, `Y/6`, is full; the
+  fallen file is renamed with a timestamp and saved to the card ROOT, never
+  deleted. If the target slot is already free, nothing else moves.
+- **append**: the new sample takes the first free slot on the chain and nothing
+  moves; a full chain is an error, not a silent bump.
+
+Moves run from the far end backwards and every write is read back and compared
+before the next move, so an interruption leaves a duplicate rather than
+silence.
+
+Deck choice is not a storage location: decks cannot auto-load from tapes, so a
+GUI must not offer deck A/B selection. The simple A->B/1, B->B/2 deck mapping
+in `scripts/yt_sample.py` is a legacy shortcut, not the placement model; the
+chain model lives in the spottytube-ext repo (`tools/sk_install.py`).
+
+Report placement to the user as the on-unit path, tape directory and slot like
+`G/2.WAV`, never the generated segment file's path on the host: a host cache
+path says nothing about where the sample lives on the instrument.
+
+Detail and the on-wire slot semantics: [references/usb-transfer.md](mdc:references/usb-transfer.md).
 
 ## Firmware
 

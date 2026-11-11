@@ -108,24 +108,31 @@ Do these in this order, and note *why* the order matters:
 4. enter transfer mode, wait for an openable node, `HELLO`, then write — in one
    uninterrupted stretch.
 
-## Slot bump when installing a sample
+## Placement when installing a sample
 
-The instrument has no "append"; a tape is six fixed slots. The rule that matches
-the deck layout:
+The device is one chain of slots: B G P R T Y in order, six slots each, files
+always `1.WAV` .. `6.WAV`. Two modes, chosen by the caller (the user's GUI
+offers both; nothing else is allowed to pick):
 
-- the new sample goes to **slot 1** of the target tape;
-- everything already on that tape moves down one (1→2, 2→3 … 5→6); deck A plays
-  slot 1 (newest), deck B plays slot 2 (the one before it);
-- slot 6 is **not deleted**: rename with a timestamp and save to `SK/`.
+- **bump**: the new sample takes slot 1 of the target tape; every occupied slot
+  behind it moves one place down the chain (`B/6.WAV` into `G/1.WAV`, and so
+  on), each file renamed to its new slot. Only a full `Y/6` makes a file fall
+  off the end, and the fallen file is archived, never deleted. A free target
+  slot moves nothing else on the chain.
+- **append**: the new sample takes the first free slot on the chain; nothing
+  moves; a completely full chain is an error instead of a silent bump.
 
 Implementation constraints, all of which exist to keep audio rather than lose it:
 
-- shift **high to low** (6→5 first), so nothing is read after being overwritten;
-- read each slot back and compare bytes before moving the next one, so an
+- move from the **far end of the chain backwards**, so nothing is read after
+  being overwritten;
+- read each slot back and compare bytes before the next move, so an
   interruption leaves a duplicate, never silence;
-- skip empty slots rather than copying zeros — an empty slot has no file;
-- with no writable card (pure USB), archive to a host cache directory; the unit
-  itself has no filesystem to put the overflow on.
+- skip empty slots rather than copying zeros: an empty slot has no file;
+- archive the fallen file to the card ROOT as `<tape>_6_<timestamp>.WAV`
+  whenever a writable card is mounted, even for a USB install; with no card at
+  all, fall back to a host cache directory. The unit itself has no filesystem
+  to put the overflow on.
 
 ## Failure signatures
 
