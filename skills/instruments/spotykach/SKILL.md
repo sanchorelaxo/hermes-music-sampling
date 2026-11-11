@@ -478,6 +478,50 @@ backup-before-overwrite, card discovery and the CLI:
 pytest tests/test_spotykach_wav_builder.py tests/test_spotykach_yt_sample.py
 ```
 
+## SpottyTube bridge (browser-widget path)
+
+The spottytube-ext repo (`~/Documents/git/spottytube-ext`) is the product half of
+this workflow: an MV3 widget on YouTube pages plus a local HTTP bridge that runs
+`tools/sample_tool.py`. It is an independent front end to the same tool chain —
+the "spottytube" trigger above still means the CLI path, not the bridge.
+`./install.sh` links `~/.local/bin/spottytube-bridge` and installs the systemd
+**user** service `spottytube-bridge` on 127.0.0.1:8765.
+
+```bash
+systemctl --user status spottytube-bridge   # is the widget path alive
+curl -s 127.0.0.1:8765/health               # tool present, card, pending_jobs
+curl -s 127.0.0.1:8765/status               # which transport can take a sample
+```
+
+API: `POST /sample {url,start,end[,mode,speed,source,transport,tape]}` → 202
+`{job_id}`, then poll `GET /jobs/<id>` (`queued|running|done|error`).
+`/status`, `/card`, `/health` are presence probes: they never open the device
+and never switch transfer mode, so they are safe to call mid-transfer.
+Overrides: `SPOTTYTUBE_PORT` / `SPOTTYTUBE_TOOL` / `SPOTTYTUBE_TOKEN` (token
+requires an `X-Spottytube-Token` header); a different port also needs edits to
+`manifest.json` host_permissions and `background.js` BASE.
+
+**Concurrency is a queue, not a race.** One worker thread runs one
+`sample_tool.py` at a time; N tabs submitting at once get N queued jobs, FIFO,
+so the USB/SD write is a singleton by construction. The browser never touches
+WebSerial/WebUSB (no "InvalidStateError" class of failure); the Python side owns
+`/dev/ttyACM*`. Even a rogue second writer is refused by the firmware (busy
+status 1/3 → a named `DeviceError`), not corrupted.
+
+Two things the queue does NOT protect:
+
+- **Manual CLI runs bypass it.** Nothing on the host locks the port (`sk_usb.py`
+  opens with no TIOCEXCL/lockfile). Before writing to hardware by hand
+  (`yt_sample.py`, `sample_tool.py`), check `GET /health` shows
+  `pending_jobs: 0`.
+- **Order is semantic.** Several bump-mode jobs to the same tape run in
+  submission order and each shifts the chain, so the final layout depends on who
+  clicked first. Use append, or send one at a time, when order matters.
+
+Testing the bridge without hardware: `tests/test_bridge.py` (real HTTP against
+`tests/stub_tool.py`); harness recipe in
+[references/sample-tool-testing.md](mdc:references/sample-tool-testing.md).
+
 ## Playback speed (heard rate → stored file)
 
 The deck knows nothing about speed: it loads an ordinary 48 kHz float32 WAV and plays it at
