@@ -1,7 +1,7 @@
 ---
 name: "spotykach"
 description: "Use when working with the Synthux Spotykach — a screenless dual-deck looper/sampler with Reel (tape), Slice (clocked sampler) and Drift (granular) modes, per-deck trigger sequencer, grit/flux effects, Eurorack-compatible CV/Gate I/O, MIDI, and SD-card tape storage."
-version: 1.4.1
+version: 1.5.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -522,16 +522,37 @@ Testing the bridge without hardware: `tests/test_bridge.py` (real HTTP against
 `tests/stub_tool.py`); harness recipe in
 [references/sample-tool-testing.md](mdc:references/sample-tool-testing.md).
 
+Running the spottytube-ext suite: `node --test tests/*.mjs` for JS (pass the glob, not the
+`tests/` directory — the directory form fails on this node build) and
+`python3 -m unittest discover -s tests` for Python. `tests/test_widget_wiring.mjs` is a
+source-grep suite: it asserts regexes against `content.js` text, so any call-shape change
+(e.g. `pair.click`'s signature) fails tests in files you never touched — update those
+regexes in the same change and run the whole `.mjs` suite, not just the file you edited.
+Cap/speed semantics live in the README and module docstrings too; keep them in sync — the
+user reads them as the spec.
+
+**Settings/config surface:** tunables are spread across extension JS constants,
+bridge env and tool defaults — the map, apply scopes, hardware-fixed values and
+the settings-redesign shape live in
+[references/bridge-settings.md](mdc:references/bridge-settings.md). Speed limits
+are duplicated in `speed.js` and `sample_tool.py`; move both together. For a
+settings/feature-flag redesign the user wants a grouped candidate list with
+stable IDs (current value, location, apply scope, recommended lean set) to
+filter by ID BEFORE any implementation — propose, wait for the picks, then
+build.
+
 ## Playback speed (heard rate → stored file)
 
 The deck knows nothing about speed: it loads an ordinary 48 kHz float32 WAV and plays it at
 1x. The rate the listener heard shapes the **file**, never the request made of the
 instrument, and it is applied as a **second pass over the already-sliced segment**:
 
-1. `extract_segment(src, dst, start, seconds)` — plain `-ss/-t` cut, no audio filter,
-   refuses `seconds > 42`.
-2. `retime_segment(src, dst, speed)` — one more ffmpeg run over that file. At 1x it is a
-   byte copy: no filter, no generation loss.
+1. `extract_segment(src, dst, start, seconds)` — plain `-ss/-t` cut, no audio filter. The
+   cut is an intermediate, so its envelope is `RAW_CUT_CEILING = 42 × MAX_SPEED` (84 s):
+   the longest range any player speed can still bring back onto the deck.
+2. `retime_segment(src, dst, speed)` — one more ffmpeg run over that file, and the last
+   gate: refuses `seconds/speed > 42` at every speed, 1x included (the check runs before
+   the 1x byte-copy shortcut). At 1x it is a byte copy: no filter, no generation loss.
 3. Install the re-timed file. Nothing downstream (transport, slot shift, firmware) sees a
    speed, so the sample can never arrive needing interpretation.
 
@@ -542,11 +563,24 @@ instrument, and it is applied as a **second pass over the already-sliced segment
   "slow" sample that sounds sped up — check the direction by duration, not by the formula.
 - `atempo` accepts one 0.5x–2x stage per instance: chain stages below 0.5x (0.25x = two
   halves). At exactly 1x add no filter at all.
-- **The 42 s cap is fixed.** It caps the picked range and it caps the stored file, so a
-  slowdown never buys a longer selection: at 0.5x only 21 s of source fits in 42 s of tape,
-  and at 2x a 42 s pick just becomes a 21 s sample. Never scale the selection limit by the
-  speed — that cap belongs to the hardware, not to the rate, and a widget that widens it to
-  84 s “at 2x” is wrong even though the arithmetic looks tidy.
+- **The 42 s cap is on STORED seconds, not on the picked range:** stored = range ÷ the
+  speed it was heard at. A 63 s source range heard at 1.5x is a valid 42 s sample — a 42 s
+  auto-end at 1.5x ends the pair at a 63 s source range and must not error (the user's
+  canonical case; ffmpeg takes the 63 s at normal speed and atempo 1.5x squeezes it to
+  42 s stored). Slowing down still never buys a longer selection: at 0.5x only 21 s of
+  source fits in 42 s of tape.
+- **The auto out-point is clamped, the manual out-point is flagged.** The AUTO-END
+  countdown is wall-clock while the cap is on stored seconds, so at rates below 1x the
+  player position at elapse can edge a hair past the cap (32 s of source at 0.75x stores
+  as 42.7 s) purely from tick latency and whole-second flooring. Machine-chosen ends go
+  through `clampOutPoint(start, seconds, speed)` in `selection.js` — trimmed to
+  `start + floor(42 × speed)`, never extended — and the status says the end was trimmed.
+  A hand-clicked SET END is never silently moved: over the cap it still returns
+  `end-too-long`. Clamp auto picks, reject manual ones; do not unify the two paths.
+- Enforce stored seconds at every layer — widget (each `pair.click` carries the heard
+  speed; the over-deck verdict and the send gate compute `outputSeconds(duration, speed)`
+  live), bridge `_validate`, `build_sample`, and `retime_segment`. A raw-range check at any
+  layer rejects valid fast picks; a missing check at any layer ships an over-length tape.
 - Keep 1x off the wire: omit the flag/field when the rate is 1 so existing callers and
   filenames are unchanged, and tag the output name only when it differs (`…_0-4_0.5x.WAV`).
 - Measure the result from the WAV data chunk (`(size - 44) / (4 * channels * rate)`), not
